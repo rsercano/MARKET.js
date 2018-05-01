@@ -15,11 +15,21 @@ MARKET.js is a library for interacting with MARKET Protocol Smart Contracts.
   - generating and signing
   - filling and cancelling
   - verifying signature
+  - calculating remaining Qtys
 - Collateral
   - checking a users unallocated collateral balances
   - checking a users allocated collateral
+  - calculation of needed collateral
+  - wrapper for ERC20 token functionality.
 - Positions
   - querying users open positions (qty and price)
   - PnL calculations
+- Events
+  - Fills
+  - Collateral Deposit / Withdraw
+  - Contract Settlement
+  - Canelled / Expired orders
+- Contract Registry
+- MKT Token Access to contracts
 - more coming soon!
 
