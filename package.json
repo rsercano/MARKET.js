@@ -8,7 +8,8 @@
     "test": "node scripts/test.js --env=jsdom",
     "start": "npm run build:live",
     "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./index.ts",
-    "lint": "tslint --project ."
+    "lint": "tslint --project .",
+    "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,7 @@
   "devDependencies": {
     "@types/jest": "^22.2.3",
     "@types/node": "^10.0.4",
+    "coveralls": "^3.0.1",
     "jest": "^22.4.3",
     "nodemon": "^1.17.4",
     "ts-jest": "^22.4.5",
@@ -57,5 +59,8 @@
       "json",
       "node"
     ]
+  },
+  "dependencies": {
+    "bignumber.js": "^7.0.1"
   }
 }
