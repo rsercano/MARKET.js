@@ -1,0 +1,34 @@
+{
+  "name": "market.js",
+  "version": "0.0.0",
+  "description": "library for interacting with MARKET Protocol",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MARKETProtocol/MARKET.js.git"
+  },
+  "keywords": [
+    "MARKET Protocol",
+    "ethereum",
+    "blockchain",
+    "dApp",
+    "trading",
+    "derivatives",
+    "decentralized",
+    "decentralized exchange",
+    "exchange"
+  ],
+  "author": "Phil Elsasser",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/MARKETProtocol/MARKET.js/issues"
+  },
+  "homepage": "https://marketprotocol.io",
+  "devDependencies": {
+    "@types/node": "^10.0.4",
+    "typescript": "^2.8.3"
+  }
+}
