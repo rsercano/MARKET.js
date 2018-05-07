@@ -1,5 +1,7 @@
 <img src="https://github.com/MARKETProtocol/dApp/blob/master/src/img/MARKETProtocol-Light.png?raw=true" align="middle">
 
+[![Build Status](https://api.travis-ci.org/MARKETProtocol/backend.svg?branch=master)](https://travis-ci.org/MARKETProtocol/backend) [![Coverage Status](https://coveralls.io/repos/github/MARKETProtocol/backend/badge.svg?branch=master)](https://coveralls.io/github/MARKETProtocol/backend?branch=master)
+
 MARKET Protocol has been created to provide a secure, flexible, open source foundation for decentralized trading on the Ethereum blockchain. We provide the pieces necessary to create a decentralized exchange, including the requisite clearing and collateral pool infrastructure, enabling third parties to build applications for trading.
 
 # MARKET.js
@@ -28,7 +30,7 @@ MARKET.js is a library for interacting with MARKET Protocol Smart Contracts.
   - Fills
   - Collateral Deposit / Withdraw
   - Contract Settlement
-  - Canelled / Expired orders
+  - Cancelled / Expired orders
 - Contract Registry
 - MKT Token Access to contracts
 - more coming soon!
