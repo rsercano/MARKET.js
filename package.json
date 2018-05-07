@@ -5,9 +5,10 @@
   "main": "lib/index",
   "types": "lib/index",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node scripts/test.js --env=jsdom",
     "start": "npm run build:live",
-    "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./index.ts"
+    "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./index.ts",
+    "lint": "tslint --project ."
   },
   "repository": {
     "type": "git",
@@ -31,9 +32,30 @@
   },
   "homepage": "https://marketprotocol.io",
   "devDependencies": {
+    "@types/jest": "^22.2.3",
     "@types/node": "^10.0.4",
+    "jest": "^22.4.3",
     "nodemon": "^1.17.4",
+    "ts-jest": "^22.4.5",
     "ts-node": "^6.0.3",
+    "tslint": "^5.10.0",
     "typescript": "^2.8.3"
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/test/.*|(\\.|/)(test))\\.tsx?$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }
