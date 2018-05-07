@@ -2,9 +2,12 @@
   "name": "market.js",
   "version": "0.0.0",
   "description": "library for interacting with MARKET Protocol",
-  "main": "index.js",
+  "main": "lib/index",
+  "types": "lib/index",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run build:live",
+    "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./index.ts"
   },
   "repository": {
     "type": "git",
@@ -29,6 +32,8 @@
   "homepage": "https://marketprotocol.io",
   "devDependencies": {
     "@types/node": "^10.0.4",
+    "nodemon": "^1.17.4",
+    "ts-node": "^6.0.3",
     "typescript": "^2.8.3"
   }
 }
