@@ -35,3 +35,14 @@ MARKET.js is a library for interacting with MARKET Protocol Smart Contracts.
 - MKT Token Access to contracts
 - more coming soon!
 
+## Contributing
+
+Want to hack on MARKET Protocol? Awesome!
+
+MARKET Protocol is an Open Source project and we welcome contributions of all sorts. There are many ways to help, from reporting issues, contributing code, and helping us improve our community.
+
+Ready to jump in? Check [docs.marketprotocol.io/#contributing](https://docs.marketprotocol.io/#contributing). 
+
+## Questions?
+
+Join our [Discord Community](https://www.marketprotocol.io/discord) to get in touch with our dev staff and other contributors.
