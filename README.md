@@ -8,7 +8,7 @@ MARKET Protocol has been created to provide a secure, flexible, open source foun
 
 Take a look at our [docs](https://docs.marketprotocol.io) for a little more explanation.
 
-Join our [Discord Community](https://www.marketprotocol.io/discord) to interact with members of our dev staff and other contributors.
+Join our [Discord Community](https://marketprotocol.io/discord) to interact with members of our dev staff and other contributors.
 
 MARKET.js is a library for interacting with MARKET Protocol Smart Contracts. 
 
@@ -45,4 +45,4 @@ Ready to jump in? Check [docs.marketprotocol.io/#contributing](https://docs.mark
 
 ## Questions?
 
-Join our [Discord Community](https://www.marketprotocol.io/discord) to get in touch with our dev staff and other contributors.
+Join our [Discord Community](https://marketprotocol.io/discord) to get in touch with our dev staff and other contributors.
