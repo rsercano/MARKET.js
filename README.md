@@ -52,6 +52,7 @@ Join our [Discord Community](https://marketprotocol.io/discord) to get in touch 
 
 ```bash
 <<<<<<< HEAD
+<<<<<<< HEAD
 $ git clone https://github.com/MARKETProtocol/MARKET.js
 $ YOURFOLDERNAME
 $ cd YOURFOLDERNAME
@@ -62,6 +63,12 @@ YOURFOLDERNAME
 cd YOURFOLDERNAME
 npm install --python=python2.7
 >>>>>>> Fix typos in README.md.
+=======
+$ git clone https://github.com/MARKETProtocol/MARKET.js
+$ YOURFOLDERNAME
+$ cd YOURFOLDERNAME
+$ npm install --python=python2.7
+>>>>>>> Minor formatting updates to README.md, changed prettier options to --parser typescript.
 ```
 
 ## Features
