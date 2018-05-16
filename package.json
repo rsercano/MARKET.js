@@ -1,20 +1,7 @@
 {
-  "name": "market.js",
-  "version": "0.0.0",
+  "name": "marketjs",
+  "version": "0.0.1",
   "description": "library for interacting with MARKET Protocol",
-  "main": "lib/index",
-  "types": "lib/index",
-  "scripts": {
-    "test": "node scripts/test.js --env=jsdom",
-    "start": "npm run build:live",
-    "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./index.ts",
-    "lint": "tslint --project .",
-    "coveralls": "cat ./coverage/lcov.info | node node_modules/.bin/coveralls"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/MARKETProtocol/MARKET.js.git"
-  },
   "keywords": [
     "MARKET Protocol",
     "ethereum",
@@ -26,39 +13,110 @@
     "decentralized exchange",
     "exchange"
   ],
-  "author": "Phil Elsasser",
+  "main": "dist/marketjs.umd.js",
+  "module": "dist/marketjs.es5.js",
+  "typings": "dist/types/marketjs.d.ts",
+  "files": [
+    "dist"
+  ],
+  "author": "Robert Jordan <robert@marketprotocol.io>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MARKETProtocol/MARKET.js.git"
+  },
+  "engines": {
+    "node": ">=8.11.2"
+  },
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/MARKETProtocol/MARKET.js/issues"
   },
   "homepage": "https://marketprotocol.io",
-  "devDependencies": {
-    "@types/jest": "^22.2.3",
-    "@types/node": "^10.0.4",
-    "coveralls": "^3.0.1",
-    "jest": "^22.4.3",
-    "nodemon": "^1.17.4",
-    "ts-jest": "^22.4.5",
-    "ts-node": "^6.0.3",
-    "tslint": "^5.10.0",
-    "typescript": "^2.8.3"
+  "scripts": {
+    "lint": "tslint -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
+    "prebuild": "rimraf dist",
+    "build": "tsc --module commonjs && rollup -c rollup.config.ts && typedoc --out docs --target es6 --theme minimal --mode file src",
+    "start": "rollup -c rollup.config.ts -w",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:prod": "npm run lint && npm run test -- --coverage --no-cache",
+    "deploy-docs": "ts-node tools/gh-pages-publish",
+    "report-coverage": "cat ./coverage/lcov.info | coveralls",
+    "commit": "git-cz",
+    "semantic-release": "semantic-release",
+    "semantic-release-prepare": "ts-node tools/semantic-release-prepare",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "{src,test}/**/*.ts": [
+      "prettier --write --parser typescript",
+      "git add"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-conventional-changelog"
+    },
+    "validate-commit-msg": {
+      "types": "conventional-commit-types",
+      "helpMessage": "Use \"npm run commit\" instead, we use conventional-changelog format :) (https://github.com/commitizen/cz-cli)"
+    }
   },
   "jest": {
-    "roots": [
-      "<rootDir>/src"
-    ],
     "transform": {
-      "^.+\\.tsx?$": "ts-jest"
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
-    "testRegex": "(/test/.*|(\\.|/)(test))\\.tsx?$",
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
     "moduleFileExtensions": [
       "ts",
       "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
+      "js"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 90,
+        "functions": 95,
+        "lines": 95,
+        "statements": 95
+      }
+    },
+    "collectCoverage": true
+  },
+  "devDependencies": {
+    "@types/jest": "^22.2.3",
+    "@types/node": "^10.1.0",
+    "colors": "^1.1.5",
+    "commitizen": "^2.9.6",
+    "coveralls": "^3.0.1",
+    "cross-env": "^5.1.5",
+    "cz-conventional-changelog": "^2.1.0",
+    "husky": "^0.14.3",
+    "jest": "^22.4.3",
+    "lint-staged": "^7.1.0",
+    "lodash.camelcase": "^4.3.0",
+    "prettier": "^1.12.1",
+    "prompt": "^1.0.0",
+    "replace-in-file": "^3.4.0",
+    "rimraf": "^2.6.2",
+    "rollup": "^0.59.0",
+    "rollup-plugin-commonjs": "^9.1.3",
+    "rollup-plugin-json": "^3.0.0",
+    "rollup-plugin-node-resolve": "^3.3.0",
+    "rollup-plugin-sourcemaps": "^0.4.2",
+    "rollup-plugin-typescript2": "^0.14.0",
+    "semantic-release": "^15.4.1",
+    "ts-jest": "^22.4.6",
+    "ts-node": "^6.0.3",
+    "tslint": "^5.10.0",
+    "tslint-config-prettier": "^1.12.0",
+    "tslint-config-standard": "^7.0.0",
+    "typedoc": "^0.11.1",
+    "typescript": "^2.8.3",
+    "validate-commit-msg": "^2.14.0"
   },
   "dependencies": {
     "bignumber.js": "^7.0.1"
