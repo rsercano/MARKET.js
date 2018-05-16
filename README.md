@@ -83,8 +83,13 @@ import something from 'marketjs/dist/lib/something'
 
 ## NPM scripts
 
+<<<<<<< HEAD
  - `npm run test`: Run test suite
  - `npm run start`: Run `npm run build` in watch mode
+=======
+ - `npm t`: Run test suite
+ - `npm start`: Run `npm run build` in watch mode
+>>>>>>> Refactor project structure.
  - `npm run test:watch`: Run test suite in [interactive watch mode](http://facebook.github.io/jest/docs/cli.html#watch)
  - `npm run test:prod`: Run linting and generate coverage
  - `npm run build`: Generate bundles and typings, create docs
@@ -155,6 +160,16 @@ import "core-js/fn/promise"
 ...
 ```
 
+<<<<<<< HEAD
+=======
+### What is `npm install` doing on first run?
+
+It runs the script `tools/init` which sets up everything for you. In short, it:
+ - Configures RollupJS for the build, which creates the bundles
+ - Configures `package.json` (typings file, main file, etc)
+ - Renames main src and test files
+
+>>>>>>> Refactor project structure.
 ### What if I don't want git-hooks, automatic releases or semantic-release?
 
 Then you may want to:
