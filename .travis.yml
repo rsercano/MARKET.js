@@ -15,8 +15,4 @@ script:
 after_success:
   - npm run report-coverage
   - npm run deploy-docs
-<<<<<<< HEAD
   - npm run semantic-release
-=======
-  - npm run semantic-release
->>>>>>> Update references in README.md to use npm run <script> and remove unneeded FAQ, remove placeholder comments in travis yaml since all is working.

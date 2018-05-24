@@ -51,28 +51,10 @@ Join our [Discord Community](https://marketprotocol.io/discord) to get in touch 
 ## Usage
 
 ```bash
-<<<<<<< HEAD
-<<<<<<< HEAD
 $ git clone https://github.com/MARKETProtocol/MARKET.js
 $ YOURFOLDERNAME
 $ cd YOURFOLDERNAME
 $ npm install
-=======
-git clone https://github.com/MARKETProtocol/MARKET.js
-YOURFOLDERNAME
-cd YOURFOLDERNAME
-npm install --python=python2.7
->>>>>>> Fix typos in README.md.
-=======
-$ git clone https://github.com/MARKETProtocol/MARKET.js
-$ YOURFOLDERNAME
-$ cd YOURFOLDERNAME
-<<<<<<< HEAD
-$ npm install --python=python2.7
->>>>>>> Minor formatting updates to README.md, changed prettier options to --parser typescript.
-=======
-$ npm install
->>>>>>> Update references in README.md to use npm run <script> and remove unneeded FAQ, remove placeholder comments in travis yaml since all is working.
 ```
 
 ## Features
@@ -101,18 +83,8 @@ import something from 'marketjs/dist/lib/something'
 
 ## NPM scripts
 
-<<<<<<< HEAD
-<<<<<<< HEAD
  - `npm run test`: Run test suite
  - `npm run start`: Run `npm run build` in watch mode
-=======
- - `npm t`: Run test suite
- - `npm start`: Run `npm run build` in watch mode
->>>>>>> Refactor project structure.
-=======
- - `npm run test`: Run test suite
- - `npm run start`: Run `npm run build` in watch mode
->>>>>>> Update references in README.md to use npm run <script> and remove unneeded FAQ, remove placeholder comments in travis yaml since all is working.
  - `npm run test:watch`: Run test suite in [interactive watch mode](http://facebook.github.io/jest/docs/cli.html#watch)
  - `npm run test:prod`: Run linting and generate coverage
  - `npm run build`: Generate bundles and typings, create docs
@@ -183,19 +155,6 @@ import "core-js/fn/promise"
 ...
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-### What is `npm install` doing on first run?
-
-It runs the script `tools/init` which sets up everything for you. In short, it:
- - Configures RollupJS for the build, which creates the bundles
- - Configures `package.json` (typings file, main file, etc)
- - Renames main src and test files
-
->>>>>>> Refactor project structure.
-=======
->>>>>>> Update references in README.md to use npm run <script> and remove unneeded FAQ, remove placeholder comments in travis yaml since all is working.
 ### What if I don't want git-hooks, automatic releases or semantic-release?
 
 Then you may want to:
