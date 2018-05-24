@@ -1,7 +1,7 @@
 import { Order } from "../src/lib/Order";
 
 /**
- * Contract
+ * Order
  */
 describe("Order class", () => {
   it("Order is instantiable", () => {

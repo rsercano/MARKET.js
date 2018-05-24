@@ -1,7 +1,7 @@
 import { Collateral } from "../src/lib/Collateral";
 
 /**
- * Contract
+ * Collateral
  */
 describe("Collateral class", () => {
   it("Collateral is instantiable", () => {

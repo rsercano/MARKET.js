@@ -1,7 +1,7 @@
 import { Settlement } from "../src/lib/Settlement";
 
 /**
- * Contract
+ * Settlement
  */
 describe("Settlement class", () => {
   it("Settlement is instantiable", () => {
