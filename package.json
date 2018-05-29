@@ -25,7 +25,7 @@
     "url": "git+https://github.com/MARKETProtocol/MARKET.js.git"
   },
   "engines": {
-    "node": ">=8.11.2"
+    "node": "^8.11.2"
   },
   "license": "Apache-2.0",
   "bugs": {
