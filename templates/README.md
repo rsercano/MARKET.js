@@ -1,0 +1,1 @@
+TypeScript templates for [ABI Gen](https://github.com/0xProject/0x-monorepo/tree/v2-prototype/packages/abi-gen) go in this folder.

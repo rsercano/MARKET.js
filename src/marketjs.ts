@@ -1,8 +1,8 @@
-// Import here Polyfills if needed. Recommended core-js (npm i -D core-js)
-// import "core-js/fn/array.find"
-// ...
-export default class Market {
-  debug() {
-    return 'It works!'
-  }
-}
+import { Contract } from "./lib/Contract";
+import { Collateral } from "./lib/Collateral";
+import { Order } from "./lib/Order";
+import { Settlement } from "./lib/Settlement";
+import { Util } from "./lib/Util";
+import { SimEx } from "./lib/SimEx";
+
+export { Contract, Collateral, Order, Settlement, Util, SimEx };
