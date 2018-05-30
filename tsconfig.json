@@ -10,10 +10,12 @@
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "noUnusedLocals": true,
     "declarationDir": "dist/types",
     "outDir": "dist/lib",
     "esModuleInterop": true,
     "typeRoots": [
+      "node_modules/@0xproject/typescript-typings/types",
       "node_modules/@types"
     ]
   },
