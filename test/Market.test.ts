@@ -1,13 +1,13 @@
 import Web3 from 'web3';
-import { Market } from '../src/Market';
+
+import { Market } from '../src/';
 
 /**
  * Market
  */
 describe('Market class', () => {
   it('Market is instantiable', () => {
-    expect(new Market(new Web3.providers.HttpProvider('http://localhost:9545'))).toBeInstanceOf(
-      Market
-    );
+    const market = new Market(new Web3.providers.HttpProvider('http://localhost:9545'));
+    expect(market).toBeInstanceOf(Market);
   });
 });

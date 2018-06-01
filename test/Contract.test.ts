@@ -1,4 +1,4 @@
-import { Contract } from '../src/lib/Contract';
+import { Contract } from '../src/';
 
 /**
  * Contract
