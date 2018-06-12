@@ -1,4 +1,4 @@
-import { SimEx } from '../src/lib/SimEx';
+import { SimEx } from '../src/';
 
 /**
  * SimEx

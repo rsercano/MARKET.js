@@ -1,4 +1,4 @@
-import { Settlement } from '../src/lib/Settlement';
+import { Settlement } from '../src/';
 
 /**
  * Settlement

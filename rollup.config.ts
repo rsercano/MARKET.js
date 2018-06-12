@@ -18,16 +18,25 @@ export default {
       file: pkg.main,
       name: camelCase(libraryName),
       format: 'umd',
-      sourcemap: true
+      sourcemap: true,
+      globals: {
+        lodash: '_'
+      }
     },
     {
       file: pkg.module,
       format: 'es',
-      sourcemap: true
-    },
+      sourcemap: true,
+      globals: {
+        lodash: '_'
+      }
+    }
+  ],
+  external: [
+    'lodash'
   ],
   watch: {
-    include: 'src/**',
+    include: 'src/**'
   },
   plugins: [
     globals(),
@@ -48,15 +57,17 @@ export default {
     resolve(),
 
     // Resolve source maps to the original source
-    sourceMaps(),
+    sourceMaps()
   ],
   onwarn: function(warning) {
     // Skip certain warnings
 
     // should intercept ... but doesn't in some rollup versions
-    if ( warning.code === 'THIS_IS_UNDEFINED' ) { return; }
+    if (warning.code === 'THIS_IS_UNDEFINED') {
+      return;
+    }
 
     // console.warn everything else
-    console.warn( warning.message );
-  },
+    console.warn(warning.message);
+  }
 };

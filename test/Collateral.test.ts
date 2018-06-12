@@ -1,4 +1,4 @@
-import { Collateral } from '../src/lib/Collateral';
+import { Collateral } from '../src/';
 
 /**
  * Collateral
