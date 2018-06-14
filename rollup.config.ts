@@ -33,7 +33,8 @@ export default {
     }
   ],
   external: [
-    'lodash'
+    'lodash',
+    'web3'
   ],
   watch: {
     include: 'src/**'
