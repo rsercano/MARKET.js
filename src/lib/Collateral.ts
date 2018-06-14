@@ -5,7 +5,6 @@ import { BigNumber } from 'bignumber.js';
 import { ITxParams } from '../types/typechain-runtime';
 
 /**
- * /**
  * deposits collateral to a traders account for a given contract address.
  * @param {Provider} provider                       Web3 provider instance.
  * @param {string} collateralPoolContractAddress    address of the MarketCollateralPool
