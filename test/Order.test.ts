@@ -1,18 +1,18 @@
-import { createOrderHash, signOrderHash, tradeOrder } from '../src/lib/Order';
+import { createOrderHashAsync, signOrderHashAsync, tradeOrderAsync } from '../src/lib/Order';
 
 /**
  * Order
  */
 describe('Order', () => {
   it('Order has create order function', () => {
-    expect(typeof createOrderHash).toEqual('function');
+    expect(typeof createOrderHashAsync).toEqual('function');
   });
 
   it('Order has sign order hash function', () => {
-    expect(typeof signOrderHash).toEqual('function');
+    expect(typeof signOrderHashAsync).toEqual('function');
   });
 
   it('Order has trade order function', () => {
-    expect(typeof tradeOrder).toEqual('function');
+    expect(typeof tradeOrderAsync).toEqual('function');
   });
 });
