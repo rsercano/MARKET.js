@@ -35,6 +35,9 @@ export async function deployMarketContractOraclize(
     web3,
     marketContractFactoryAddress
   );
+
+  // marketContractFactory.MarketContractCreatedEvent({from: txParams.from }).watchFirst()
+
   await marketContractFactory
     .deployMarketContractOraclizeTx(
       contractName,
