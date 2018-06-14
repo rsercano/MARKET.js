@@ -1,8 +1,8 @@
 import {
   depositCollateralAsync,
+  getUserAccountBalanceAsync,
   settleAndCloseAsync,
-  withdrawCollateralAsync,
-  getUserAccountBalanceAsync
+  withdrawCollateralAsync
 } from '../src/lib/Collateral';
 
 /**

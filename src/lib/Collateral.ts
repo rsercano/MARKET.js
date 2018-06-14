@@ -90,7 +90,7 @@ export async function getUserAccountBalanceAsync(
   provider: Provider,
   collateralPoolContractAddress: string,
   userAddress: string
-): Promise<BigNumber|null> {
+): Promise<BigNumber | null> {
   const web3: Web3 = new Web3();
   web3.setProvider(provider);
 
@@ -99,15 +99,14 @@ export async function getUserAccountBalanceAsync(
     web3,
     collateralPoolContractAddress
   );
-  
+
   try {
     // Retrieve the user's unallocated token balance
     const userUnallocatedTokenBalance = await collateralPool.getUserAccountBalance(userAddress);
-    console.log(`${userAddress} unallocated token balance is ${userUnallocatedTokenBalance}`)
-    return userUnallocatedTokenBalance
-
+    console.log(`${userAddress} unallocated token balance is ${userUnallocatedTokenBalance}`);
+    return userUnallocatedTokenBalance;
   } catch (error) {
     console.log(error);
-    return null; //TODO Need better error handling
+    return null; // TODO Need better error handling
   }
 }
