@@ -1,7 +1,8 @@
 import {
   depositCollateralAsync,
   settleAndCloseAsync,
-  withdrawCollateralAsync
+  withdrawCollateralAsync,
+  getUserAccountBalanceAsync
 } from '../src/lib/Collateral';
 
 /**
@@ -18,5 +19,9 @@ describe('Collateral', () => {
 
   it('Collateral has settleAndCloseAsync function', () => {
     expect(typeof settleAndCloseAsync).toEqual('function');
+  });
+
+  it('Collateral has getUserAccountBalanceAsync function', () => {
+    expect(typeof getUserAccountBalanceAsync).toEqual('function');
   });
 });

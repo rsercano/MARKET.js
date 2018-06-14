@@ -78,3 +78,36 @@ export async function settleAndCloseAsync(
   await collateralPool.settleAndCloseTx().send(txParams);
   return true;
 }
+
+/**
+ * Gets the user's currently unallocated token balance
+ * @param {Provider} provider                       Web3 provider instance.
+ * @param {string} collateralPoolContractAddress    address of the MarketCollateralPool
+ * @param {BigNumber | string} userAddress          address of user
+ * @returns {Promise<BigNumber|null>}               the user's currently unallocated token balance
+ */
+export async function getUserAccountBalanceAsync(
+  provider: Provider,
+  collateralPoolContractAddress: string,
+  userAddress: string
+): Promise<BigNumber|null> {
+  const web3: Web3 = new Web3();
+  web3.setProvider(provider);
+
+  // Get the MarketCollateralPool contract
+  const collateralPool: MarketCollateralPool = new MarketCollateralPool(
+    web3,
+    collateralPoolContractAddress
+  );
+  
+  try {
+    // Retrieve the user's unallocated token balance
+    const userUnallocatedTokenBalance = await collateralPool.getUserAccountBalance(userAddress);
+    console.log(`${userAddress} unallocated token balance is ${userUnallocatedTokenBalance}`)
+    return userUnallocatedTokenBalance
+
+  } catch (error) {
+    console.log(error);
+    return null; //TODO Need better error handling
+  }
+}
