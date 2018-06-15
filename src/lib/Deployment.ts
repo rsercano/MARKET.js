@@ -16,7 +16,7 @@ import { ITxParams } from '../types/typechain-runtime';
  * @param {string} oracleDataSource
  * @param {string} oracleQuery
  * @param {ITxParams} txParams
- * @returns {Promise<boolean>}
+ * @returns {Promise<string | BigNumber>}         deployed address of the new Market Contract.
  */
 export async function deployMarketContractOraclize(
   provider: Provider,
@@ -27,7 +27,7 @@ export async function deployMarketContractOraclize(
   oracleDataSource: string,
   oracleQuery: string,
   txParams: ITxParams = {}
-): Promise<boolean> {
+): Promise<string | BigNumber> {
   const web3: Web3 = new Web3();
   web3.setProvider(provider);
 
@@ -36,8 +36,6 @@ export async function deployMarketContractOraclize(
     marketContractFactoryAddress
   );
 
-  // marketContractFactory.MarketContractCreatedEvent({from: txParams.from }).watchFirst()
-  //
   await marketContractFactory
     .deployMarketContractOraclizeTx(
       contractName,
@@ -47,6 +45,11 @@ export async function deployMarketContractOraclize(
       oracleQuery
     )
     .send(txParams);
-  // todo: how to return the contract address?
-  return true;
+
+  // next release of market-solidity will have indexed creator arg for MarketContractCreatedEvent
+  const eventLog = await marketContractFactory
+    .MarketContractCreatedEvent({ creator: txParams.from })
+    .watchFirst({});
+
+  return eventLog.args.contractAddress;
 }
