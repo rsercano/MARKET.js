@@ -37,7 +37,7 @@ export async function deployMarketContractOraclize(
   );
 
   // marketContractFactory.MarketContractCreatedEvent({from: txParams.from }).watchFirst()
-
+  //
   await marketContractFactory
     .deployMarketContractOraclizeTx(
       contractName,
@@ -47,6 +47,6 @@ export async function deployMarketContractOraclize(
       oracleQuery
     )
     .send(txParams);
-  // todo: can we return the contract address?
+  // todo: how to return the contract address?
   return true;
 }
