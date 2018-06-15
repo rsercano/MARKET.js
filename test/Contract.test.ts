@@ -1,10 +1,10 @@
-import { Contract } from '../src/';
+import { getCollateralPoolContractAddressAsync } from '../src/lib/Contract';
 
 /**
  * Contract
  */
 describe('Contract class', () => {
-  it('Contract is instantiable', () => {
-    expect(new Contract()).toBeInstanceOf(Contract);
+  it('Contract has getUserAccountBalanceAsync function', () => {
+    expect(typeof getCollateralPoolContractAddressAsync).toEqual('function');
   });
 });
