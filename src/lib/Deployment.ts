@@ -68,3 +68,31 @@ export async function deployMarketContractOraclize(
       });
   });
 }
+
+/**
+ * Calls our factory to create a new MarketCollateralPool that is then linked to the supplied
+ * marketContractAddress.
+ * @param {Provider} provider
+ * @param {string} marketCollateralPoolAddress
+ * @param {string} marketContractAddress
+ * @param {ITxParams} txParams
+ * @returns {Promise<string>}                   transaction has of successful deployment.
+ */
+export async function deployMarketCollateralPool(
+  provider: Provider,
+  marketCollateralPoolAddress: string,
+  marketContractAddress: string,
+  txParams: ITxParams = {}
+): Promise<string> {
+  const web3: Web3 = new Web3();
+  web3.setProvider(provider);
+
+  const marketCollateralPoolFactory: MarketCollateralPoolFactory = new MarketCollateralPoolFactory(
+    web3,
+    marketCollateralPoolAddress
+  );
+
+  return marketCollateralPoolFactory
+    .deployMarketCollateralPoolTx(marketContractAddress)
+    .send(txParams);
+}

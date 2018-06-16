@@ -1,6 +1,6 @@
 import Web3 from 'web3';
 
-import { deployMarketContractOraclize } from '../src/lib/Deployment';
+import { deployMarketCollateralPool, deployMarketContractOraclize } from '../src/lib/Deployment';
 import { MarketContractFactoryOraclize } from '../src/types/MarketContractFactoryOraclize';
 import { BigNumber } from 'bignumber.js';
 import { getContractAddress } from './utils';
@@ -10,10 +10,11 @@ import { signOrderHashAsync } from '../src/lib/Order';
 
 const TRUFFLE_NETWORK_ID = `4447`;
 const GAS_LIMIT = 4000000;
+const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:9545'));
+let deployMarketContract: MarketContractOraclize;
 
 describe('Deployment Tests', () => {
-  it('Deploys MARKET Contract Correctly', async () => {
-    const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:9545'));
+  it('Deploys a MARKET Contract Correctly', async () => {
     const factoryAddress = getContractAddress('MarketContractFactoryOraclize', TRUFFLE_NETWORK_ID);
     const collateralTokenAddress = getContractAddress('CollateralToken', TRUFFLE_NETWORK_ID);
     const quickExpirationTimeStamp: BigNumber = new BigNumber(
@@ -42,16 +43,38 @@ describe('Deployment Tests', () => {
       txParams
     );
 
-    const marketContractDeployed: MarketContractOraclize = await MarketContractOraclize.createAndValidate(
-      web3,
-      deployedAddress
+    deployMarketContract = await MarketContractOraclize.createAndValidate(web3, deployedAddress);
+
+    expect(await deployMarketContract.CONTRACT_NAME).toEqual(contractName);
+    expect(await deployMarketContract.COLLATERAL_TOKEN_ADDRESS).toEqual(collateralTokenAddress);
+    expect(await deployMarketContract.creator).toEqual(web3.eth.accounts[1]);
+    expect(await deployMarketContract.EXPIRATION).toEqual(quickExpirationTimeStamp);
+    expect(await deployMarketContract.ORACLE_DATA_SOURCE).toEqual(oracleDataSource);
+    expect(await deployMarketContract.ORACLE_QUERY).toEqual(oracleQuery);
+    expect(await deployMarketContract.MARKET_COLLATERAL_POOL_ADDRESS).toEqual(
+      '0x0000000000000000000000000000000000000000'
+    );
+  });
+
+  it('Deploys and links a MARKET Collateral Pool Correctly', async () => {
+    const collateralPoolFactoryAddress = getContractAddress(
+      'MarketCollateralPoolFactory',
+      TRUFFLE_NETWORK_ID
+    );
+    const txParams: ITxParams = { from: web3.eth.accounts[1], gas: GAS_LIMIT };
+    await deployMarketCollateralPool(
+      web3.currentProvider,
+      collateralPoolFactoryAddress,
+      deployMarketContract.address,
+      txParams
     );
 
-    expect(await marketContractDeployed.CONTRACT_NAME).toEqual(contractName);
-    expect(await marketContractDeployed.COLLATERAL_TOKEN_ADDRESS).toEqual(collateralTokenAddress);
-    expect(await marketContractDeployed.creator).toEqual(web3.eth.accounts[1]);
-    expect(await marketContractDeployed.EXPIRATION).toEqual(quickExpirationTimeStamp);
-    expect(await marketContractDeployed.ORACLE_DATA_SOURCE).toEqual(oracleDataSource);
-    expect(await marketContractDeployed.ORACLE_QUERY).toEqual(oracleQuery);
+    expect(await deployMarketContract.isCollateralPoolContractLinked).toEqual(true);
+    expect(await deployMarketContract.COLLATERAL_POOL_FACTORY_ADDRESS).toEqual(
+      collateralPoolFactoryAddress
+    );
+    expect(await deployMarketContract.MARKET_COLLATERAL_POOL_ADDRESS).not.toEqual(
+      '0x0000000000000000000000000000000000000000'
+    );
   });
 });
