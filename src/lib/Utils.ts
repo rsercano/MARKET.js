@@ -1,6 +1,8 @@
 import Web3 from 'web3';
 
 import { ECSignature } from '../types/Order';
+import { BigNumber } from 'bignumber.js';
+import { ITxParams } from '../types/typechain-runtime';
 
 export const Utils = {
   /**
