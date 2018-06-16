@@ -9,7 +9,6 @@ import { BigNumber } from 'bignumber.js';
 import { getContractAddress } from './utils';
 import { ITxParams } from '../src/types/typechain-runtime';
 import { MarketContractOraclize } from '../src/types/MarketContractOraclize';
-import { signOrderHashAsync } from '../src/lib/Order';
 
 const TRUFFLE_NETWORK_ID = `4447`;
 const GAS_LIMIT = 4000000;
