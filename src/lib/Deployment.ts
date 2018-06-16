@@ -18,7 +18,7 @@ import { ITxParams } from '../types/typechain-runtime';
  * @param {ITxParams} txParams
  * @returns {Promise<string | BigNumber>}         deployed address of the new Market Contract.
  */
-export async function deployMarketContractOraclize(
+export async function deployMarketContractOraclizeAsync(
   provider: Provider,
   marketContractFactoryAddress: string,
   contractName: string,
@@ -78,7 +78,7 @@ export async function deployMarketContractOraclize(
  * @param {ITxParams} txParams
  * @returns {Promise<string>}                   transaction has of successful deployment.
  */
-export async function deployMarketCollateralPool(
+export async function deployMarketCollateralPoolAsync(
   provider: Provider,
   marketCollateralPoolAddress: string,
   marketContractAddress: string,

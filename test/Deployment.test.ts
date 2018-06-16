@@ -1,6 +1,9 @@
 import Web3 from 'web3';
 
-import { deployMarketCollateralPool, deployMarketContractOraclize } from '../src/lib/Deployment';
+import {
+  deployMarketCollateralPoolAsync,
+  deployMarketContractOraclizeAsync
+} from '../src/lib/Deployment';
 import { MarketContractFactoryOraclize } from '../src/types/MarketContractFactoryOraclize';
 import { BigNumber } from 'bignumber.js';
 import { getContractAddress } from './utils';
@@ -32,7 +35,7 @@ describe('Deployment Tests', () => {
     const oracleDataSource: string = 'URL';
     const oracleQuery: string =
       'json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0';
-    const deployedAddress = await deployMarketContractOraclize(
+    const deployedAddress = await deployMarketContractOraclizeAsync(
       web3.currentProvider,
       factoryAddress,
       contractName,
@@ -62,7 +65,7 @@ describe('Deployment Tests', () => {
       TRUFFLE_NETWORK_ID
     );
     const txParams: ITxParams = { from: web3.eth.accounts[1], gas: GAS_LIMIT };
-    await deployMarketCollateralPool(
+    await deployMarketCollateralPoolAsync(
       web3.currentProvider,
       collateralPoolFactoryAddress,
       deployMarketContract.address,
