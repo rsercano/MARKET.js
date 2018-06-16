@@ -36,7 +36,7 @@ export async function deployMarketContractOraclize(
     marketContractFactoryAddress
   );
 
-  await marketContractFactory
+  const txHash = await marketContractFactory
     .deployMarketContractOraclizeTx(
       contractName,
       collateralTokenAddress,
@@ -46,10 +46,25 @@ export async function deployMarketContractOraclize(
     )
     .send(txParams);
 
-  // next release of market-solidity will have indexed creator arg for MarketContractCreatedEvent
-  const eventLog = await marketContractFactory
-    .MarketContractCreatedEvent({ creator: txParams.from })
-    .watchFirst({});
+  const blockNumber: number = Number(web3.eth.getTransaction(txHash).blockNumber);
 
-  return eventLog.args.contractAddress;
+  return new Promise<string | BigNumber>((resolve, reject) => {
+    const stopEventWatcher = marketContractFactory
+      .MarketContractCreatedEvent({})
+      .watch({ fromBlock: blockNumber, toBlock: blockNumber }, (err, eventLog) => {
+        // Validate this tx hash matches the tx we just created above.
+        if (err) {
+          console.log(err);
+        }
+
+        if (eventLog.transactionHash === txHash) {
+          resolve(eventLog.args.contractAddress);
+          stopEventWatcher()
+            .then(function() {
+              return resolve(eventLog.args.contractAddress);
+            })
+            .catch(reject);
+        }
+      });
+  });
 }
