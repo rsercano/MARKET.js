@@ -1,14 +1,19 @@
+import { BigNumber } from 'bignumber.js';
 import Web3 from 'web3';
 
 import {
   deployMarketCollateralPoolAsync,
   deployMarketContractOraclizeAsync
 } from '../src/lib/Deployment';
-import { MarketContractFactoryOraclize } from '../src/types/MarketContractFactoryOraclize';
-import { BigNumber } from 'bignumber.js';
 import { getContractAddress } from './utils';
-import { ITxParams } from '../src/types/typechain-runtime';
-import { MarketContractOraclize } from '../src/types/MarketContractOraclize';
+
+// Types
+import {
+  ITxParams,
+  MarketCollateralPoolFactory,
+  MarketContractFactoryOraclize,
+  MarketContractOraclize
+} from '@marketprotocol/types';
 
 const TRUFFLE_NETWORK_ID = `4447`;
 const GAS_LIMIT = 4000000;

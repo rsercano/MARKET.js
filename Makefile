@@ -15,7 +15,7 @@ default:
 	pwd
 
 install_truffle:
-	npm i -g truffle@4.1.8
+	npm i -g truffle
 
 # install required dependencies
 install_deps:
@@ -29,10 +29,3 @@ start_console:
 # start ethereum bridge
 start_bridge:
 	cd $(EB_PATH) ; node bridge -H localhost:9545 -a 9 --dev
-
-
-# truffle console commands
-#
-#   migrate
-
-# TODO: add example project

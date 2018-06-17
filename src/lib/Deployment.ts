@@ -1,9 +1,13 @@
-import { Provider } from '@0xproject/types';
-import Web3 from 'web3';
-import { MarketCollateralPoolFactory } from '../types/MarketCollateralPoolFactory';
-import { MarketContractFactoryOraclize } from '../types/MarketContractFactoryOraclize';
 import { BigNumber } from 'bignumber.js';
-import { ITxParams } from '../types/typechain-runtime';
+import Web3 from 'web3';
+
+// Types
+import { Provider } from '@0xproject/types';
+import {
+  ITxParams,
+  MarketCollateralPoolFactory,
+  MarketContractFactoryOraclize
+} from '@marketprotocol/types';
 
 /**
  * calls our factory that deploys a MarketContractOraclize and then adds it to

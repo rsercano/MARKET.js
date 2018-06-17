@@ -21,7 +21,6 @@ export const OrderSchema = {
     'makerFee',
     'orderQty',
     'price',
-    'remainingQty',
     'salt',
     'taker',
     'takerFee'

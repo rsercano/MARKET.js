@@ -8,8 +8,7 @@ import { Utils } from './Utils';
 // Types
 import { Provider } from '@0xproject/types';
 import { ECSignature, Order, SignedOrder } from '../types/Order';
-import { MarketContract } from '../types/MarketContract';
-import { OrderLib } from '../types/OrderLib';
+import { MarketContract, OrderLib } from '@marketprotocol/types';
 
 /**
  * Computes the orderHash for a supplied order.
@@ -26,18 +25,26 @@ export async function createOrderHashAsync(
   const web3: Web3 = new Web3();
   web3.setProvider(provider);
 
-  const orderLib: OrderLib = new OrderLib(web3, order.contractAddress);
+  const orderLib: OrderLib = await OrderLib.createAndValidate(web3, order.contractAddress);
 
-  const orderHash = await orderLib.createOrderHash.call(
-    order.contractAddress,
-    // orderAddresses
-    [order.maker, order.taker, order.feeRecipient],
-    // unsignedOrderValues
-    [order.makerFee, order.takerFee, order.price, order.expirationTimestamp, order.salt],
-    order.orderQty
-  );
+  let orderHash = '';
 
-  console.log(orderHash);
+  await orderLib
+    .createOrderHash(
+      order.contractAddress,
+      // orderAddresses
+      [order.maker, order.taker, order.feeRecipient],
+      // unsignedOrderValues
+      [order.makerFee, order.takerFee, order.price, order.expirationTimestamp, order.salt],
+      order.orderQty
+    )
+    .then(data => {
+      orderHash = data.toString();
+    })
+    .catch(err => {
+      console.log('Error while creating order hash');
+      console.error(err);
+    });
 
   return orderHash;
 }

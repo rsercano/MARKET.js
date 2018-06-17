@@ -1,6 +1,8 @@
-import { Provider } from '@0xproject/types';
 import Web3 from 'web3';
-import { MarketContract } from '../types/MarketContract';
+
+// Types
+import { Provider } from '@0xproject/types';
+import { MarketContract } from '@marketprotocol/types';
 
 /**
  * Gets the collateral pool contract address

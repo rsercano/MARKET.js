@@ -32,6 +32,9 @@
     "url": "https://github.com/MARKETProtocol/MARKET.js/issues"
   },
   "homepage": "https://marketprotocol.io",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "lint": "tslint -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "lint:fix": "tslint --fix -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
@@ -110,7 +113,7 @@
   },
   "devDependencies": {
     "@0xproject/typescript-typings": "^0.3.2",
-    "@marketprotocol/types": "^0.1.0",
+    "@marketprotocol/types": "^0.1.4",
     "@types/jest": "^23.0.0",
     "@types/lodash.values": "^4.3.3",
     "@types/node": "^10.3.2",

@@ -1,6 +1,5 @@
 import { join } from 'path';
 import { readFileSync } from 'fs';
-import { BigNumber } from 'bignumber.js';
 
 /**
  * Pulls a contract address fom a truffle artifcact .json file.  Assumes these files

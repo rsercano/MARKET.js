@@ -1,8 +1,9 @@
-import { Provider } from '@0xproject/types';
-import Web3 from 'web3';
-import { MarketCollateralPool } from '../types/MarketCollateralPool';
 import { BigNumber } from 'bignumber.js';
-import { ITxParams } from '../types/typechain-runtime';
+import Web3 from 'web3';
+
+// Types
+import { Provider } from '@0xproject/types';
+import { ITxParams, MarketCollateralPool } from '@marketprotocol/types';
 
 /**
  * deposits collateral to a traders account for a given contract address.
