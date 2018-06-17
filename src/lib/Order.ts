@@ -117,3 +117,17 @@ export async function tradeOrderAsync(
 
   return true;
 }
+
+// export async function isValidSignatureAsync(
+//   provider: Provider,
+//   orderLibAddress: string,
+//   signedOrder : SignedOrder,
+//   orderHash : string
+// ): Promise<boolean> {
+//   const web3: Web3 = new Web3();
+//   web3.setProvider(provider);
+//   const orderLib: OrderLib = await OrderLib.createAndValidate(web3, orderLibAddress);
+//   return await orderLib.isValidSignature(
+//     signedOrder.maker, orderHash, signedOrder.ecSignature.v,
+//     signedOrder.ecSignature.r, signedOrder.ecSignature.s)
+// }

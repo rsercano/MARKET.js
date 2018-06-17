@@ -1,8 +1,7 @@
 import { createOrderHashAsync, signOrderHashAsync, tradeOrderAsync } from '../src/lib/Order';
 import { getContractAddress } from './utils';
 import Web3 from 'web3';
-import { ITxParams } from '../src/types/typechain-runtime';
-import { Order } from '../src/types/Order';
+import { Order, SignedOrder } from '../src/types/Order';
 import { MarketContractRegistry } from '@marketprotocol/types';
 import { BigNumber } from 'bignumber.js';
 
@@ -55,7 +54,7 @@ describe('Order', () => {
       remainingQty: 100,
       salt: new BigNumber(0),
       taker: '',
-      takerFee: new BigNumber(0)
+      takerFee: new BigNumber(0),
     };
 
     const orderHash: string | BigNumber = await createOrderHashAsync(
@@ -63,5 +62,23 @@ describe('Order', () => {
       orderLibAddress,
       order
     );
+
+    const signedOrder: SignedOrder = {
+      // TODO: should we create a nicer constructor for Order and a signed order form an order!
+      contractAddress: marketContractAddress,
+      expirationTimestamp: expirationTimeStamp, // '', makerAccount, 0, 1, 100000, 1, '', 0
+      feeRecipient: '',
+      maker: makerAccount,
+      makerFee: new BigNumber(0),
+      orderQty: 100,
+      price: new BigNumber(100000),
+      remainingQty: 100,
+      salt: new BigNumber(0),
+      taker: '',
+      takerFee: new BigNumber(0),
+      ecSignature: await signOrderHashAsync(web3.currentProvider, String(orderHash), makerAccount),
+    };
+
+    // TODO: check if signature is vali calling `isValidSignatureAsync` once we fix type issues.
   });
 });
