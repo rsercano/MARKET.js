@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import Web3 from 'web3';
 
 // Types
@@ -46,11 +47,15 @@ export class Market {
 
   /**
    * Computes the orderHash for a supplied order.
-   * @param   order   An object that conforms to the Order or SignedOrder interface definitions.
+   * @param   order             An object that conforms to the Order or SignedOrder interface definitions.
+   * @param   orderLibAddress   Address of the deployed OrderLib.
    * @return  The resulting orderHash from hashing the supplied order.
    */
-  public async createOrderHashAsync(order: Order | SignedOrder): Promise<string> {
-    return createOrderHashAsync(this._web3.currentProvider, order);
+  public async createOrderHashAsync(
+    order: Order | SignedOrder,
+    orderLibAddress: string
+  ): Promise<string | BigNumber> {
+    return createOrderHashAsync(this._web3.currentProvider, orderLibAddress, order);
   }
 
   /**

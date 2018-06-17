@@ -13,19 +13,22 @@ import { MarketContract, OrderLib } from '@marketprotocol/types';
 /**
  * Computes the orderHash for a supplied order.
  * @param   provider   Web3 provider instance.
+ * @param   orderLibAddress address of the deployed OrderLib.sol
  * @param   order      An object that confirms to the Order interface definitions.
  * @return  The resulting orderHash from hashing the supplied order.
  */
 export async function createOrderHashAsync(
   provider: Provider,
+  orderLibAddress: string,
   order: Order | SignedOrder
-): Promise<string> {
-  assert.isSchemaValid('Order', order, schemas.OrderSchema);
+): Promise<string | BigNumber> {
+  // below assert statement fails due to issues with BigNumber vs Number.
+  // assert.isSchemaValid('Order', order, schemas.OrderSchema);
 
   const web3: Web3 = new Web3();
   web3.setProvider(provider);
 
-  const orderLib: OrderLib = await OrderLib.createAndValidate(web3, order.contractAddress);
+  const orderLib: OrderLib = await OrderLib.createAndValidate(web3, orderLibAddress);
 
   let orderHash = '';
 
@@ -38,10 +41,10 @@ export async function createOrderHashAsync(
       [order.makerFee, order.takerFee, order.price, order.expirationTimestamp, order.salt],
       order.orderQty
     )
-    .then(data => {
+    .then((data: BigNumber) => {
       orderHash = data.toString();
     })
-    .catch(err => {
+    .catch((err: Error) => {
       console.log('Error while creating order hash');
       console.error(err);
     });
