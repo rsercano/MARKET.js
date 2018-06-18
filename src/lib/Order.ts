@@ -8,7 +8,7 @@ import { Utils } from './Utils';
 // Types
 import { Provider } from '@0xproject/types';
 import { ECSignature, Order, SignedOrder } from '../types/Order';
-import { MarketContract, OrderLib } from '@marketprotocol/types';
+import { ITxParams, MarketContract, OrderLib } from '@marketprotocol/types';
 
 /**
  * Computes the orderHash for a supplied order.
@@ -83,34 +83,35 @@ export async function signOrderHashAsync(
 export async function tradeOrderAsync(
   provider: Provider,
   signedOrder: SignedOrder,
-  fillQty: number
+  fillQty: number,
+  txParams: ITxParams = {}
 ): Promise<boolean> {
-  assert.isSchemaValid('SignedOrder', signedOrder, schemas.SignedOrderSchema);
+  // assert.isSchemaValid('SignedOrder', signedOrder, schemas.SignedOrderSchema);
 
   const web3: Web3 = new Web3();
   web3.setProvider(provider);
 
   const marketContract: MarketContract = new MarketContract(web3, signedOrder.contractAddress);
 
-  const filledQty = await marketContract.tradeOrderTx(
-    // orderAddresses
-    [signedOrder.maker, signedOrder.taker, signedOrder.feeRecipient],
-    // unsignedOrderValues
-    [
-      signedOrder.makerFee,
-      signedOrder.takerFee,
-      signedOrder.price,
-      signedOrder.expirationTimestamp,
-      signedOrder.salt
-    ],
-    signedOrder.orderQty,
-    fillQty,
-    signedOrder.ecSignature.v,
-    signedOrder.ecSignature.r,
-    signedOrder.ecSignature.s
-  );
-
-  console.log(filledQty);
+  await marketContract
+    .tradeOrderTx(
+      // orderAddresses
+      [signedOrder.maker, signedOrder.taker, signedOrder.feeRecipient],
+      // unsignedOrderValues
+      [
+        signedOrder.makerFee,
+        signedOrder.takerFee,
+        signedOrder.price,
+        signedOrder.expirationTimestamp,
+        signedOrder.salt
+      ],
+      signedOrder.orderQty,
+      fillQty,
+      signedOrder.ecSignature.v,
+      signedOrder.ecSignature.r,
+      signedOrder.ecSignature.s
+    )
+    .send(txParams);
 
   return true;
 }
