@@ -69,9 +69,6 @@ export async function signOrderHashAsync(
   web3.setProvider(provider);
 
   const ecSignature: ECSignature = await Utils.signMessage(web3, signerAddress, orderHash);
-
-  console.log(ecSignature);
-
   return ecSignature;
 }
 
@@ -118,6 +115,14 @@ export async function tradeOrderAsync(
   return true;
 }
 
+/**
+ * Confirms a signed order is validly signed
+ * @param provider
+ * @param orderLibAddress
+ * @param signedOrder
+ * @param orderHash
+ * @return boolean if order hash and signature resolve to maker address (signer)
+ */
 export async function isValidSignatureAsync(
   provider: Provider,
   orderLibAddress: string,

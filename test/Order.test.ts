@@ -46,6 +46,7 @@ describe('Order', () => {
     console.log(marketContractAddress);
     const expirationTimeStamp: BigNumber = new BigNumber(Math.floor(Date.now() / 1000) + 60 * 60);
     const makerAccount = web3.eth.accounts[1];
+    const takerAccount = web3.eth.accounts[2];
 
     const order: Order = {
       // TODO: should we create a nicer constructor for Order?
@@ -92,5 +93,67 @@ describe('Order', () => {
         orderHash.toString()
       )
     ).toBe(true);
+
+    // Create manipulated order to ensure check fails.
+
+    const signedOrderFake: SignedOrder = {
+      contractAddress: marketContractAddress,
+      expirationTimestamp: expirationTimeStamp,
+      feeRecipient: '',
+      maker: makerAccount,
+      makerFee: new BigNumber(0),
+      orderQty: 100,
+      price: new BigNumber(150000), // change price without signing!
+      remainingQty: 100,
+      salt: new BigNumber(0),
+      taker: '',
+      takerFee: new BigNumber(0),
+      ecSignature: signedOrder.ecSignature
+    };
+
+    const orderHashFake: string | BigNumber = await createOrderHashAsync(
+      web3.currentProvider,
+      orderLibAddress,
+      signedOrderFake
+    );
+
+    expect(
+      await isValidSignatureAsync(
+        web3.currentProvider,
+        orderLibAddress,
+        signedOrderFake,
+        orderHashFake.toString()
+      )
+    ).toBe(false);
+
+    // fix signature to ensure it works
+    signedOrderFake.ecSignature = await signOrderHashAsync(
+      web3.currentProvider,
+      String(orderHashFake),
+      makerAccount
+    );
+    expect(
+      await isValidSignatureAsync(
+        web3.currentProvider,
+        orderLibAddress,
+        signedOrderFake,
+        orderHashFake.toString()
+      )
+    ).toBe(true);
+
+    // attempt to sign from different account to ensure it fails.
+    signedOrderFake.ecSignature = await signOrderHashAsync(
+      web3.currentProvider,
+      String(orderHashFake),
+      takerAccount
+    );
+    expect(
+      await isValidSignatureAsync(
+        web3.currentProvider,
+        orderLibAddress,
+        signedOrderFake,
+        orderHashFake.toString()
+      )
+    ).toBe(false);
   });
 });
