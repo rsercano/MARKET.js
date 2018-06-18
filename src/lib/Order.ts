@@ -41,8 +41,8 @@ export async function createOrderHashAsync(
       [order.makerFee, order.takerFee, order.price, order.expirationTimestamp, order.salt],
       order.orderQty
     )
-    .then((data: BigNumber) => {
-      orderHash = data.toString();
+    .then(data => {
+      orderHash = data;
     })
     .catch((err: Error) => {
       console.log('Error while creating order hash');
@@ -109,8 +109,8 @@ export async function tradeOrderAsync(
     signedOrder.orderQty,
     fillQty,
     signedOrder.ecSignature.v,
-    new BigNumber(signedOrder.ecSignature.r),
-    new BigNumber(signedOrder.ecSignature.s)
+    signedOrder.ecSignature.r,
+    signedOrder.ecSignature.s
   );
 
   console.log(filledQty);
@@ -118,16 +118,20 @@ export async function tradeOrderAsync(
   return true;
 }
 
-// export async function isValidSignatureAsync(
-//   provider: Provider,
-//   orderLibAddress: string,
-//   signedOrder : SignedOrder,
-//   orderHash : string
-// ): Promise<boolean> {
-//   const web3: Web3 = new Web3();
-//   web3.setProvider(provider);
-//   const orderLib: OrderLib = await OrderLib.createAndValidate(web3, orderLibAddress);
-//   return await orderLib.isValidSignature(
-//     signedOrder.maker, orderHash, signedOrder.ecSignature.v,
-//     signedOrder.ecSignature.r, signedOrder.ecSignature.s)
-// }
+export async function isValidSignatureAsync(
+  provider: Provider,
+  orderLibAddress: string,
+  signedOrder: SignedOrder,
+  orderHash: string
+): Promise<boolean> {
+  const web3: Web3 = new Web3();
+  web3.setProvider(provider);
+  const orderLib: OrderLib = await OrderLib.createAndValidate(web3, orderLibAddress);
+  return orderLib.isValidSignature(
+    signedOrder.maker,
+    orderHash,
+    signedOrder.ecSignature.v,
+    signedOrder.ecSignature.r,
+    signedOrder.ecSignature.s
+  );
+}
