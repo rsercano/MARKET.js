@@ -256,6 +256,6 @@ describe('Order', () => {
     ).toBe(true);
 
     // TODO: this is failing, but not sure why yet.  Need to work on debugging.
-    await tradeOrderAsync(web3.currentProvider, signedOrder, 1, { from: makerAccount });
+    await tradeOrderAsync(web3.currentProvider, signedOrder, 1, { from: takerAccount });
   });
 });
