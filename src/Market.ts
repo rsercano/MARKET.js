@@ -54,7 +54,7 @@ export class Market {
   public async createOrderHashAsync(
     order: Order | SignedOrder,
     orderLibAddress: string
-  ): Promise<string | BigNumber> {
+  ): Promise<string> {
     return createOrderHashAsync(this._web3.currentProvider, orderLibAddress, order);
   }
 

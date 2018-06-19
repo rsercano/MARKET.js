@@ -113,7 +113,7 @@
   },
   "devDependencies": {
     "@0xproject/typescript-typings": "^0.3.2",
-    "@marketprotocol/types": "^0.1.4",
+    "@marketprotocol/types": "^0.1.5",
     "@types/jest": "^23.0.0",
     "@types/lodash.values": "^4.3.3",
     "@types/node": "^10.3.2",

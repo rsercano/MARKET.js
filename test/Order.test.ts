@@ -19,18 +19,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:9545'));
  * Order
  */
 describe('Order', () => {
-  it('Order has create order function', () => {
-    expect(typeof createOrderHashAsync).toEqual('function');
-  });
-
-  it('Order has sign order hash function', () => {
-    expect(typeof signOrderHashAsync).toEqual('function');
-  });
-
-  it('Order has trade order function', () => {
-    expect(typeof tradeOrderAsync).toEqual('function');
-  });
-
   it('Signs an order', async () => {
     const marketContractRegistryAddress = getContractAddress(
       'MarketContractRegistry',

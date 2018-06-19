@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js';
 import Web3 from 'web3';
 
-import { assert } from '../assert';
-import { schemas } from '../schemas/';
+// import { assert } from '../assert';
+// import { schemas } from '../schemas/';
 import { Utils } from './Utils';
 
 // Types
@@ -21,7 +21,7 @@ export async function createOrderHashAsync(
   provider: Provider,
   orderLibAddress: string,
   order: Order | SignedOrder
-): Promise<string | BigNumber> {
+): Promise<string> {
   // below assert statement fails due to issues with BigNumber vs Number.
   // assert.isSchemaValid('Order', order, schemas.OrderSchema);
 
@@ -41,9 +41,7 @@ export async function createOrderHashAsync(
       [order.makerFee, order.takerFee, order.price, order.expirationTimestamp, order.salt],
       order.orderQty
     )
-    .then(data => {
-      orderHash = data;
-    })
+    .then(data => (orderHash = data))
     .catch((err: Error) => {
       console.log('Error while creating order hash');
       console.error(err);
@@ -67,9 +65,7 @@ export async function signOrderHashAsync(
 ): Promise<ECSignature> {
   const web3: Web3 = new Web3();
   web3.setProvider(provider);
-
-  const ecSignature: ECSignature = await Utils.signMessage(web3, signerAddress, orderHash);
-  return ecSignature;
+  return Utils.signMessage(web3, signerAddress, orderHash);
 }
 
 /**
@@ -78,6 +74,7 @@ export async function signOrderHashAsync(
  * @param   signedOrder     An object that conforms to the SignedOrder interface. The
  *                          signedOrder you wish to validate.
  * @param   fillQty         The amount of the order that you wish to fill.
+ * @param   txParams        Transaction params of web3.
  * @return  A boolean indicating whether the order has been successfully traded or not.
  */
 export async function tradeOrderAsync(
