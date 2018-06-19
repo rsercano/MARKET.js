@@ -62,7 +62,6 @@ export async function deployMarketContractOraclizeAsync(
         }
 
         if (eventLog.transactionHash === txHash) {
-          resolve(eventLog.args.contractAddress);
           stopEventWatcher()
             .then(function() {
               return resolve(eventLog.args.contractAddress);

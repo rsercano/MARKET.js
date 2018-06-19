@@ -1,35 +1,36 @@
-import BigNumber from 'bignumber.js';
 import Web3 from 'web3';
 
-import { assert } from '../assert';
-import { schemas } from '../schemas/';
+// import { assert } from '../assert';
+// import { schemas } from '../schemas/';
 import { Utils } from './Utils';
 
 // Types
 import { Provider } from '@0xproject/types';
 import { ECSignature, Order, SignedOrder } from '../types/Order';
-import { MarketContract, OrderLib } from '@marketprotocol/types';
+import { ITxParams, MarketContract, OrderLib } from '@marketprotocol/types';
+import { BigNumber } from 'bignumber.js';
 
 /**
  * Computes the orderHash for a supplied order.
  * @param   provider   Web3 provider instance.
+ * @param   orderLibAddress address of the deployed OrderLib.sol
  * @param   order      An object that confirms to the Order interface definitions.
  * @return  The resulting orderHash from hashing the supplied order.
  */
 export async function createOrderHashAsync(
   provider: Provider,
+  orderLibAddress: string,
   order: Order | SignedOrder
 ): Promise<string> {
-  assert.isSchemaValid('Order', order, schemas.OrderSchema);
+  // below assert statement fails due to issues with BigNumber vs Number.
+  // assert.isSchemaValid('Order', order, schemas.OrderSchema);
 
   const web3: Web3 = new Web3();
   web3.setProvider(provider);
 
-  const orderLib: OrderLib = await OrderLib.createAndValidate(web3, order.contractAddress);
+  const orderLib: OrderLib = await OrderLib.createAndValidate(web3, orderLibAddress);
 
-  let orderHash = '';
-
-  await orderLib
+  return orderLib
     .createOrderHash(
       order.contractAddress,
       // orderAddresses
@@ -38,15 +39,12 @@ export async function createOrderHashAsync(
       [order.makerFee, order.takerFee, order.price, order.expirationTimestamp, order.salt],
       order.orderQty
     )
-    .then(data => {
-      orderHash = data.toString();
-    })
-    .catch(err => {
-      console.log('Error while creating order hash');
+    .then(data => data)
+    .catch((err: Error) => {
+      const error = 'Error while creating order hash';
       console.error(err);
+      return error;
     });
-
-  return orderHash;
 }
 
 /**
@@ -64,12 +62,7 @@ export async function signOrderHashAsync(
 ): Promise<ECSignature> {
   const web3: Web3 = new Web3();
   web3.setProvider(provider);
-
-  const ecSignature: ECSignature = await Utils.signMessage(web3, signerAddress, orderHash);
-
-  console.log(ecSignature);
-
-  return ecSignature;
+  return Utils.signMessage(web3, signerAddress, orderHash);
 }
 
 /**
@@ -78,39 +71,87 @@ export async function signOrderHashAsync(
  * @param   signedOrder     An object that conforms to the SignedOrder interface. The
  *                          signedOrder you wish to validate.
  * @param   fillQty         The amount of the order that you wish to fill.
+ * @param   txParams        Transaction params of web3.
  * @return  A boolean indicating whether the order has been successfully traded or not.
  */
 export async function tradeOrderAsync(
   provider: Provider,
   signedOrder: SignedOrder,
-  fillQty: number
-): Promise<boolean> {
-  assert.isSchemaValid('SignedOrder', signedOrder, schemas.SignedOrderSchema);
+  fillQty: BigNumber,
+  txParams: ITxParams = {}
+): Promise<BigNumber | number> {
+  // assert.isSchemaValid('SignedOrder', signedOrder, schemas.SignedOrderSchema);
 
   const web3: Web3 = new Web3();
   web3.setProvider(provider);
 
   const marketContract: MarketContract = new MarketContract(web3, signedOrder.contractAddress);
 
-  const filledQty = await marketContract.tradeOrderTx(
-    // orderAddresses
-    [signedOrder.maker, signedOrder.taker, signedOrder.feeRecipient],
-    // unsignedOrderValues
-    [
-      signedOrder.makerFee,
-      signedOrder.takerFee,
-      signedOrder.price,
-      signedOrder.expirationTimestamp,
-      signedOrder.salt
-    ],
-    signedOrder.orderQty,
-    fillQty,
+  const txHash : string = await marketContract
+    .tradeOrderTx(
+      // orderAddresses
+      [signedOrder.maker, signedOrder.taker, signedOrder.feeRecipient],
+      // unsignedOrderValues
+      [
+        signedOrder.makerFee,
+        signedOrder.takerFee,
+        signedOrder.price,
+        signedOrder.expirationTimestamp,
+        signedOrder.salt
+      ],
+      signedOrder.orderQty,
+      fillQty,
+      signedOrder.ecSignature.v,
+      signedOrder.ecSignature.r,
+      signedOrder.ecSignature.s
+    )
+    .send(txParams);
+
+  const blockNumber: number = Number(web3.eth.getTransaction(txHash).blockNumber);
+
+  return new Promise<BigNumber | number>((resolve, reject) => {
+    const stopEventWatcher = marketContract
+      .OrderFilledEvent({maker:signedOrder.maker })
+      .watch({ fromBlock: blockNumber, toBlock: blockNumber }, (err, eventLog) => {
+        // Validate this tx hash matches the tx we just created above.
+        if (err) {
+          console.log(err);
+        }
+
+        if (eventLog.transactionHash === txHash) {
+          stopEventWatcher()
+            .then(function() {
+              return resolve(eventLog.args.filledQty);
+            })
+            .catch(reject);
+        }
+      });
+  });
+  //TODO: listen for error events marketContract.ErrorEvent()
+}
+
+/**
+ * Confirms a signed order is validly signed
+ * @param provider
+ * @param orderLibAddress
+ * @param signedOrder
+ * @param orderHash
+ * @return boolean if order hash and signature resolve to maker address (signer)
+ */
+export async function isValidSignatureAsync(
+  provider: Provider,
+  orderLibAddress: string,
+  signedOrder: SignedOrder,
+  orderHash: string
+): Promise<boolean> {
+  const web3: Web3 = new Web3();
+  web3.setProvider(provider);
+  const orderLib: OrderLib = await OrderLib.createAndValidate(web3, orderLibAddress);
+  return orderLib.isValidSignature(
+    signedOrder.maker,
+    orderHash,
     signedOrder.ecSignature.v,
-    new BigNumber(signedOrder.ecSignature.r),
-    new BigNumber(signedOrder.ecSignature.s)
+    signedOrder.ecSignature.r,
+    signedOrder.ecSignature.s
   );
-
-  console.log(filledQty);
-
-  return true;
 }

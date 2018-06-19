@@ -96,7 +96,7 @@ module.exports = function(deployer, network) {
                       // deploy a single contract for testing purposes.
                       const gasLimit = 4000000; // gas limit for contract deployment
                       let quickExpirationTimeStamp =
-                        Math.floor(Date.now() / 1000) + 60 * 60; // expires in an hour
+                        Math.floor(Date.now() / 1000) + 60 * 60 * 12; // expires in 12 hours
                       return factory
                         .deployMarketContractOraclize(
                           'ETHUSD_' + new Date().toISOString().substring(0, 10),
