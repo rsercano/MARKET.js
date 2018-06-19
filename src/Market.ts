@@ -76,13 +76,13 @@ export class Market {
    *                          signedOrder you wish to validate.
    * @param   fillQty         The amount of the order that you wish to fill.
    * @param   txParams        Transaction params of web3.
-   * @return  A boolean indicating whether the order has been successfully traded or not.
+   * @return  qtyFilled       Qty that was able to be filled.
    */
   public async tradeOrderAsync(
     signedOrder: SignedOrder,
     fillQty: BigNumber,
     txParams: ITxParams
-  ): Promise<boolean> {
+  ): Promise<BigNumber | number> {
     return tradeOrderAsync(this._web3.currentProvider, signedOrder, fillQty);
   }
 }
