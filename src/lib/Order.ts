@@ -87,7 +87,7 @@ export async function tradeOrderAsync(
 
   const marketContract: MarketContract = new MarketContract(web3, signedOrder.contractAddress);
 
-  const txHash : string = await marketContract
+  const txHash: string = await marketContract
     .tradeOrderTx(
       // orderAddresses
       [signedOrder.maker, signedOrder.taker, signedOrder.feeRecipient],
@@ -111,7 +111,7 @@ export async function tradeOrderAsync(
 
   return new Promise<BigNumber | number>((resolve, reject) => {
     const stopEventWatcher = marketContract
-      .OrderFilledEvent({maker:signedOrder.maker })
+      .OrderFilledEvent({ maker: signedOrder.maker })
       .watch({ fromBlock: blockNumber, toBlock: blockNumber }, (err, eventLog) => {
         // Validate this tx hash matches the tx we just created above.
         if (err) {
@@ -127,7 +127,7 @@ export async function tradeOrderAsync(
         }
       });
   });
-  //TODO: listen for error events marketContract.ErrorEvent()
+  // TODO: listen for error events marketContract.ErrorEvent()
 }
 
 /**
