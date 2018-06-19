@@ -3,6 +3,7 @@ import Web3 from 'web3';
 
 // Types
 import { Provider } from '@0xproject/types';
+import { ITxParams } from '@marketprotocol/types';
 import { ECSignature, Order, SignedOrder } from './types/Order';
 
 import { assert } from './assert';
@@ -47,13 +48,13 @@ export class Market {
 
   /**
    * Computes the orderHash for a supplied order.
-   * @param   order             An object that conforms to the Order or SignedOrder interface definitions.
    * @param   orderLibAddress   Address of the deployed OrderLib.
+   * @param   order             An object that conforms to the Order or SignedOrder interface definitions.
    * @return  The resulting orderHash from hashing the supplied order.
    */
   public async createOrderHashAsync(
-    order: Order | SignedOrder,
-    orderLibAddress: string
+    orderLibAddress: string,
+    order: Order | SignedOrder
   ): Promise<string> {
     return createOrderHashAsync(this._web3.currentProvider, orderLibAddress, order);
   }
@@ -74,9 +75,14 @@ export class Market {
    * @param   signedOrder     An object that conforms to the SignedOrder interface. The
    *                          signedOrder you wish to validate.
    * @param   fillQty         The amount of the order that you wish to fill.
+   * @param   txParams        Transaction params of web3.
    * @return  A boolean indicating whether the order has been successfully traded or not.
    */
-  public async tradeOrderAsync(signedOrder: SignedOrder, fillQty: number): Promise<boolean> {
+  public async tradeOrderAsync(
+    signedOrder: SignedOrder,
+    fillQty: number,
+    txParams: ITxParams
+  ): Promise<boolean> {
     return tradeOrderAsync(this._web3.currentProvider, signedOrder, fillQty);
   }
 }

@@ -121,6 +121,7 @@ describe('Order', () => {
       String(orderHashFake),
       makerAccount
     );
+
     expect(
       await isValidSignatureAsync(
         web3.currentProvider,
@@ -136,6 +137,7 @@ describe('Order', () => {
       String(orderHashFake),
       takerAccount
     );
+
     expect(
       await isValidSignatureAsync(
         web3.currentProvider,
@@ -146,7 +148,7 @@ describe('Order', () => {
     ).toBe(false);
   });
 
-  it('Traders an order', async () => {
+  it('Trades an order', async () => {
     const marketContractRegistryAddress = getContractAddress(
       'MarketContractRegistry',
       TRUFFLE_NETWORK_ID
@@ -158,16 +160,16 @@ describe('Order', () => {
     );
 
     const contractAddresses: string[] = await marketContractRegistry.getAddressWhiteList;
-    const marketContractAddress = contractAddresses[0];
+    const contractAddress = contractAddresses[0];
 
-    const expirationTimeStamp: BigNumber = new BigNumber(Math.floor(Date.now() / 1000) + 60 * 60);
-    const makerAccount = web3.eth.accounts[1];
-    const takerAccount = web3.eth.accounts[2];
+    const expirationTimestamp = new BigNumber(Math.floor(Date.now() / 1000) + 60 * 60);
+    const maker = web3.eth.accounts[1];
+    const taker = web3.eth.accounts[2];
     const deploymentAddress = web3.eth.accounts[0];
 
     const deployedMarketContract: MarketContract = await MarketContract.createAndValidate(
       web3,
-      marketContractAddress
+      contractAddress
     );
     expect(await deployedMarketContract.isCollateralPoolContractLinked).toBe(true);
     expect(await deployedMarketContract.isSettled).toBe(false);
@@ -178,60 +180,55 @@ describe('Order', () => {
 
     // Both maker and taker account need enough tokens for collateral.  Our deployment address
     // should have all of the tokens and be able to send them.
-    await collateralToken.transferTx(makerAccount, initialCredit).send({ from: deploymentAddress });
-    await collateralToken.transferTx(takerAccount, initialCredit).send({ from: deploymentAddress });
+    await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
+    await collateralToken.transferTx(taker, initialCredit).send({ from: deploymentAddress });
 
     // now both maker and taker addresses need to deposit collateral into the collateral pool.
     const collateralPoolAddress = await deployedMarketContract.MARKET_COLLATERAL_POOL_ADDRESS;
-    await collateralToken
-      .approveTx(collateralPoolAddress, initialCredit)
-      .send({ from: makerAccount });
-    await collateralToken
-      .approveTx(collateralPoolAddress, initialCredit)
-      .send({ from: takerAccount });
+
+    await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
+
+    await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: taker });
 
     await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
-      from: makerAccount
+      from: maker
     });
+
     await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
-      from: takerAccount
+      from: taker
     });
 
     const order: Order = {
       // TODO: should we create a nicer constructor for Order?
-      contractAddress: marketContractAddress,
-      expirationTimestamp: expirationTimeStamp, // '', makerAccount, 0, 1, 100000, 1, '', 0
+      contractAddress,
+      expirationTimestamp, // '', maker, 0, 1, 100000, 1, '', 0
       feeRecipient: constants.NULL_ADDRESS,
-      maker: makerAccount,
+      maker,
       makerFee: new BigNumber(0),
       orderQty: 100,
       price: new BigNumber(100000),
       remainingQty: 100,
       salt: new BigNumber(0),
-      taker: takerAccount,
+      taker,
       takerFee: new BigNumber(0)
     };
 
-    const orderHash: string | BigNumber = await createOrderHashAsync(
-      web3.currentProvider,
-      orderLibAddress,
-      order
-    );
+    const orderHash = await createOrderHashAsync(web3.currentProvider, orderLibAddress, order);
 
     const signedOrder: SignedOrder = {
       // TODO: should we create a nicer constructor for Order and a signed order form an order!
-      contractAddress: marketContractAddress,
-      expirationTimestamp: expirationTimeStamp, // '', makerAccount, 0, 1, 100000, 1, '', 0
+      contractAddress,
+      expirationTimestamp, // '', maker, 0, 1, 100000, 1, '', 0
       feeRecipient: constants.NULL_ADDRESS,
-      maker: makerAccount,
+      maker,
       makerFee: new BigNumber(0),
       orderQty: 100,
       price: new BigNumber(100000),
       remainingQty: 100,
       salt: new BigNumber(0),
-      taker: takerAccount,
+      taker,
       takerFee: new BigNumber(0),
-      ecSignature: await signOrderHashAsync(web3.currentProvider, String(orderHash), makerAccount)
+      ecSignature: await signOrderHashAsync(web3.currentProvider, String(orderHash), maker)
     };
 
     expect(
@@ -244,6 +241,6 @@ describe('Order', () => {
     ).toBe(true);
 
     // TODO: this is failing, but not sure why yet.  Need to work on debugging.
-    await tradeOrderAsync(web3.currentProvider, signedOrder, 1, { from: takerAccount });
+    await tradeOrderAsync(web3.currentProvider, signedOrder, 1, { from: taker });
   });
 });

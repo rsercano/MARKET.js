@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js';
 import Web3 from 'web3';
 
 // import { assert } from '../assert';
@@ -30,9 +29,7 @@ export async function createOrderHashAsync(
 
   const orderLib: OrderLib = await OrderLib.createAndValidate(web3, orderLibAddress);
 
-  let orderHash = '';
-
-  await orderLib
+  return orderLib
     .createOrderHash(
       order.contractAddress,
       // orderAddresses
@@ -41,13 +38,12 @@ export async function createOrderHashAsync(
       [order.makerFee, order.takerFee, order.price, order.expirationTimestamp, order.salt],
       order.orderQty
     )
-    .then(data => (orderHash = data))
+    .then(data => data)
     .catch((err: Error) => {
-      console.log('Error while creating order hash');
+      const error = 'Error while creating order hash';
       console.error(err);
+      return error;
     });
-
-  return orderHash;
 }
 
 /**
