@@ -8,6 +8,7 @@ import { Utils } from './Utils';
 import { Provider } from '@0xproject/types';
 import { ECSignature, Order, SignedOrder } from '../types/Order';
 import { ITxParams, MarketContract, OrderLib } from '@marketprotocol/types';
+import { BigNumber } from 'bignumber.js';
 
 /**
  * Computes the orderHash for a supplied order.
@@ -76,7 +77,7 @@ export async function signOrderHashAsync(
 export async function tradeOrderAsync(
   provider: Provider,
   signedOrder: SignedOrder,
-  fillQty: number,
+  fillQty: BigNumber,
   txParams: ITxParams = {}
 ): Promise<boolean> {
   // assert.isSchemaValid('SignedOrder', signedOrder, schemas.SignedOrderSchema);
@@ -105,6 +106,8 @@ export async function tradeOrderAsync(
       signedOrder.ecSignature.s
     )
     .send(txParams);
+
+  // TODO: return qty filled and watch for event.
 
   return true;
 }

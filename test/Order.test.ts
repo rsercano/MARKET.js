@@ -7,7 +7,12 @@ import {
 import { getContractAddress } from './utils';
 import Web3 from 'web3';
 import { Order, SignedOrder } from '../src/types/Order';
-import { ERC20, MarketContract, MarketContractRegistry } from '@marketprotocol/types';
+import {
+  ERC20,
+  MarketCollateralPool,
+  MarketContract,
+  MarketContractRegistry
+} from '@marketprotocol/types';
 import { BigNumber } from 'bignumber.js';
 import { depositCollateralAsync, getUserAccountBalanceAsync } from '../src/lib/Collateral';
 import { constants } from '../src/constants';
@@ -185,6 +190,11 @@ describe('Order', () => {
 
     // now both maker and taker addresses need to deposit collateral into the collateral pool.
     const collateralPoolAddress = await deployedMarketContract.MARKET_COLLATERAL_POOL_ADDRESS;
+    const collateralPool = await MarketCollateralPool.createAndValidate(
+      web3,
+      collateralPoolAddress
+    );
+    expect(await collateralPool.linkedAddress).toBe(deployedMarketContract.address);
 
     await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
 
@@ -240,7 +250,9 @@ describe('Order', () => {
       )
     ).toBe(true);
 
-    // TODO: this is failing, but not sure why yet.  Need to work on debugging.
-    await tradeOrderAsync(web3.currentProvider, signedOrder, 1, { from: taker });
+    await tradeOrderAsync(web3.currentProvider, signedOrder, new BigNumber(1), {
+      from: taker,
+      gas: 400000
+    });
   });
 });

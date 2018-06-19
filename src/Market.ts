@@ -80,7 +80,7 @@ export class Market {
    */
   public async tradeOrderAsync(
     signedOrder: SignedOrder,
-    fillQty: number,
+    fillQty: BigNumber,
     txParams: ITxParams
   ): Promise<boolean> {
     return tradeOrderAsync(this._web3.currentProvider, signedOrder, fillQty);
