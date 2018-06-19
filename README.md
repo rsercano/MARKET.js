@@ -75,7 +75,7 @@ Assuming you have npm already, Install truffle
 $ make install_truffle # may require sudo
 ```
 
-Install needed dependencies.  If this fails on your ubuntu install it may require you to run `sudo apt-get install build-essential -y` prior to install.
+Install needed dependencies.  If this fails on your ubuntu install it may require you to run `sudo apt-get install build-essential -y` prior to installing.
 ```
 $ make install_deps
 ```
@@ -85,7 +85,7 @@ You can start the truffle development environment and console
 $ make start_console
 ```
 
-From here, in a separate console we now need to bring up the ethereum bridge for the Oraclize.it service.
+From here, in a separate console, we now need to bring up the ethereum bridge for the Oraclize.it service.
 ```
 $ make start_bridge
 ```
@@ -97,12 +97,11 @@ truffle(develop)> migrate
 If this fails due to a `revert`, please be sure the bridge is listening prior to attempting the migration.
 
 A local blockchain is now running with a fully deployed suite of MARKET Protocol smart contracts.
-The needed .json ABI files can now be found in ./build/contracts/ 
+The needed `json` ABI files can now be found in `./build/contracts/`
 
 ## Testing
 
-In order for the tests to work, you will need to have followed the above steps to ensure truffle
-is running, ethereum-bridge is running, and the migrations have deployed our contracts.
+In order for the tests to work, you will need to have followed the above steps to ensure truffle is running, `ethereum-bridge` is running, and the migrations have deployed our contracts.
 
 If all of this is set up correctly, the below should work.
 
