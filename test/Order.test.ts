@@ -250,9 +250,10 @@ describe('Order', () => {
       )
     ).toBe(true);
 
-    await tradeOrderAsync(web3.currentProvider, signedOrder, new BigNumber(1), {
+    expect(await tradeOrderAsync(web3.currentProvider, signedOrder, new BigNumber(2), {
       from: taker,
       gas: 400000
-    });
+    })).toEqual(new BigNumber(2));
+
   });
 });

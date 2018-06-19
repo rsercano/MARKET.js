@@ -79,7 +79,7 @@ export async function tradeOrderAsync(
   signedOrder: SignedOrder,
   fillQty: BigNumber,
   txParams: ITxParams = {}
-): Promise<boolean> {
+): Promise<BigNumber | number> {
   // assert.isSchemaValid('SignedOrder', signedOrder, schemas.SignedOrderSchema);
 
   const web3: Web3 = new Web3();
@@ -87,7 +87,7 @@ export async function tradeOrderAsync(
 
   const marketContract: MarketContract = new MarketContract(web3, signedOrder.contractAddress);
 
-  await marketContract
+  const txHash : string = await marketContract
     .tradeOrderTx(
       // orderAddresses
       [signedOrder.maker, signedOrder.taker, signedOrder.feeRecipient],
@@ -107,9 +107,27 @@ export async function tradeOrderAsync(
     )
     .send(txParams);
 
-  // TODO: return qty filled and watch for event.
+  const blockNumber: number = Number(web3.eth.getTransaction(txHash).blockNumber);
 
-  return true;
+  return new Promise<BigNumber | number>((resolve, reject) => {
+    const stopEventWatcher = marketContract
+      .OrderFilledEvent({maker:signedOrder.maker })
+      .watch({ fromBlock: blockNumber, toBlock: blockNumber }, (err, eventLog) => {
+        // Validate this tx hash matches the tx we just created above.
+        if (err) {
+          console.log(err);
+        }
+
+        if (eventLog.transactionHash === txHash) {
+          stopEventWatcher()
+            .then(function() {
+              return resolve(eventLog.args.filledQty);
+            })
+            .catch(reject);
+        }
+      });
+  });
+  //TODO: listen for error events marketContract.ErrorEvent()
 }
 
 /**
