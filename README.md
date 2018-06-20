@@ -1,6 +1,6 @@
 <img src="https://github.com/MARKETProtocol/dApp/blob/master/src/img/MARKETProtocol-Light.png?raw=true" align="middle">
 
-[![Build Status](https://api.travis-ci.org/MARKETProtocol/MARKET.js.svg?branch=master)](https://travis-ci.org/MARKETProtocol/MARKET.js) [![Coverage Status](https://coveralls.io/repos/github/MARKETProtocol/MARKET.js/badge.svg?branch=master)](https://coveralls.io/github/MARKETProtocol/MARKET.js?branch=master)
+[![Build Status](https://travis-ci.org/MARKETProtocol/MARKET.js.svg?branch=develop)](https://travis-ci.org/MARKETProtocol/MARKET.js) [![Coverage Status](https://coveralls.io/repos/github/MARKETProtocol/MARKET.js/badge.svg?branch=master)](https://coveralls.io/github/MARKETProtocol/MARKET.js?branch=master)
 
 MARKET Protocol has been created to provide a secure, flexible, open source foundation for decentralized trading on the Ethereum blockchain. We provide the pieces necessary to create a decentralized exchange, including the requisite clearing and collateral pool infrastructure, enabling third parties to build applications for trading.
 
