@@ -48,6 +48,32 @@ export async function createOrderHashAsync(
 }
 
 /**
+ * Confirms a signed order is validly signed
+ * @param provider
+ * @param orderLibAddress
+ * @param signedOrder
+ * @param orderHash
+ * @return boolean if order hash and signature resolve to maker address (signer)
+ */
+export async function isValidSignatureAsync(
+  provider: Provider,
+  orderLibAddress: string,
+  signedOrder: SignedOrder,
+  orderHash: string
+): Promise<boolean> {
+  const web3: Web3 = new Web3();
+  web3.setProvider(provider);
+  const orderLib: OrderLib = await OrderLib.createAndValidate(web3, orderLibAddress);
+  return orderLib.isValidSignature(
+    signedOrder.maker,
+    orderHash,
+    signedOrder.ecSignature.v,
+    signedOrder.ecSignature.r,
+    signedOrder.ecSignature.s
+  );
+}
+
+/**
  * Signs an orderHash and returns it's elliptic curve signature.
  * @param   provider        Web3 provider instance.
  * @param   orderHash       Hex encoded orderHash to sign.
@@ -128,30 +154,4 @@ export async function tradeOrderAsync(
       });
   });
   // TODO: listen for error events marketContract.ErrorEvent()
-}
-
-/**
- * Confirms a signed order is validly signed
- * @param provider
- * @param orderLibAddress
- * @param signedOrder
- * @param orderHash
- * @return boolean if order hash and signature resolve to maker address (signer)
- */
-export async function isValidSignatureAsync(
-  provider: Provider,
-  orderLibAddress: string,
-  signedOrder: SignedOrder,
-  orderHash: string
-): Promise<boolean> {
-  const web3: Web3 = new Web3();
-  web3.setProvider(provider);
-  const orderLib: OrderLib = await OrderLib.createAndValidate(web3, orderLibAddress);
-  return orderLib.isValidSignature(
-    signedOrder.maker,
-    orderHash,
-    signedOrder.ecSignature.v,
-    signedOrder.ecSignature.r,
-    signedOrder.ecSignature.s
-  );
 }
