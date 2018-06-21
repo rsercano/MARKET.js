@@ -13,3 +13,7 @@ compiled
 docs
 .env
 build
+
+# Ignore JS files
+src/**/*.js
+test/**/*.js

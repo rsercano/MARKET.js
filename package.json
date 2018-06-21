@@ -1,6 +1,6 @@
 {
   "name": "@marketprotocol/marketjs",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "library for interacting with MARKET Protocol",
   "keywords": [
     "MARKET Protocol",
@@ -43,13 +43,14 @@
     "start": "rollup -c rollup.config.ts -w",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:prod": "npm run lint && npm run test -- --coverage --no-cache",
+    "test:prod": "npm run lint && npm run build && npm run coverage",
     "deploy-docs": "ts-node tools/gh-pages-publish",
     "report-coverage": "cat ./coverage/lcov.info | node_modules/.bin/coveralls --verbose",
     "commit": "git-cz",
     "semantic-release": "semantic-release",
     "semantic-release-prepare": "ts-node tools/semantic-release-prepare",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "coverage": "npm run test -- --coverage --no-cache"
   },
   "lint-staged": {
     "{src,test}/**/*.ts": [
@@ -83,7 +84,7 @@
     "transform": {
       ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
-    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx)$",
     "moduleFileExtensions": [
       "ts",
       "tsx",
