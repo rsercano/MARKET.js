@@ -22,7 +22,12 @@ import {
   deployMarketContractOraclizeAsync
 } from './lib/Deployment';
 
-import { createOrderHashAsync, signOrderHashAsync, tradeOrderAsync } from './lib/Order';
+import {
+  createOrderHashAsync,
+  isValidSignatureAsync,
+  signOrderHashAsync,
+  tradeOrderAsync
+} from './lib/Order';
 
 /**
  * The `Market` class is the single entry-point into the MARKET.js library.
@@ -227,6 +232,26 @@ export class Market {
     order: Order | SignedOrder
   ): Promise<string> {
     return createOrderHashAsync(this._web3.currentProvider, orderLibAddress, order);
+  }
+
+  /**
+   * Confirms a signed order is validly signed
+   * @param orderLibAddress
+   * @param signedOrder
+   * @param orderHash
+   * @return boolean if order hash and signature resolve to maker address (signer)
+   */
+  public async isValidSignatureAsync(
+    orderLibAddress: string,
+    signedOrder: SignedOrder,
+    orderHash: string
+  ): Promise<boolean> {
+    return isValidSignatureAsync(
+      this._web3.currentProvider,
+      orderLibAddress,
+      signedOrder,
+      orderHash
+    );
   }
 
   /**
