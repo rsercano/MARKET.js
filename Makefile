@@ -12,20 +12,24 @@ EB_PATH=../ethereum-bridge
 
 # default target
 default:
-	pwd
+		pwd
 
 install_truffle:
-	npm i -g truffle
+		npm install -g truffle@4.1.11
 
 # install required dependencies
 install_deps:
-	npm i # for market.js
-	cd $(EB_PATH) ; npm install # for ethereum-bridge
+		npm install # for market.js
+		cd $(EB_PATH) ; npm install # for ethereum-bridge
+
+install_deps_python2.7:
+		npm install --python=python2.7 # for MARKETProtocol with python 2.7
+		cd $(EB_PATH) ; npm install --python=python2.7 # for ethereum-bridge
 
 # open truffle console with a local development blockchain
 start_console:
-	truffle develop
+		truffle develop
 
 # start ethereum bridge
 start_bridge:
-	cd $(EB_PATH) ; node bridge -H localhost:9545 -a 9 --dev
+		cd $(EB_PATH) ; node bridge -H localhost:9545 -a 9 --dev

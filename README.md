@@ -79,6 +79,13 @@ Install needed dependencies.  If this fails on your ubuntu install it may requir
 ```
 $ make install_deps
 ```
+If you get an error on the `node-gyp rebuild` line during `make install_deps`, `node-gyp` doesn't support Python v3.x.x; v2.7 is recommended. There are several solutions based upon your platform.
+
+The easiest solution?
+```
+make install_deps_python2.7
+```
+to use Python 2.7. See [stack overflow](https://stackoverflow.com/questions/20454199/how-to-use-a-different-version-of-python-during-npm-install) or the [npm node-gyp project](https://github.com/nodejs/node-gyp) for details.
 
 You can start the truffle development environment and console
 ```
@@ -92,7 +99,7 @@ $ make start_bridge
 
 Once the bridge has fully initialized, you should be able to run the example migrations for the MARKET Protocol smart contracts.
 ```
-truffle(develop)> migrate
+truffle(develop)> migrate --reset
 ```
 If this fails due to a `revert`, please be sure the bridge is listening prior to attempting the migration.
 
