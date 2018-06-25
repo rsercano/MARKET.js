@@ -1,6 +1,7 @@
 import {
   cancelOrderAsync,
   createOrderHashAsync,
+  createSignedOrderAsync,
   getQtyFilledOrCancelledFromOrderAsync,
   isValidSignatureAsync,
   signOrderHashAsync,
@@ -16,8 +17,9 @@ import {
   MarketContractRegistry
 } from '@marketprotocol/types';
 import { BigNumber } from 'bignumber.js';
-import { depositCollateralAsync, getUserAccountBalanceAsync } from '../src/lib/Collateral';
+import { depositCollateralAsync } from '../src/lib/Collateral';
 import { constants } from '../src/constants';
+import { Utils } from '../src';
 
 /**
  * Order
@@ -44,42 +46,31 @@ describe('Order', () => {
     const makerAccount = web3.eth.accounts[1];
     const takerAccount = web3.eth.accounts[2];
 
-    const order: Order = {
-      // TODO: should we create a nicer constructor for Order?
-      contractAddress: marketContractAddress,
-      expirationTimestamp: expirationTimeStamp, // '', makerAccount, 0, 1, 100000, 1, '', 0
-      feeRecipient: constants.NULL_ADDRESS,
-      maker: makerAccount,
-      makerFee: new BigNumber(0),
-      orderQty: 100,
-      price: new BigNumber(100000),
-      remainingQty: 100,
-      salt: new BigNumber(0),
-      taker: constants.NULL_ADDRESS,
-      takerFee: new BigNumber(0)
-    };
+    const fees: BigNumber = new BigNumber(0);
+    const orderQty: BigNumber = new BigNumber(100);
+    const price: BigNumber = new BigNumber(100000);
+
+    const signedOrder: SignedOrder = await createSignedOrderAsync(
+      web3.currentProvider,
+      orderLibAddress,
+      marketContractAddress,
+      expirationTimeStamp,
+      constants.NULL_ADDRESS,
+      makerAccount,
+      fees,
+      constants.NULL_ADDRESS,
+      fees,
+      orderQty,
+      price,
+      orderQty,
+      Utils.generatePseudoRandomSalt()
+    );
 
     const orderHash: string | BigNumber = await createOrderHashAsync(
       web3.currentProvider,
       orderLibAddress,
-      order
+      signedOrder
     );
-
-    const signedOrder: SignedOrder = {
-      // TODO: should we create a nicer constructor for Order and a signed order form an order!
-      contractAddress: marketContractAddress,
-      expirationTimestamp: expirationTimeStamp, // '', makerAccount, 0, 1, 100000, 1, '', 0
-      feeRecipient: constants.NULL_ADDRESS,
-      maker: makerAccount,
-      makerFee: new BigNumber(0),
-      orderQty: 100,
-      price: new BigNumber(100000),
-      remainingQty: 100,
-      salt: new BigNumber(0),
-      taker: constants.NULL_ADDRESS,
-      takerFee: new BigNumber(0),
-      ecSignature: await signOrderHashAsync(web3.currentProvider, String(orderHash), makerAccount)
-    };
 
     expect(
       await isValidSignatureAsync(
@@ -98,9 +89,9 @@ describe('Order', () => {
       feeRecipient: constants.NULL_ADDRESS,
       maker: makerAccount,
       makerFee: new BigNumber(0),
-      orderQty: 100,
+      orderQty: orderQty,
       price: new BigNumber(150000), // change price without signing!
-      remainingQty: 100,
+      remainingQty: orderQty,
       salt: new BigNumber(0),
       taker: constants.NULL_ADDRESS,
       takerFee: new BigNumber(0),
@@ -210,38 +201,31 @@ describe('Order', () => {
       from: taker
     });
 
-    const order: Order = {
-      // TODO: should we create a nicer constructor for Order?
-      contractAddress,
-      expirationTimestamp, // '', maker, 0, 1, 100000, 1, '', 0
-      feeRecipient: constants.NULL_ADDRESS,
-      maker,
-      makerFee: new BigNumber(0),
-      orderQty: 100,
-      price: new BigNumber(100000),
-      remainingQty: 100,
-      salt: new BigNumber(0),
-      taker,
-      takerFee: new BigNumber(0)
-    };
+    const fees: BigNumber = new BigNumber(0);
+    const orderQty: BigNumber = new BigNumber(100);
+    const price: BigNumber = new BigNumber(100000);
 
-    const orderHash = await createOrderHashAsync(web3.currentProvider, orderLibAddress, order);
-
-    const signedOrder: SignedOrder = {
-      // TODO: should we create a nicer constructor for Order and a signed order form an order!
+    const signedOrder: SignedOrder = await createSignedOrderAsync(
+      web3.currentProvider,
+      orderLibAddress,
       contractAddress,
-      expirationTimestamp, // '', maker, 0, 1, 100000, 1, '', 0
-      feeRecipient: constants.NULL_ADDRESS,
+      expirationTimestamp,
+      constants.NULL_ADDRESS,
       maker,
-      makerFee: new BigNumber(0),
-      orderQty: 100,
-      price: new BigNumber(100000),
-      remainingQty: 100,
-      salt: new BigNumber(0),
-      taker,
-      takerFee: new BigNumber(0),
-      ecSignature: await signOrderHashAsync(web3.currentProvider, String(orderHash), maker)
-    };
+      fees,
+      constants.NULL_ADDRESS,
+      fees,
+      orderQty,
+      price,
+      orderQty,
+      Utils.generatePseudoRandomSalt()
+    );
+
+    const orderHash = await createOrderHashAsync(
+      web3.currentProvider,
+      orderLibAddress,
+      signedOrder
+    );
 
     expect(
       await isValidSignatureAsync(
@@ -287,43 +271,41 @@ describe('Order', () => {
     await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
 
     const collateralPoolAddress = await deployedMarketContract.MARKET_COLLATERAL_POOL_ADDRESS;
-    const collateralPool = await MarketCollateralPool.createAndValidate(
-      web3,
-      collateralPoolAddress
-    );
-
     await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
 
     await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
       from: maker
     });
 
+    const orderQty: BigNumber = new BigNumber(100);
     const order: Order = {
-      // TODO: should we create a nicer constructor for Order?
       contractAddress,
       expirationTimestamp, // '', maker, 0, 1, 100000, 1, '', 0
       feeRecipient: constants.NULL_ADDRESS,
       maker,
       makerFee: new BigNumber(0),
-      orderQty: 100,
+      orderQty: orderQty,
       price: new BigNumber(100000),
-      remainingQty: 100,
+      remainingQty: orderQty,
       salt: new BigNumber(0),
       taker,
       takerFee: new BigNumber(0)
     };
 
-    const orderHash = await createOrderHashAsync(web3.currentProvider, orderLibAddress, order);
-
     const cancelQty = 3;
     expect(
-      await cancelOrderAsync(web3.currentProvider, contractAddress, order, new BigNumber(cancelQty), {
-        from: maker,
-        gas: 400000
-      })
+      await cancelOrderAsync(
+        web3.currentProvider,
+        contractAddress,
+        order,
+        new BigNumber(cancelQty),
+        {
+          from: maker,
+          gas: 400000
+        }
+      )
     ).toEqual(new BigNumber(cancelQty));
   });
-
 
   it('Gets qty filled or cancelled from order', async () => {
     const marketContractRegistryAddress = getContractAddress(
@@ -380,38 +362,30 @@ describe('Order', () => {
       from: taker
     });
 
-    const order: Order = {
-      // TODO: should we create a nicer constructor for Order?
-      contractAddress,
-      expirationTimestamp, // '', maker, 0, 1, 100000, 1, '', 0
-      feeRecipient: constants.NULL_ADDRESS,
-      maker,
-      makerFee: new BigNumber(0),
-      orderQty: 100,
-      price: new BigNumber(100000),
-      remainingQty: 100,
-      salt: new BigNumber(0),
-      taker,
-      takerFee: new BigNumber(0)
-    };
+    const fees: BigNumber = new BigNumber(0);
+    const orderQty: BigNumber = new BigNumber(100);
+    const price: BigNumber = new BigNumber(100000);
 
-    const orderHash = await createOrderHashAsync(web3.currentProvider, orderLibAddress, order);
-
-    const signedOrder: SignedOrder = {
-      // TODO: should we create a nicer constructor for Order and a signed order form an order!
+    const signedOrder: SignedOrder = await createSignedOrderAsync(
+      web3.currentProvider,
+      orderLibAddress,
       contractAddress,
-      expirationTimestamp, // '', maker, 0, 1, 100000, 1, '', 0
-      feeRecipient: constants.NULL_ADDRESS,
+      expirationTimestamp,
+      constants.NULL_ADDRESS,
       maker,
-      makerFee: new BigNumber(0),
-      orderQty: 100,
-      price: new BigNumber(100000),
-      remainingQty: 100,
-      salt: new BigNumber(0),
-      taker,
-      takerFee: new BigNumber(0),
-      ecSignature: await signOrderHashAsync(web3.currentProvider, String(orderHash), maker)
-    };
+      fees,
+      constants.NULL_ADDRESS,
+      fees,
+      orderQty,
+      price,
+      orderQty,
+      Utils.generatePseudoRandomSalt()
+    );
+    const orderHash = await createOrderHashAsync(
+      web3.currentProvider,
+      orderLibAddress,
+      signedOrder
+    );
 
     expect(
       await getQtyFilledOrCancelledFromOrderAsync(
@@ -437,10 +411,16 @@ describe('Order', () => {
       )
     ).toEqual(new BigNumber(fillQty));
 
-    await cancelOrderAsync(web3.currentProvider, contractAddress, order, new BigNumber(cancelQty), {
-      from: maker,
-      gas: 400000
-    });
+    await cancelOrderAsync(
+      web3.currentProvider,
+      contractAddress,
+      signedOrder,
+      new BigNumber(cancelQty),
+      {
+        from: maker,
+        gas: 400000
+      }
+    );
 
     expect(
       await getQtyFilledOrCancelledFromOrderAsync(
