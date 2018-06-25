@@ -50,13 +50,6 @@ Join our [Discord Community](https://marketprotocol.io/discord) to get in touch 
 
 ## Usage
 
-```bash
-$ git clone https://github.com/MARKETProtocol/MARKET.js
-$ YOURFOLDERNAME
-$ cd YOURFOLDERNAME
-$ npm install
-```
-
 A Makefile is provided for easy setup of the local development environment.
 
 Some pre-requisites are required in order to utilize the Makefile.
@@ -64,7 +57,7 @@ Some pre-requisites are required in order to utilize the Makefile.
 NodeJS 8.11.2 LTS is recommended for compatibility.
 
 ```
-$ git clone git@github.com:MARKETProtocol/MARKET.js.git  # clone this repository
+$ git clone https://github.com/MARKETProtocol/MARKET.js  # clone this repository
 $ git clone https://github.com/MARKETProtocol/ethereum-bridge.git # and the needed oraclize.it bridge (for local test rpc)
 ```
 
