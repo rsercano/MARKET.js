@@ -179,7 +179,6 @@ export async function tradeOrderAsync(
   web3.setProvider(provider);
 
   const marketContract: MarketContract = new MarketContract(web3, signedOrder.contractAddress);
-
   const txHash: string = await marketContract
     .tradeOrderTx(
       // orderAddresses
@@ -221,4 +220,75 @@ export async function tradeOrderAsync(
       });
   });
   // TODO: listen for error events marketContract.ErrorEvent()
+}
+
+/**
+ * Returns the qty that is no longer available to trade for a given order/
+ * @param   provider        Web3 provider instance.
+ * @param   orderHash       Hash of order to find filled and cancelled qty.
+ * @param   contractAddress   The address of the Market contract.
+ * @return  A BigNumber of the filled or cancelled quantity.
+ */
+export async function getQtyFilledOrCancelledFromOrderAsync(
+  provider: Provider,
+  contractAddress: string,
+  orderHash: string
+): Promise<BigNumber> {
+  const web3: Web3 = new Web3();
+  web3.setProvider(provider);
+  const marketContract: MarketContract = new MarketContract(web3, contractAddress);
+  return marketContract.getQtyFilledOrCancelledFromOrder(orderHash);
+}
+/**
+ * Cancels an order in the given quantity.
+ * @param   provider        Web3 provider instance.
+ * @param   contractAddress The address of the market contract.
+ * @param   Order           The order you wish to cancel.
+ * @param   cancelQty         The amount of the order that you wish to fill.
+ * @param   txParams        Transaction params of web3.
+ * @return  The quantity cancelled.
+ */
+export async function cancelOrderAsync(
+  provider: Provider,
+  contractAddress: string,
+  order: Order,
+  cancelQty: BigNumber,
+  txParams: ITxParams = {}
+): Promise<BigNumber | number> {
+
+  const web3: Web3 = new Web3();
+  web3.setProvider(provider);
+
+  const marketContract: MarketContract = new MarketContract(web3, contractAddress);
+  const txHash: string = await marketContract.cancelOrderTx(
+    [order.maker, order.taker, order.feeRecipient],
+    [
+      order.makerFee,
+      order.takerFee,
+      order.price,
+      order.expirationTimestamp,
+      order.salt
+    ],
+    order.orderQty,
+    cancelQty
+  )
+  .send(txParams);
+
+  const blockNumber: number = Number(web3.eth.getTransaction(txHash).blockNumber);
+  return new Promise<BigNumber | number>((resolve, reject) => {
+    const stopEventWatcher = marketContract
+    .OrderCancelledEvent({maker: order.maker})
+    .watch({ fromBlock: blockNumber, toBlock: blockNumber }, (err, eventLog) => {
+      if (err) {
+        console.log(err);
+      }
+      if (eventLog.transactionHash === txHash) {
+        stopEventWatcher()
+          .then(function() {
+            return resolve(eventLog.args.cancelledQty);
+          })
+          .catch(reject);
+      }
+    });
+  });
 }
