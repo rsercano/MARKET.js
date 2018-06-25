@@ -3,7 +3,7 @@ import Web3 from 'web3';
 
 // Types
 import { Provider } from '@0xproject/types';
-import { ITxParams, MarketContract } from '@marketprotocol/types';
+import { ITxParams } from '@marketprotocol/types';
 import { ECSignature, Order, SignedOrder } from './types/Order';
 
 import { assert } from './assert';
@@ -333,27 +333,27 @@ export class Market {
   }
   /**
    * Returns the qty that is no longer available to trade for a given order/
-   * @param {string} orderHash       Hash of order to find filled and cancelled qty.
+   * @param {string} orderHash                Hash of order to find filled and cancelled qty.
    * @param {string} marketContractAddress    Address of the Market contract
-   * @return {Promise<BigNumber>} The filled or cancelled quantity.
+   * @return {Promise<BigNumber>}             The filled or cancelled quantity.
    */
   public async getQtyFilledOrCancelledFromOrderAsync(
     orderHash: string,
-    MarketContractAddress: string
+    marketContractAddress: string
   ): Promise<BigNumber> {
     return getQtyFilledOrCancelledFromOrderAsync(
       this._web3.currentProvider,
-      MarketContractAddress,
+      marketContractAddress,
       orderHash
     );
   }
   /**
-   * Cancels an order in the given qauntity and returns the quantity.
-   * @param {Order} Order        Order object.
+   * Cancels an order in the given quantity and returns the quantity.
+   * @param {Order} order                   Order object.
    * @param {string} marketContractAddress  Address of the Market contract
-   * @param {BigNumber} cancelQty  The amount of the order that you wish to cancel.
-   * @param {ITxParams} txParams  Transaction params of web3.
-   * @return {Promise<BigNumber>}   Qty that cancelled.
+   * @param {BigNumber} cancelQty           The amount of the order that you wish to cancel.
+   * @param {ITxParams} txParams            Transaction params of web3.
+   * @return {Promise<BigNumber>}           Qty that cancelled.
    */
   public async cancelOrderAsync(
     order: Order,
@@ -361,6 +361,12 @@ export class Market {
     cancelQty: BigNumber,
     txParams: ITxParams = {}
   ): Promise<BigNumber | number> {
-    return cancelOrderAsync(this._web3.currentProvider, marketContractAddress, order, cancelQty, txParams);
+    return cancelOrderAsync(
+      this._web3.currentProvider,
+      marketContractAddress,
+      order,
+      cancelQty,
+      txParams
+    );
   }
 }
