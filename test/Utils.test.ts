@@ -5,6 +5,7 @@ import { Utils } from '../src/';
 
 // Types
 import { ECSignature } from '../src/types/Order';
+import BigNumber from 'bignumber.js';
 
 /**
  * Utils
@@ -37,5 +38,15 @@ describe('Utils library', () => {
       expect(r).toBe(ecSignature.r);
       expect(s).toBe(ecSignature.s);
     });
+  });
+
+  it('generates different salts', () => {
+    expect(Utils.generatePseudoRandomSalt().eq(Utils.generatePseudoRandomSalt())).toBeFalsy();
+  });
+  it('generates salt in range [0..2^256)', () => {
+    const salt = Utils.generatePseudoRandomSalt();
+    expect(salt.isGreaterThanOrEqualTo(0)).toBeTruthy();
+    const twoPow256 = new BigNumber(2).pow(256);
+    expect(salt.isLessThan(twoPow256)).toBeTruthy();
   });
 });
