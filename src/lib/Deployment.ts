@@ -82,7 +82,7 @@ export async function deployMarketContractOraclizeAsync(
 
   return new Promise<string | BigNumber>((resolve, reject) => {
     const stopEventWatcher = marketContractFactory
-      .MarketContractCreatedEvent({})
+      .MarketContractCreatedEvent({ creator: txParams.from }) // filter based on creator
       .watch({ fromBlock: blockNumber, toBlock: blockNumber }, (err, eventLog) => {
         // Validate this tx hash matches the tx we just created above.
         if (err) {
