@@ -70,6 +70,9 @@ export class Market {
     // NOTE: we cannot createAndValidate here because of the async fx and the constructor
     // this may not be the best option here for validating
 
+    // NOTE: if an address is not defined, we should attempt to pull from a truffle artifact
+    // prior to creating. We should be able to do this based on the network config in the artifact.
+
     this.marketContractRegistry = new MarketContractRegistry(
       this._web3,
       config.marketContractRegistryAddress

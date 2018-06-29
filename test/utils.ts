@@ -2,7 +2,7 @@ import { join } from 'path';
 import { readFileSync } from 'fs';
 
 /**
- * Pulls a contract address fom a truffle artifcact .json file.  Assumes these files
+ * Pulls a contract address fom a truffle artifact .json file.  Assumes these files
  * are located in MARKET.js/build/contracts.  Currently no error handling is present.
  * @param {string} contractName full class name of contract i.e MarketContractOraclize
  * @param {string} networkID Network id for desired address ('4447' for Truffle)
