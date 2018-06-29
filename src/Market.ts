@@ -3,7 +3,13 @@ import Web3 from 'web3';
 
 // Types
 import { Provider } from '@0xproject/types';
-import { ITxParams } from '@marketprotocol/types';
+import {
+  ITxParams,
+  MarketCollateralPoolFactory,
+  MarketContractFactoryOraclize,
+  MarketContractRegistry,
+  MarketToken
+} from '@marketprotocol/types';
 import { ECSignature, Order, SignedOrder } from './types/Order';
 
 import { assert } from './assert';
@@ -31,6 +37,8 @@ import {
   signOrderHashAsync,
   tradeOrderAsync
 } from './lib/Order';
+import { MARKETProtocolConfig } from './types/Configs';
+import { constants } from './constants';
 
 /**
  * The `Market` class is the single entry-point into the MARKET.js library.
@@ -38,18 +46,55 @@ import {
  * should be made through a `Market` instance.
  */
 export class Market {
-  private _web3: Web3;
+  public marketContractRegistry: MarketContractRegistry;
+  public mktTokenContract: MarketToken;
+  public marketCollateralPoolFactory: MarketCollateralPoolFactory;
+  public marketContractFactory: MarketContractFactoryOraclize; // todo: create interface.
+
+  private readonly _web3: Web3;
 
   /**
    * Instantiates a new Market instance that provides the public interface to the Market library.
    * @param {Provider} provider    The Provider instance you would like the Market library to use
    *                               for interacting with the Ethereum network.
+   * @param {MARKETProtocolConfig} config object for addresses and other vars
    * @return {Market}              An instance of the Market class.
    */
-  constructor(provider: Provider) {
+  constructor(provider: Provider, config: MARKETProtocolConfig) {
     assert.isWeb3Provider('provider', provider);
+    // TODO: add check for config to conform to schema.
+
     this._web3 = new Web3();
     this._web3.setProvider(provider);
+
+    // NOTE: we cannot createAndValidate here because of the async fx and the constructor
+    // this may not be the best option here for validating
+
+    this.marketContractRegistry = new MarketContractRegistry(
+      this._web3,
+      config.marketContractRegistryAddress
+        ? config.marketContractRegistryAddress
+        : constants.NULL_ADDRESS
+    );
+
+    this.mktTokenContract = new MarketToken(
+      this._web3,
+      config.mktTokenAddress ? config.mktTokenAddress : constants.NULL_ADDRESS
+    );
+
+    this.marketContractFactory = new MarketContractFactoryOraclize(
+      this._web3,
+      config.marketContractFactoryAddress
+        ? config.marketContractFactoryAddress
+        : constants.NULL_ADDRESS
+    );
+
+    this.marketCollateralPoolFactory = new MarketCollateralPoolFactory(
+      this._web3,
+      config.marketCollateralPoolFactoryAddress
+        ? config.marketCollateralPoolFactoryAddress
+        : constants.NULL_ADDRESS
+    );
   }
 
   // PROVIDER METHODS
@@ -331,6 +376,7 @@ export class Market {
   ): Promise<BigNumber | number> {
     return tradeOrderAsync(this._web3.currentProvider, signedOrder, fillQty, txParams);
   }
+
   /**
    * Returns the qty that is no longer available to trade for a given order/
    * @param {string} orderHash                Hash of order to find filled and cancelled qty.
@@ -347,6 +393,7 @@ export class Market {
       orderHash
     );
   }
+
   /**
    * Cancels an order in the given quantity and returns the quantity.
    * @param {Order} order                   Order object.
