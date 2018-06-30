@@ -1,33 +1,34 @@
 import { BigNumber } from 'bignumber.js';
 import Web3 from 'web3';
 
-import {
-  deployMarketCollateralPoolAsync,
-  deployMarketContractOraclizeAsync
-} from '../src/lib/Deployment';
 import { getContractAddress } from './utils';
 
 // Types
 import {
   ITxParams,
   MarketCollateralPoolFactory,
-  MarketContractFactoryOraclize,
   MarketContractOraclize
 } from '@marketprotocol/types';
+import { Market } from '../src';
+import { constants } from '../src/constants';
+import { MARKETProtocolConfig } from '../src/types/Configs';
 
 describe('Deployment Tests', () => {
   const TRUFFLE_NETWORK_ID = `4447`;
   const GAS_LIMIT = 4000000;
   const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:9545'));
   let deployMarketContract: MarketContractOraclize;
+  const config: MARKETProtocolConfig = {
+    networkId: constants.NETWORK_ID_TRUFFLE
+  };
+  const market: Market = new Market(web3.currentProvider, config);
 
   it('Deploys a MARKET Contract Correctly', async () => {
-    const factoryAddress = getContractAddress('MarketContractFactoryOraclize', TRUFFLE_NETWORK_ID);
     const collateralTokenAddress = getContractAddress('CollateralToken', TRUFFLE_NETWORK_ID);
     const quickExpirationTimeStamp: BigNumber = new BigNumber(
       Math.floor(Date.now() / 1000) + 60 * 60
     ); // expires in an hour
-    const contractSpecs = [
+    const contractSpecs: BigNumber[] = [
       new BigNumber(50000),
       new BigNumber(150000),
       new BigNumber(2),
@@ -39,9 +40,8 @@ describe('Deployment Tests', () => {
     const oracleDataSource: string = 'URL';
     const oracleQuery: string =
       'json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0';
-    const deployedAddress = await deployMarketContractOraclizeAsync(
-      web3.currentProvider,
-      factoryAddress,
+
+    const deployedAddress = await market.deployMarketContractOraclizeAsync(
       contractName,
       collateralTokenAddress,
       contractSpecs,
@@ -69,12 +69,7 @@ describe('Deployment Tests', () => {
       TRUFFLE_NETWORK_ID
     );
     const txParams: ITxParams = { from: web3.eth.accounts[1], gas: GAS_LIMIT };
-    await deployMarketCollateralPoolAsync(
-      web3.currentProvider,
-      collateralPoolFactoryAddress,
-      deployMarketContract.address,
-      txParams
-    );
+    await market.deployMarketCollateralPoolAsync(deployMarketContract.address, txParams);
 
     expect(await deployMarketContract.isCollateralPoolContractLinked).toEqual(true);
     expect(await deployMarketContract.COLLATERAL_POOL_FACTORY_ADDRESS).toEqual(

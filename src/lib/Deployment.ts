@@ -13,25 +13,17 @@ import {
  * Calls our factory to create a new MarketCollateralPool that is then linked to the supplied
  * marketContractAddress.
  * @param {Provider} provider
- * @param {string} marketCollateralPoolAddress
+ * @param {MarketCollateralPoolFactory} marketCollateralPoolFactory
  * @param {string} marketContractAddress
  * @param {ITxParams} txParams
  * @returns {Promise<string>}                   transaction has of successful deployment.
  */
 export async function deployMarketCollateralPoolAsync(
   provider: Provider,
-  marketCollateralPoolAddress: string,
+  marketCollateralPoolFactory: MarketCollateralPoolFactory,
   marketContractAddress: string,
   txParams: ITxParams = {}
 ): Promise<string> {
-  const web3: Web3 = new Web3();
-  web3.setProvider(provider);
-
-  const marketCollateralPoolFactory: MarketCollateralPoolFactory = new MarketCollateralPoolFactory(
-    web3,
-    marketCollateralPoolAddress
-  );
-
   return marketCollateralPoolFactory
     .deployMarketCollateralPoolTx(marketContractAddress)
     .send(txParams);
@@ -41,7 +33,7 @@ export async function deployMarketCollateralPoolAsync(
  * calls our factory that deploys a MarketContractOraclize and then adds it to
  * the MarketContractRegistry.
  * @param {Provider} provider                     Web3 provider instance.
- * @param {string} marketContractFactoryAddress
+ * @param {MarketContractFactoryOraclize} marketContractFactory
  * @param {string} contractName
  * @param {string} collateralTokenAddress
  * @param {BigNumber[]} contractSpecs
@@ -52,7 +44,7 @@ export async function deployMarketCollateralPoolAsync(
  */
 export async function deployMarketContractOraclizeAsync(
   provider: Provider,
-  marketContractFactoryAddress: string,
+  marketContractFactory: MarketContractFactoryOraclize,
   contractName: string,
   collateralTokenAddress: string,
   contractSpecs: BigNumber[], // not sure why this is a big number from the typedefs?
@@ -62,11 +54,6 @@ export async function deployMarketContractOraclizeAsync(
 ): Promise<string | BigNumber> {
   const web3: Web3 = new Web3();
   web3.setProvider(provider);
-
-  const marketContractFactory: MarketContractFactoryOraclize = new MarketContractFactoryOraclize(
-    web3,
-    marketContractFactoryAddress
-  );
 
   const txHash = await marketContractFactory
     .deployMarketContractOraclizeTx(

@@ -76,7 +76,7 @@ export class Market {
 
     this._web3 = new Web3();
     this._web3.setProvider(provider);
-    this._updateConfigFromArtifacts(config);
+    Market._updateConfigFromArtifacts(config);
 
     this.marketContractRegistry = new MarketContractRegistry(
       this._web3,
@@ -105,6 +105,56 @@ export class Market {
     );
   }
   // endregion//Constructors
+
+  // region Private Static Methods
+  // *****************************************************************
+  // ****                  Private Static Methods                 ****
+  // *****************************************************************
+  /**
+   * Attempts to update a config with all the needed addresses from artifacts if available.
+   * @param {MARKETProtocolConfig} config
+   * @returns {MARKETProtocolConfig}
+   * @private
+   */
+  private static _updateConfigFromArtifacts(config: MARKETProtocolConfig): MARKETProtocolConfig {
+    if (
+      !config.marketContractRegistryAddress &&
+      artifacts.MarketContractRegistryArtifact &&
+      artifacts.MarketContractRegistryArtifact.networks[config.networkId]
+    ) {
+      config.marketContractRegistryAddress =
+        artifacts.MarketContractRegistryArtifact.networks[config.networkId].address;
+    }
+
+    if (
+      !config.marketTokenAddress &&
+      artifacts.MarketTokenArtifact &&
+      artifacts.MarketTokenArtifact.networks[config.networkId]
+    ) {
+      config.marketTokenAddress = artifacts.MarketTokenArtifact.networks[config.networkId].address;
+    }
+
+    if (
+      !config.marketContractFactoryAddress &&
+      artifacts.MarketContractFactoryOraclizeArtifact &&
+      artifacts.MarketContractFactoryOraclizeArtifact.networks[config.networkId]
+    ) {
+      config.marketContractFactoryAddress =
+        artifacts.MarketContractFactoryOraclizeArtifact.networks[config.networkId].address;
+    }
+
+    if (
+      !config.marketCollateralPoolFactoryAddress &&
+      artifacts.MarketCollateralPoolFactoryArtifact &&
+      artifacts.MarketCollateralPoolFactoryArtifact.networks[config.networkId]
+    ) {
+      config.marketCollateralPoolFactoryAddress =
+        artifacts.MarketCollateralPoolFactoryArtifact.networks[config.networkId].address;
+    }
+
+    return config;
+  }
+  // endregion //Private Static Methods
 
   // region Public Methods
   // *****************************************************************
@@ -229,19 +279,17 @@ export class Market {
   /**
    * Calls our factory to create a new MarketCollateralPool that is then linked to the supplied
    * marketContractAddress.
-   * @param {string} marketCollateralPoolAddress
    * @param {string} marketContractAddress
    * @param {ITxParams} txParams
    * @returns {Promise<string>}                   Transaction ofsuccessful deployment.
    */
   public async deployMarketCollateralPoolAsync(
-    marketCollateralPoolAddress: string,
     marketContractAddress: string,
     txParams: ITxParams = {}
   ): Promise<string> {
     return deployMarketCollateralPoolAsync(
       this._web3.currentProvider,
-      marketCollateralPoolAddress,
+      this.marketCollateralPoolFactory,
       marketContractAddress,
       txParams
     );
@@ -250,7 +298,6 @@ export class Market {
   /**
    * calls our factory that deploys a MarketContractOraclize and then adds it to
    * the MarketContractRegistry.
-   * @param {string} marketContractFactoryAddress
    * @param {string} contractName
    * @param {string} collateralTokenAddress
    * @param {BigNumber[]} contractSpecs
@@ -260,7 +307,6 @@ export class Market {
    * @returns {Promise<string | BigNumber>}         Deployed address of the new Market Contract.
    */
   public async deployMarketContractOraclizeAsync(
-    marketContractFactoryAddress: string,
     contractName: string,
     collateralTokenAddress: string,
     contractSpecs: BigNumber[], // not sure why this is a big number from the typedefs?
@@ -270,7 +316,7 @@ export class Market {
   ): Promise<string | BigNumber> {
     return deployMarketContractOraclizeAsync(
       this._web3.currentProvider,
-      marketContractFactoryAddress,
+      this.marketContractFactory,
       contractName,
       collateralTokenAddress,
       contractSpecs,
@@ -431,54 +477,4 @@ export class Market {
   }
 
   // endregion //Public Methods
-
-  // region Private Methods
-  // *****************************************************************
-  // ****                     Private Methods                     ****
-  // *****************************************************************
-  /**
-   * Attempts to update a config with all the needed addresses from artifacts if available.
-   * @param {MARKETProtocolConfig} config
-   * @returns {MARKETProtocolConfig}
-   * @private
-   */
-  private _updateConfigFromArtifacts(config: MARKETProtocolConfig): MARKETProtocolConfig {
-    if (
-      !config.marketContractRegistryAddress &&
-      artifacts.MarketContractRegistryArtifact &&
-      artifacts.MarketContractRegistryArtifact.networks[config.networkId]
-    ) {
-      config.marketContractRegistryAddress =
-        artifacts.MarketContractRegistryArtifact.networks[config.networkId].address;
-    }
-
-    if (
-      !config.marketTokenAddress &&
-      artifacts.MarketTokenArtifact &&
-      artifacts.MarketTokenArtifact.networks[config.networkId]
-    ) {
-      config.marketTokenAddress = artifacts.MarketTokenArtifact.networks[config.networkId].address;
-    }
-
-    if (
-      !config.marketContractFactoryAddress &&
-      artifacts.MarketContractFactoryOraclizeArtifact &&
-      artifacts.MarketContractFactoryOraclizeArtifact.networks[config.networkId]
-    ) {
-      config.marketContractFactoryAddress =
-        artifacts.MarketContractFactoryOraclizeArtifact.networks[config.networkId].address;
-    }
-
-    if (
-      !config.marketCollateralPoolFactoryAddress &&
-      artifacts.MarketCollateralPoolFactoryArtifact &&
-      artifacts.MarketCollateralPoolFactoryArtifact.networks[config.networkId]
-    ) {
-      config.marketCollateralPoolFactoryAddress =
-        artifacts.MarketCollateralPoolFactoryArtifact.networks[config.networkId].address;
-    }
-
-    return config;
-  }
-  // endregion //Private Methods
 }

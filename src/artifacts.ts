@@ -1,8 +1,9 @@
-import * as OrderLibArtifact from '../build/contracts/OrderLib.json';
-import * as MarketTokenArtifact from '../build/contracts/MarketToken.json';
-import * as MarketContractRegistryArtifact from '../build/contracts/MarketContractRegistry.json';
-import * as MarketContractFactoryOraclize from '../build/contracts/MarketContractFactoryOraclize.json';
-import * as MarketCollateralPoolFactory from '../build/contracts/MarketCollateralPoolFactory.json';
+let OrderLibArtifact = require('../build/contracts/OrderLib.json');
+let MarketTokenArtifact = require('../build/contracts/MarketToken.json');
+let MarketContractRegistryArtifact = require('../build/contracts/MarketContractRegistry.json');
+let MarketContractFactoryOraclize = require('../build/contracts/MarketContractFactoryOraclize.json');
+let MarketCollateralPoolFactory = require('../build/contracts/MarketCollateralPoolFactory.json');
+
 import { Artifact } from './types/Artifact';
 
 export const artifacts = {
