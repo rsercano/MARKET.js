@@ -39,6 +39,7 @@ import {
 } from './lib/Order';
 import { MARKETProtocolConfig } from './types/Configs';
 import { constants } from './constants';
+import { artifacts } from './artifacts';
 
 /**
  * The `Market` class is the single entry-point into the MARKET.js library.
@@ -46,13 +47,22 @@ import { constants } from './constants';
  * should be made through a `Market` instance.
  */
 export class Market {
+  // region Members
+  // *****************************************************************
+  // ****                     Members                             ****
+  // *****************************************************************
   public marketContractRegistry: MarketContractRegistry;
   public mktTokenContract: MarketToken;
   public marketCollateralPoolFactory: MarketCollateralPoolFactory;
   public marketContractFactory: MarketContractFactoryOraclize; // todo: create interface.
 
   private readonly _web3: Web3;
+  // endregion // members
 
+  // region Constructors
+  // *****************************************************************
+  // ****                     Constructors                        ****
+  // *****************************************************************
   /**
    * Instantiates a new Market instance that provides the public interface to the Market library.
    * @param {Provider} provider    The Provider instance you would like the Market library to use
@@ -66,23 +76,18 @@ export class Market {
 
     this._web3 = new Web3();
     this._web3.setProvider(provider);
-
-    // NOTE: we cannot createAndValidate here because of the async fx and the constructor
-    // this may not be the best option here for validating
-
-    // NOTE: if an address is not defined, we should attempt to pull from a truffle artifact
-    // prior to creating. We should be able to do this based on the network config in the artifact.
+    this._updateConfigFromArtifacts(config);
 
     this.marketContractRegistry = new MarketContractRegistry(
       this._web3,
       config.marketContractRegistryAddress
         ? config.marketContractRegistryAddress
-        : constants.NULL_ADDRESS
+        : artifacts.MarketTokenArtifact.networks[config.networkId].address
     );
 
     this.mktTokenContract = new MarketToken(
       this._web3,
-      config.mktTokenAddress ? config.mktTokenAddress : constants.NULL_ADDRESS
+      config.marketTokenAddress ? config.marketTokenAddress : constants.NULL_ADDRESS
     );
 
     this.marketContractFactory = new MarketContractFactoryOraclize(
@@ -99,9 +104,14 @@ export class Market {
         : constants.NULL_ADDRESS
     );
   }
+  // endregion//Constructors
+
+  // region Public Methods
+  // *****************************************************************
+  // ****                     Public Methods                      ****
+  // *****************************************************************
 
   // PROVIDER METHODS
-
   /**
    * Sets a new web3 provider for MARKET.js. Updating the provider will stop all
    * subscriptions so you will need to re-subscribe to all events relevant to your app after this call.
@@ -419,4 +429,56 @@ export class Market {
       txParams
     );
   }
+
+  // endregion //Public Methods
+
+  // region Private Methods
+  // *****************************************************************
+  // ****                     Private Methods                     ****
+  // *****************************************************************
+  /**
+   * Attempts to update a config with all the needed addresses from artifacts if available.
+   * @param {MARKETProtocolConfig} config
+   * @returns {MARKETProtocolConfig}
+   * @private
+   */
+  private _updateConfigFromArtifacts(config: MARKETProtocolConfig): MARKETProtocolConfig {
+    if (
+      !config.marketContractRegistryAddress &&
+      artifacts.MarketContractRegistryArtifact &&
+      artifacts.MarketContractRegistryArtifact.networks[config.networkId]
+    ) {
+      config.marketContractRegistryAddress =
+        artifacts.MarketContractRegistryArtifact.networks[config.networkId].address;
+    }
+
+    if (
+      !config.marketTokenAddress &&
+      artifacts.MarketTokenArtifact &&
+      artifacts.MarketTokenArtifact.networks[config.networkId]
+    ) {
+      config.marketTokenAddress = artifacts.MarketTokenArtifact.networks[config.networkId].address;
+    }
+
+    if (
+      !config.marketContractFactoryAddress &&
+      artifacts.MarketContractFactoryOraclizeArtifact &&
+      artifacts.MarketContractFactoryOraclizeArtifact.networks[config.networkId]
+    ) {
+      config.marketContractFactoryAddress =
+        artifacts.MarketContractFactoryOraclizeArtifact.networks[config.networkId].address;
+    }
+
+    if (
+      !config.marketCollateralPoolFactoryAddress &&
+      artifacts.MarketCollateralPoolFactoryArtifact &&
+      artifacts.MarketCollateralPoolFactoryArtifact.networks[config.networkId]
+    ) {
+      config.marketCollateralPoolFactoryAddress =
+        artifacts.MarketCollateralPoolFactoryArtifact.networks[config.networkId].address;
+    }
+
+    return config;
+  }
+  // endregion //Private Methods
 }

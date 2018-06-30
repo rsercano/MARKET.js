@@ -9,6 +9,6 @@ export const artifacts = {
   OrderLibArtifact: OrderLibArtifact as Artifact,
   MarketTokenArtifact: MarketTokenArtifact as Artifact,
   MarketContractRegistryArtifact: MarketContractRegistryArtifact as Artifact,
-  MarketContractFactoryOraclize: MarketContractFactoryOraclize as Artifact,
-  MarketCollateralPoolFactory: MarketCollateralPoolFactory as Artifact
+  MarketContractFactoryOraclizeArtifact: MarketContractFactoryOraclize as Artifact,
+  MarketCollateralPoolFactoryArtifact: MarketCollateralPoolFactory as Artifact
 };
