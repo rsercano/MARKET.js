@@ -7,12 +7,16 @@ import { Market, Utils } from '../src';
 import { MarketContractRegistry } from '@marketprotocol/types';
 import { constants } from '../src/constants';
 import { getContractAddress } from './utils';
+import { MARKETProtocolConfig } from '../src/types/Configs';
 
 describe('ExpirationWatcher', () => {
   const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:9545'));
   const TRUFFLE_NETWORK_ID = `4447`;
   const fees: BigNumber = new BigNumber(0);
-  let market: Market = new Market(web3.currentProvider);
+  const config: MARKETProtocolConfig = {
+    networkId: 4447
+  };
+  let market: Market = new Market(web3.currentProvider, config);
   let currentUnixTimestampSec: BigNumber;
   let timer: Sinon.SinonFakeTimers;
   let expirationWatcher: ExpirationWatcher;
