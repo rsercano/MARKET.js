@@ -15,7 +15,7 @@ default:
 		pwd
 
 install_truffle:
-		npm install -g truffle@4.1.11
+		npm install -g truffle@4.1.13
 
 # install required dependencies
 install_deps:

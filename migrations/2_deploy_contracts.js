@@ -1,29 +1,29 @@
 const MathLib = artifacts.require(
-  'market-solidity/contracts/libraries/MathLib.sol'
+  'market-solidity/MathLib.sol'
 );
 const OrderLib = artifacts.require(
-  'market-solidity/contracts/libraries/OrderLib.sol'
+  'market-solidity/OrderLib.sol'
 );
 const QueryTest = artifacts.require(
-  'market-solidity/contracts/oraclize/OraclizeQueryTest.sol'
+  'market-solidity/OraclizeQueryTest.sol'
 );
 const CollateralToken = artifacts.require(
-  'market-solidity/contracts/tokens/CollateralToken.sol'
+  'market-solidity/CollateralToken.sol'
 );
 const MarketContractOraclize = artifacts.require(
-  'market-solidity/contracts/oraclize/MarketContractOraclize.sol'
+  'market-solidity/MarketContractOraclize.sol'
 );
 const MarketContractFactory = artifacts.require(
-  'market-solidity/contracts/oraclize/MarketContractFactoryOraclize.sol'
+  'market-solidity/MarketContractFactoryOraclize.sol'
 );
 const MarketCollateralPoolFactory = artifacts.require(
-  'market-solidity/contracts/factories/MarketCollateralPoolFactory.sol'
+  'market-solidity/MarketCollateralPoolFactory.sol'
 );
 const MarketContractRegistry = artifacts.require(
-  'market-solidity/contracts/MarketContractRegistry.sol'
+  'market-solidity/MarketContractRegistry.sol'
 );
 const MarketToken = artifacts.require(
-  'market-solidity/contracts/tokens/MarketToken.sol'
+  'market-solidity/MarketToken.sol'
 );
 
 module.exports = function(deployer, network) {
