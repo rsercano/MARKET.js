@@ -10,36 +10,34 @@ import {
 import { getContractAddress } from './utils';
 import Web3 from 'web3';
 import { Order, SignedOrder } from '../src/types/Order';
-import {
-  ERC20,
-  MarketCollateralPool,
-  MarketContract,
-  MarketContractRegistry
-} from '@marketprotocol/types';
+import { ERC20, MarketCollateralPool, MarketContract } from '@marketprotocol/types';
 import { BigNumber } from 'bignumber.js';
 import { depositCollateralAsync } from '../src/lib/Collateral';
 import { constants } from '../src/constants';
-import { Utils } from '../src';
+import { Market, Utils } from '../src';
+import { MARKETProtocolConfig } from '../src/types/Configs';
 
 /**
  * Order
  */
 describe('Order', () => {
-  const TRUFFLE_NETWORK_ID = `4447`;
   const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:9545'));
+  const config: MARKETProtocolConfig = {
+    networkId: constants.NETWORK_ID_TRUFFLE
+  };
+  let market: Market;
+  let orderLibAddress: string;
+  let contractAddress: string;
+
+  beforeAll(async () => {
+    market = new Market(web3.currentProvider, config);
+    orderLibAddress = getContractAddress('OrderLib', constants.NETWORK_ID_TRUFFLE);
+    const contractAddresses: string[] = await market.marketContractRegistry.getAddressWhiteList;
+    contractAddress = contractAddresses[0];
+  });
 
   it('Signs an order', async () => {
-    const marketContractRegistryAddress = getContractAddress(
-      'MarketContractRegistry',
-      TRUFFLE_NETWORK_ID
-    );
-    const orderLibAddress = getContractAddress('OrderLib', TRUFFLE_NETWORK_ID);
-    const marketContractRegistry: MarketContractRegistry = await MarketContractRegistry.createAndValidate(
-      web3,
-      marketContractRegistryAddress
-    );
-
-    const contractAddresses: string[] = await marketContractRegistry.getAddressWhiteList;
+    const contractAddresses: string[] = await market.marketContractRegistry.getAddressWhiteList;
     const marketContractAddress = contractAddresses[0];
 
     const expirationTimeStamp: BigNumber = new BigNumber(Math.floor(Date.now() / 1000) + 60 * 60);
@@ -147,19 +145,6 @@ describe('Order', () => {
   });
 
   it('Trades an order', async () => {
-    const marketContractRegistryAddress = getContractAddress(
-      'MarketContractRegistry',
-      TRUFFLE_NETWORK_ID
-    );
-    const orderLibAddress = getContractAddress('OrderLib', TRUFFLE_NETWORK_ID);
-    const marketContractRegistry: MarketContractRegistry = await MarketContractRegistry.createAndValidate(
-      web3,
-      marketContractRegistryAddress
-    );
-
-    const contractAddresses: string[] = await marketContractRegistry.getAddressWhiteList;
-    const contractAddress = contractAddresses[0];
-
     const expirationTimestamp = new BigNumber(Math.floor(Date.now() / 1000) + 60 * 60);
     const maker = web3.eth.accounts[1];
     const taker = web3.eth.accounts[2];
@@ -245,17 +230,6 @@ describe('Order', () => {
   });
 
   it('Cancels an order in a given quantity', async () => {
-    const marketContractRegistryAddress = getContractAddress(
-      'MarketContractRegistry',
-      TRUFFLE_NETWORK_ID
-    );
-    const orderLibAddress = getContractAddress('OrderLib', TRUFFLE_NETWORK_ID);
-    const marketContractRegistry: MarketContractRegistry = await MarketContractRegistry.createAndValidate(
-      web3,
-      marketContractRegistryAddress
-    );
-    const contractAddresses: string[] = await marketContractRegistry.getAddressWhiteList;
-    const contractAddress = contractAddresses[0];
     const expirationTimestamp = new BigNumber(Math.floor(Date.now() / 1000) + 60 * 60);
     const maker = web3.eth.accounts[1];
     const taker = web3.eth.accounts[2];
@@ -308,19 +282,6 @@ describe('Order', () => {
   });
 
   it('Gets qty filled or cancelled from order', async () => {
-    const marketContractRegistryAddress = getContractAddress(
-      'MarketContractRegistry',
-      TRUFFLE_NETWORK_ID
-    );
-    const orderLibAddress = getContractAddress('OrderLib', TRUFFLE_NETWORK_ID);
-    const marketContractRegistry: MarketContractRegistry = await MarketContractRegistry.createAndValidate(
-      web3,
-      marketContractRegistryAddress
-    );
-
-    const contractAddresses: string[] = await marketContractRegistry.getAddressWhiteList;
-    const contractAddress = contractAddresses[0];
-
     const expirationTimestamp = new BigNumber(Math.floor(Date.now() / 1000) + 60 * 60);
     const maker = web3.eth.accounts[1];
     const taker = web3.eth.accounts[2];
