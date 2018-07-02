@@ -29,17 +29,15 @@ import {
 } from './lib/Deployment';
 
 import {
-  cancelOrderAsync,
   createOrderHashAsync,
   createSignedOrderAsync,
-  getQtyFilledOrCancelledFromOrderAsync,
   isValidSignatureAsync,
-  signOrderHashAsync,
-  tradeOrderAsync
+  signOrderHashAsync
 } from './lib/Order';
 import { MARKETProtocolConfig } from './types/Configs';
 import { constants } from './constants';
 import { artifacts } from './artifacts';
+import { MarketContractWrapper } from './contract_wrappers/MarketContractWrapper';
 
 /**
  * The `Market` class is the single entry-point into the MARKET.js library.
@@ -55,6 +53,7 @@ export class Market {
   public mktTokenContract: MarketToken;
   public marketCollateralPoolFactory: MarketCollateralPoolFactory;
   public marketContractFactory: MarketContractFactoryOraclize; // todo: create interface.
+  public marketContractWrapper: MarketContractWrapper;
 
   private readonly _web3: Web3;
   // endregion // members
@@ -103,6 +102,8 @@ export class Market {
         ? config.marketCollateralPoolFactoryAddress
         : constants.NULL_ADDRESS
     );
+
+    this.marketContractWrapper = new MarketContractWrapper(this._web3);
   }
   // endregion//Constructors
 
@@ -433,7 +434,7 @@ export class Market {
     fillQty: BigNumber,
     txParams: ITxParams = {}
   ): Promise<BigNumber | number> {
-    return tradeOrderAsync(this._web3.currentProvider, signedOrder, fillQty, txParams);
+    return this.marketContractWrapper.tradeOrderAsync(signedOrder, fillQty, txParams);
   }
 
   /**
@@ -443,11 +444,10 @@ export class Market {
    * @return {Promise<BigNumber>}             The filled or cancelled quantity.
    */
   public async getQtyFilledOrCancelledFromOrderAsync(
-    orderHash: string,
-    marketContractAddress: string
+    marketContractAddress: string,
+    orderHash: string
   ): Promise<BigNumber> {
-    return getQtyFilledOrCancelledFromOrderAsync(
-      this._web3.currentProvider,
+    return this.marketContractWrapper.getQtyFilledOrCancelledFromOrderAsync(
       marketContractAddress,
       orderHash
     );
@@ -456,24 +456,16 @@ export class Market {
   /**
    * Cancels an order in the given quantity and returns the quantity.
    * @param {Order} order                   Order object.
-   * @param {string} marketContractAddress  Address of the Market contract
    * @param {BigNumber} cancelQty           The amount of the order that you wish to cancel.
    * @param {ITxParams} txParams            Transaction params of web3.
    * @return {Promise<BigNumber>}           Qty that cancelled.
    */
   public async cancelOrderAsync(
     order: Order,
-    marketContractAddress: string,
     cancelQty: BigNumber,
     txParams: ITxParams = {}
   ): Promise<BigNumber | number> {
-    return cancelOrderAsync(
-      this._web3.currentProvider,
-      marketContractAddress,
-      order,
-      cancelQty,
-      txParams
-    );
+    return this.marketContractWrapper.cancelOrderAsync(order, cancelQty, txParams);
   }
 
   // endregion //Public Methods

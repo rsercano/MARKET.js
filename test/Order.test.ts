@@ -1,11 +1,8 @@
 import {
-  cancelOrderAsync,
   createOrderHashAsync,
   createSignedOrderAsync,
-  getQtyFilledOrCancelledFromOrderAsync,
   isValidSignatureAsync,
-  signOrderHashAsync,
-  tradeOrderAsync
+  signOrderHashAsync
 } from '../src/lib/Order';
 import { getContractAddress } from './utils';
 import Web3 from 'web3';
@@ -222,7 +219,7 @@ describe('Order', () => {
     ).toBe(true);
 
     expect(
-      await tradeOrderAsync(web3.currentProvider, signedOrder, new BigNumber(2), {
+      await market.tradeOrderAsync(signedOrder, new BigNumber(2), {
         from: taker,
         gas: 400000
       })
@@ -268,16 +265,10 @@ describe('Order', () => {
 
     const cancelQty = 3;
     expect(
-      await cancelOrderAsync(
-        web3.currentProvider,
-        contractAddress,
-        order,
-        new BigNumber(cancelQty),
-        {
-          from: maker,
-          gas: 400000
-        }
-      )
+      await market.cancelOrderAsync(order, new BigNumber(cancelQty), {
+        from: maker,
+        gas: 400000
+      })
     ).toEqual(new BigNumber(cancelQty));
   });
 
@@ -349,46 +340,28 @@ describe('Order', () => {
     );
 
     expect(
-      await getQtyFilledOrCancelledFromOrderAsync(
-        web3.currentProvider,
-        contractAddress,
-        orderHash.toString()
-      )
+      await market.getQtyFilledOrCancelledFromOrderAsync(contractAddress, orderHash.toString())
     ).toEqual(new BigNumber(0));
 
     const fillQty = 2;
     const cancelQty = 3;
 
-    await tradeOrderAsync(web3.currentProvider, signedOrder, new BigNumber(fillQty), {
+    await market.tradeOrderAsync(signedOrder, new BigNumber(fillQty), {
       from: taker,
       gas: 400000
     });
 
     expect(
-      await getQtyFilledOrCancelledFromOrderAsync(
-        web3.currentProvider,
-        contractAddress,
-        orderHash.toString()
-      )
+      await market.getQtyFilledOrCancelledFromOrderAsync(contractAddress, orderHash.toString())
     ).toEqual(new BigNumber(fillQty));
 
-    await cancelOrderAsync(
-      web3.currentProvider,
-      contractAddress,
-      signedOrder,
-      new BigNumber(cancelQty),
-      {
-        from: maker,
-        gas: 400000
-      }
-    );
+    await market.cancelOrderAsync(signedOrder, new BigNumber(cancelQty), {
+      from: maker,
+      gas: 400000
+    });
 
     expect(
-      await getQtyFilledOrCancelledFromOrderAsync(
-        web3.currentProvider,
-        contractAddress,
-        orderHash.toString()
-      )
+      await market.getQtyFilledOrCancelledFromOrderAsync(contractAddress, orderHash.toString())
     ).toEqual(new BigNumber(fillQty + cancelQty));
   });
 });
