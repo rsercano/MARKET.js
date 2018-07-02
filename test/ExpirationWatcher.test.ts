@@ -11,35 +11,21 @@ import { MARKETProtocolConfig } from '../src/types/Configs';
 
 describe('ExpirationWatcher', () => {
   const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:9545'));
-  const TRUFFLE_NETWORK_ID = `4447`;
   const fees: BigNumber = new BigNumber(0);
   const config: MARKETProtocolConfig = {
-    networkId: 4447
+    networkId: constants.NETWORK_ID_TRUFFLE
   };
   let market: Market = new Market(web3.currentProvider, config);
   let currentUnixTimestampSec: BigNumber;
   let timer: Sinon.SinonFakeTimers;
   let expirationWatcher: ExpirationWatcher;
-  let marketContractRegistryAddress;
   let orderLibAddress: string;
-  let marketContractRegistry: MarketContractRegistry;
   let marketContractAddress: string;
   let makerAccount: string;
 
   beforeAll(async () => {
-    marketContractRegistryAddress = getContractAddress(
-      'MarketContractRegistry',
-      TRUFFLE_NETWORK_ID
-    );
-
-    orderLibAddress = getContractAddress('OrderLib', TRUFFLE_NETWORK_ID);
-
-    marketContractRegistry = await MarketContractRegistry.createAndValidate(
-      web3,
-      marketContractRegistryAddress
-    );
-
-    marketContractAddress = (await marketContractRegistry.getAddressWhiteList)[0];
+    orderLibAddress = getContractAddress('OrderLib', constants.NETWORK_ID_TRUFFLE);
+    marketContractAddress = (await market.marketContractRegistry.getAddressWhiteList)[0];
     currentUnixTimestampSec = Utils.getCurrentUnixTimestampSec();
     makerAccount = web3.eth.accounts[1];
     jest.setTimeout(20 * 1000); // increase timeout to 10 seconds

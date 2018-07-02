@@ -5,26 +5,20 @@ import {
   withdrawCollateralAsync
 } from '../src/lib/Collateral';
 
-import {
-  ERC20,
-  MarketCollateralPool,
-  MarketContract,
-  MarketContractRegistry
-} from '@marketprotocol/types';
+import { ERC20, MarketContract } from '@marketprotocol/types';
 
-import { getCollateralPoolContractAddressAsync } from '../src/lib/Contract';
-
-import { getContractAddress } from './utils';
 import { BigNumber } from 'bignumber.js';
+import Web3 from 'web3';
+import { MARKETProtocolConfig } from '../src/types/Configs';
+import { constants } from '../src/constants';
+import { Market } from '../src';
+
 /**
  * Collateral
  */
 describe('Collateral', () => {
-  const TRUFFLE_NETWORK_ID = `4447`;
   const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:9545'));
   let maker: string;
-  let marketContractRegistryAddress: string;
-  let marketContractRegistry: MarketContractRegistry;
   let contractAddresses: string[];
   let marketContractAddress: string;
   let deployedMarketContract: MarketContract;
@@ -34,15 +28,12 @@ describe('Collateral', () => {
 
   beforeAll(async () => {
     maker = web3.eth.accounts[0];
-    marketContractRegistryAddress = getContractAddress(
-      'MarketContractRegistry',
-      TRUFFLE_NETWORK_ID
-    );
-    marketContractRegistry = await MarketContractRegistry.createAndValidate(
-      web3,
-      marketContractRegistryAddress
-    );
-    contractAddresses = await marketContractRegistry.getAddressWhiteList;
+    const config: MARKETProtocolConfig = {
+      networkId: constants.NETWORK_ID_TRUFFLE
+    };
+    const market: Market = new Market(web3.currentProvider, config);
+
+    contractAddresses = await market.marketContractRegistry.getAddressWhiteList;
     marketContractAddress = contractAddresses[0];
     deployedMarketContract = await MarketContract.createAndValidate(web3, marketContractAddress);
     collateralPoolAddress = await deployedMarketContract.MARKET_COLLATERAL_POOL_ADDRESS;
@@ -59,7 +50,7 @@ describe('Collateral', () => {
       from: maker
     });
     const newBalance: BigNumber = await collateralToken.balanceOf(collateralPoolAddress);
-    expect(newBalance.sub(oldBalance)).toEqual(depositAmount);
+    expect(newBalance.minus(oldBalance)).toEqual(depositAmount);
   });
 
   it('getUserAccountBalanceAsync returns correct user balance', async () => {
@@ -78,7 +69,7 @@ describe('Collateral', () => {
       collateralPoolAddress,
       maker
     );
-    expect(newUserBalance.sub(oldUserBalance)).toEqual(depositAmount);
+    expect(newUserBalance.minus(oldUserBalance)).toEqual(depositAmount);
   });
 
   it('withdrawCollateralAsync should withdraw correct amount', async () => {
@@ -92,7 +83,7 @@ describe('Collateral', () => {
       from: maker
     });
     const newBalance: BigNumber = await collateralToken.balanceOf(maker);
-    expect(oldBalance.add(withdrawAmount)).toEqual(newBalance);
+    expect(oldBalance.plus(withdrawAmount)).toEqual(newBalance);
   });
   it('Settle and Close should fail', async () => {
     try {

@@ -36,13 +36,13 @@ export async function depositCollateralAsync(
  * @param {Provider} provider                       Web3 provider instance.
  * @param {string} collateralPoolContractAddress    address of the MarketCollateralPool
  * @param {BigNumber | string} userAddress          address of user
- * @returns {Promise<BigNumber|null>}               the user's currently unallocated token balance
+ * @returns {Promise<BigNumber>}               the user's currently unallocated token balance
  */
 export async function getUserAccountBalanceAsync(
   provider: Provider,
   collateralPoolContractAddress: string,
   userAddress: string
-): Promise<BigNumber | null> {
+): Promise<BigNumber> {
   const web3: Web3 = new Web3();
   web3.setProvider(provider);
 
@@ -59,7 +59,7 @@ export async function getUserAccountBalanceAsync(
     return userUnallocatedTokenBalance;
   } catch (error) {
     console.log(error);
-    return null; // TODO Need better error handling
+    return new BigNumber(NaN);
   }
 }
 

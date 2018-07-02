@@ -14,7 +14,6 @@ import { constants } from '../src/constants';
 import { MARKETProtocolConfig } from '../src/types/Configs';
 
 describe('Deployment Tests', () => {
-  const TRUFFLE_NETWORK_ID = `4447`;
   const GAS_LIMIT = 4000000;
   const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:9545'));
   let deployMarketContract: MarketContractOraclize;
@@ -24,7 +23,10 @@ describe('Deployment Tests', () => {
   const market: Market = new Market(web3.currentProvider, config);
 
   it('Deploys a MARKET Contract Correctly', async () => {
-    const collateralTokenAddress = getContractAddress('CollateralToken', TRUFFLE_NETWORK_ID);
+    const collateralTokenAddress = getContractAddress(
+      'CollateralToken',
+      constants.NETWORK_ID_TRUFFLE
+    );
     const quickExpirationTimeStamp: BigNumber = new BigNumber(
       Math.floor(Date.now() / 1000) + 60 * 60
     ); // expires in an hour
@@ -64,16 +66,12 @@ describe('Deployment Tests', () => {
   });
 
   it('Deploys and links a MARKET Collateral Pool Correctly', async () => {
-    const collateralPoolFactoryAddress = getContractAddress(
-      'MarketCollateralPoolFactory',
-      TRUFFLE_NETWORK_ID
-    );
     const txParams: ITxParams = { from: web3.eth.accounts[1], gas: GAS_LIMIT };
     await market.deployMarketCollateralPoolAsync(deployMarketContract.address, txParams);
 
     expect(await deployMarketContract.isCollateralPoolContractLinked).toEqual(true);
     expect(await deployMarketContract.COLLATERAL_POOL_FACTORY_ADDRESS).toEqual(
-      collateralPoolFactoryAddress
+      market.marketCollateralPoolFactory.address
     );
     expect(await deployMarketContract.MARKET_COLLATERAL_POOL_ADDRESS).not.toEqual(
       '0x0000000000000000000000000000000000000000'
