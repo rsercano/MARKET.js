@@ -3,7 +3,13 @@ import Web3 from 'web3';
 
 // Types
 import { Provider } from '@0xproject/types';
-import { ITxParams } from '@marketprotocol/types';
+import {
+  ITxParams,
+  MarketCollateralPoolFactory,
+  MarketContractFactoryOraclize,
+  MarketContractRegistry,
+  MarketToken
+} from '@marketprotocol/types';
 import { ECSignature, Order, SignedOrder } from './types/Order';
 
 import { assert } from './assert';
@@ -31,6 +37,9 @@ import {
   signOrderHashAsync,
   tradeOrderAsync
 } from './lib/Order';
+import { MARKETProtocolConfig } from './types/Configs';
+import { constants } from './constants';
+import { artifacts } from './artifacts';
 
 /**
  * The `Market` class is the single entry-point into the MARKET.js library.
@@ -38,22 +47,121 @@ import {
  * should be made through a `Market` instance.
  */
 export class Market {
-  private _web3: Web3;
+  // region Members
+  // *****************************************************************
+  // ****                     Members                             ****
+  // *****************************************************************
+  public marketContractRegistry: MarketContractRegistry;
+  public mktTokenContract: MarketToken;
+  public marketCollateralPoolFactory: MarketCollateralPoolFactory;
+  public marketContractFactory: MarketContractFactoryOraclize; // todo: create interface.
 
+  private readonly _web3: Web3;
+  // endregion // members
+
+  // region Constructors
+  // *****************************************************************
+  // ****                     Constructors                        ****
+  // *****************************************************************
   /**
    * Instantiates a new Market instance that provides the public interface to the Market library.
    * @param {Provider} provider    The Provider instance you would like the Market library to use
    *                               for interacting with the Ethereum network.
+   * @param {MARKETProtocolConfig} config object for addresses and other vars
    * @return {Market}              An instance of the Market class.
    */
-  constructor(provider: Provider) {
+  constructor(provider: Provider, config: MARKETProtocolConfig) {
     assert.isWeb3Provider('provider', provider);
+    // TODO: add check for config to conform to schema.
+
     this._web3 = new Web3();
     this._web3.setProvider(provider);
+    Market._updateConfigFromArtifacts(config);
+
+    this.marketContractRegistry = new MarketContractRegistry(
+      this._web3,
+      config.marketContractRegistryAddress
+        ? config.marketContractRegistryAddress
+        : artifacts.MarketTokenArtifact.networks[config.networkId].address
+    );
+
+    this.mktTokenContract = new MarketToken(
+      this._web3,
+      config.marketTokenAddress ? config.marketTokenAddress : constants.NULL_ADDRESS
+    );
+
+    this.marketContractFactory = new MarketContractFactoryOraclize(
+      this._web3,
+      config.marketContractFactoryAddress
+        ? config.marketContractFactoryAddress
+        : constants.NULL_ADDRESS
+    );
+
+    this.marketCollateralPoolFactory = new MarketCollateralPoolFactory(
+      this._web3,
+      config.marketCollateralPoolFactoryAddress
+        ? config.marketCollateralPoolFactoryAddress
+        : constants.NULL_ADDRESS
+    );
   }
+  // endregion//Constructors
+
+  // region Private Static Methods
+  // *****************************************************************
+  // ****                  Private Static Methods                 ****
+  // *****************************************************************
+  /**
+   * Attempts to update a config with all the needed addresses from artifacts if available.
+   * @param {MARKETProtocolConfig} config
+   * @returns {MARKETProtocolConfig}
+   * @private
+   */
+  private static _updateConfigFromArtifacts(config: MARKETProtocolConfig): MARKETProtocolConfig {
+    if (
+      !config.marketContractRegistryAddress &&
+      artifacts.MarketContractRegistryArtifact &&
+      artifacts.MarketContractRegistryArtifact.networks[config.networkId]
+    ) {
+      config.marketContractRegistryAddress =
+        artifacts.MarketContractRegistryArtifact.networks[config.networkId].address;
+    }
+
+    if (
+      !config.marketTokenAddress &&
+      artifacts.MarketTokenArtifact &&
+      artifacts.MarketTokenArtifact.networks[config.networkId]
+    ) {
+      config.marketTokenAddress = artifacts.MarketTokenArtifact.networks[config.networkId].address;
+    }
+
+    if (
+      !config.marketContractFactoryAddress &&
+      artifacts.MarketContractFactoryOraclizeArtifact &&
+      artifacts.MarketContractFactoryOraclizeArtifact.networks[config.networkId]
+    ) {
+      config.marketContractFactoryAddress =
+        artifacts.MarketContractFactoryOraclizeArtifact.networks[config.networkId].address;
+    }
+
+    if (
+      !config.marketCollateralPoolFactoryAddress &&
+      artifacts.MarketCollateralPoolFactoryArtifact &&
+      artifacts.MarketCollateralPoolFactoryArtifact.networks[config.networkId]
+    ) {
+      config.marketCollateralPoolFactoryAddress =
+        artifacts.MarketCollateralPoolFactoryArtifact.networks[config.networkId].address;
+    }
+
+    return config;
+  }
+  // endregion //Private Static Methods
+
+  // region Public Methods
+  // *****************************************************************
+  // ****                     Public Methods                      ****
+  // *****************************************************************
 
   // PROVIDER METHODS
-
   /**
    * Sets a new web3 provider for MARKET.js. Updating the provider will stop all
    * subscriptions so you will need to re-subscribe to all events relevant to your app after this call.
@@ -171,19 +279,17 @@ export class Market {
   /**
    * Calls our factory to create a new MarketCollateralPool that is then linked to the supplied
    * marketContractAddress.
-   * @param {string} marketCollateralPoolAddress
    * @param {string} marketContractAddress
    * @param {ITxParams} txParams
    * @returns {Promise<string>}                   Transaction ofsuccessful deployment.
    */
   public async deployMarketCollateralPoolAsync(
-    marketCollateralPoolAddress: string,
     marketContractAddress: string,
     txParams: ITxParams = {}
   ): Promise<string> {
     return deployMarketCollateralPoolAsync(
       this._web3.currentProvider,
-      marketCollateralPoolAddress,
+      this.marketCollateralPoolFactory,
       marketContractAddress,
       txParams
     );
@@ -192,7 +298,6 @@ export class Market {
   /**
    * calls our factory that deploys a MarketContractOraclize and then adds it to
    * the MarketContractRegistry.
-   * @param {string} marketContractFactoryAddress
    * @param {string} contractName
    * @param {string} collateralTokenAddress
    * @param {BigNumber[]} contractSpecs
@@ -202,7 +307,6 @@ export class Market {
    * @returns {Promise<string | BigNumber>}         Deployed address of the new Market Contract.
    */
   public async deployMarketContractOraclizeAsync(
-    marketContractFactoryAddress: string,
     contractName: string,
     collateralTokenAddress: string,
     contractSpecs: BigNumber[], // not sure why this is a big number from the typedefs?
@@ -212,7 +316,7 @@ export class Market {
   ): Promise<string | BigNumber> {
     return deployMarketContractOraclizeAsync(
       this._web3.currentProvider,
-      marketContractFactoryAddress,
+      this.marketContractFactory,
       contractName,
       collateralTokenAddress,
       contractSpecs,
@@ -331,6 +435,7 @@ export class Market {
   ): Promise<BigNumber | number> {
     return tradeOrderAsync(this._web3.currentProvider, signedOrder, fillQty, txParams);
   }
+
   /**
    * Returns the qty that is no longer available to trade for a given order/
    * @param {string} orderHash                Hash of order to find filled and cancelled qty.
@@ -347,6 +452,7 @@ export class Market {
       orderHash
     );
   }
+
   /**
    * Cancels an order in the given quantity and returns the quantity.
    * @param {Order} order                   Order object.
@@ -369,4 +475,6 @@ export class Market {
       txParams
     );
   }
+
+  // endregion //Public Methods
 }
