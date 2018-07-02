@@ -39,10 +39,10 @@ export class MarketContractWrapper {
   // *****************************************************************
   /**
    * Cancels an order in the given quantity.
-   * @param   order           The order you wish to cancel.
-   * @param   cancelQty       The amount of the order that you wish to fill.
-   * @param   txParams        Transaction params of web3.
-   * @return  The quantity cancelled.
+   * @param   order                          The order you wish to cancel.
+   * @param   cancelQty                      The amount of the order that you wish to fill.
+   * @param   txParams                       Transaction params of web3.
+   * @returns {Promise<BigNumber | number>}  The quantity cancelled.
    */
   public async cancelOrderAsync(
     order: Order,
@@ -82,12 +82,11 @@ export class MarketContractWrapper {
 
   /**
    * Trades an order and returns success or error.
-   * @param   provider        Web3 provider instance.
-   * @param   signedOrder     An object that conforms to the SignedOrder interface. The
-   *                          signedOrder you wish to validate.
-   * @param   fillQty         The amount of the order that you wish to fill.
-   * @param   txParams        Transaction params of web3.
-   * @return  A boolean indicating whether the order has been successfully traded or not.
+   * @param   signedOrder                     An object that conforms to the SignedOrder interface. The
+   *                                          signedOrder you wish to validate.
+   * @param   fillQty                         The amount of the order that you wish to fill.
+   * @param   txParams                        Transaction params of web3.
+   * @returns {Promise<BigNumber | number>}   The filled quantity.
    */
   public async tradeOrderAsync(
     signedOrder: SignedOrder,
@@ -144,9 +143,9 @@ export class MarketContractWrapper {
 
   /**
    * Returns the qty that is no longer available to trade for a given order/
-   * @param   orderHash       Hash of order to find filled and cancelled qty.
-   * @param   contractAddress   The address of the Market contract.
-   * @return  A BigNumber of the filled or cancelled quantity.
+   * @param   marketContractAddress   The address of the Market contract.
+   * @param   orderHash               Hash of order to find filled and cancelled qty.
+   * @returns {Promise<BigNumber>}    A BigNumber of the filled or cancelled quantity.
    */
   public async getQtyFilledOrCancelledFromOrderAsync(
     marketContractAddress: string,
