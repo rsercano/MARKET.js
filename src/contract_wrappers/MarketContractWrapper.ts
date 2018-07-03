@@ -158,6 +158,20 @@ export class MarketContractWrapper {
     return marketContract.getQtyFilledOrCancelledFromOrder(orderHash);
   }
 
+  /**
+   * Gets the collateral pool contract address
+   * @param {string} marketContractAddress    Address of the Market contract.
+   * @returns {Promise<string>}               The collateral pool contract address.
+   */
+  public async getCollateralPoolContractAddressAsync(
+    marketContractAddress: string
+  ): Promise<string> {
+    const marketContract: MarketContract = await this._getMarketContractAsync(
+      marketContractAddress
+    );
+    return marketContract.MARKET_COLLATERAL_POOL_ADDRESS;
+  }
+
   // endregion //Public Methods
 
   // region Private Methods
