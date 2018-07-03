@@ -20,10 +20,14 @@ export const constants = {
  * mktTokenAddress: The address of the MARKET Protocol token (MKT) to use
  * orderWatcherConfig: All the configs related to the orderWatcher
  */
+export const configTruffle: MARKETProtocolConfig = {
+  networkId: constants.NETWORK_ID_TRUFFLE
+};
+
 export const configRinkeby: MARKETProtocolConfig = {
-  networkId: 4,
-  marketContractRegistryAddress: '0xd265af45edb633c4cfcd2e09dc9527bd53bd5ece',
-  marketContractFactoryAddress: '0xc08bb40b09619b7b547df9b6e5b8716cbc8c22ed',
-  marketCollateralPoolFactoryAddress: '0xe9fd3a700ea865111ea396ec5ac0984816e86999',
-  marketTokenAddress: '0xd0620d683d744d16928844d4070475aa4974eea4'
+  networkId: constants.NETWORK_ID_RINKEBY,
+  marketContractRegistryAddress: '0x4bc60737323fd065d99c726ca2c0fad0d1077a60',
+  marketContractFactoryAddress: '0x9d904712cf622d3bfeacb5282a51a0ad1418f9a3',
+  marketCollateralPoolFactoryAddress: '0x011176b12c962b3d65049b0b8358d8e9132223f1',
+  marketTokenAddress: '0xffa7d6c01f8b40eb26a5ffbde9d6b5daeebb980e'
 };
