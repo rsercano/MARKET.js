@@ -2,8 +2,10 @@ import { BigNumber } from 'bignumber.js';
 import { RBTree } from 'bintrees';
 import * as _ from 'lodash';
 
+// Types
+import { MarketError } from '@marketprotocol/types';
+
 import { IntervalUtils, Utils } from '../lib/Utils';
-import { MarketError } from '../types/MarketError';
 
 const DEFAULT_EXPIRATION_MARGIN_MS = 0;
 const DEFAULT_ORDER_EXPIRATION_CHECKING_INTERVAL_MS = 50;

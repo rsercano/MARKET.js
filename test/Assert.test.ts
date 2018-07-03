@@ -1,5 +1,6 @@
+import { BigNumber } from 'bignumber.js';
+
 import { assert } from '../src/assert';
-import BigNumber from 'bignumber.js';
 
 describe('Assert library', () => {
   const variableName = 'variable';
@@ -11,6 +12,7 @@ describe('Assert library', () => {
         expect(assert.isString.bind(assert, variableName, input)).not.toThrow()
       );
     });
+
     it('should throw for invalid input', () => {
       const invalidInputs = [42, false, { random: 'test' }, undefined, new BigNumber(45)];
       invalidInputs.forEach(input =>
@@ -26,6 +28,7 @@ describe('Assert library', () => {
         expect(assert.isFunction.bind(assert, variableName, input)).not.toThrow()
       );
     });
+
     it('should throw for invalid input', () => {
       const invalidInputs = [42, false, { random: 'test' }, undefined, new BigNumber(45)];
       invalidInputs.forEach(input =>
@@ -41,6 +44,7 @@ describe('Assert library', () => {
         expect(assert.isNumber.bind(assert, variableName, input)).not.toThrow()
       );
     });
+
     it('should throw for invalid input', () => {
       const invalidInputs = [false, { random: 'test' }, undefined, new BigNumber(45)];
       invalidInputs.forEach(input =>
@@ -48,6 +52,7 @@ describe('Assert library', () => {
       );
     });
   });
+
   describe('isBoolean', () => {
     it('should not throw for valid input', () => {
       const validInputs = [true, false];
@@ -55,6 +60,7 @@ describe('Assert library', () => {
         expect(assert.isBoolean.bind(assert, variableName, input)).not.toThrow()
       );
     });
+
     it('should throw for invalid input', () => {
       const invalidInputs = [42, { random: 'test' }, undefined, new BigNumber(45)];
       invalidInputs.forEach(input =>
@@ -65,9 +71,11 @@ describe('Assert library', () => {
 
   describe('assert', () => {
     const assertMessage = 'assert not satisfied';
+
     it('should not throw for valid input', () => {
       expect(assert.assert.bind(assert, true, assertMessage)).not.toThrow();
     });
+
     it('should throw for invalid input', () => {
       expect(assert.assert.bind(assert, false, assertMessage)).toThrow();
     });
@@ -88,6 +96,7 @@ describe('Assert library', () => {
         expect(assert.isWeb3Provider.bind(assert, variableName, input)).not.toThrow()
       );
     });
+
     it('should throw for invalid input', () => {
       const invalidInputs = [42, { random: 'test' }, undefined, new BigNumber(45)];
       invalidInputs.forEach(input =>

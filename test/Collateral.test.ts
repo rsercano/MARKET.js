@@ -1,17 +1,18 @@
+import { BigNumber } from 'bignumber.js';
+import Web3 from 'web3';
+
+// Types
+import { ERC20, MarketContract, MARKETProtocolConfig } from '@marketprotocol/types';
+
+import { Market } from '../src';
+import { constants } from '../src/constants';
+
 import {
   depositCollateralAsync,
   getUserAccountBalanceAsync,
   settleAndCloseAsync,
   withdrawCollateralAsync
 } from '../src/lib/Collateral';
-
-import { ERC20, MarketContract } from '@marketprotocol/types';
-
-import { BigNumber } from 'bignumber.js';
-import Web3 from 'web3';
-import { MARKETProtocolConfig } from '../src/types/Configs';
-import { constants } from '../src/constants';
-import { Market } from '../src';
 
 /**
  * Collateral
@@ -85,6 +86,7 @@ describe('Collateral', () => {
     const newBalance: BigNumber = await collateralToken.balanceOf(maker);
     expect(oldBalance.plus(withdrawAmount)).toEqual(newBalance);
   });
+
   it('Settle and Close should fail', async () => {
     try {
       await settleAndCloseAsync(web3.currentProvider, collateralPoolAddress, { from: maker });

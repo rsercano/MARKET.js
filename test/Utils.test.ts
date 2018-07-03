@@ -1,11 +1,11 @@
+import { BigNumber } from 'bignumber.js';
 import Web3 from 'web3';
 import FakeProvider from 'web3-fake-provider';
 
-import { Utils } from '../src/';
-
 // Types
-import { ECSignature } from '../src/types/Order';
-import BigNumber from 'bignumber.js';
+import { ECSignature } from '@marketprotocol/types';
+
+import { Utils } from '../src/';
 
 /**
  * Utils
@@ -43,6 +43,7 @@ describe('Utils library', () => {
   it('generates different salts', () => {
     expect(Utils.generatePseudoRandomSalt().eq(Utils.generatePseudoRandomSalt())).toBeFalsy();
   });
+
   it('generates salt in range [0..2^256)', () => {
     const salt = Utils.generatePseudoRandomSalt();
     expect(salt.isGreaterThanOrEqualTo(0)).toBeTruthy();

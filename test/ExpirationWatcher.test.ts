@@ -1,13 +1,15 @@
+import { BigNumber } from 'bignumber.js';
 import * as Sinon from 'sinon';
-import DoneCallback = jest.DoneCallback;
-import { ExpirationWatcher } from '../src/order_watcher/ExpirationWatcher';
-import BigNumber from 'bignumber.js';
 import Web3 from 'web3';
+import DoneCallback = jest.DoneCallback;
+
+// Types
+import { MARKETProtocolConfig } from '@marketprotocol/types';
+
 import { Market, Utils } from '../src';
-import { MarketContractRegistry } from '@marketprotocol/types';
 import { constants } from '../src/constants';
 import { getContractAddress } from './utils';
-import { MARKETProtocolConfig } from '../src/types/Configs';
+import { ExpirationWatcher } from '../src/order_watcher/ExpirationWatcher';
 
 describe('ExpirationWatcher', () => {
   const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:9545'));
@@ -15,6 +17,7 @@ describe('ExpirationWatcher', () => {
   const config: MARKETProtocolConfig = {
     networkId: constants.NETWORK_ID_TRUFFLE
   };
+
   let market: Market = new Market(web3.currentProvider, config);
   let currentUnixTimestampSec: BigNumber;
   let timer: Sinon.SinonFakeTimers;

@@ -1,6 +1,6 @@
 {
   "name": "@marketprotocol/marketjs",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "library for interacting with MARKET Protocol",
   "keywords": [
     "MARKET Protocol",
@@ -50,7 +50,7 @@
     "semantic-release": "semantic-release",
     "semantic-release-prepare": "ts-node tools/semantic-release-prepare",
     "precommit": "lint-staged",
-    "coverage": "npm run test -- --coverage --no-cache"
+    "coverage": "npm run test -- --coverage --no-cache --verbose"
   },
   "lint-staged": {
     "{src,test}/**/*.ts": [
@@ -115,7 +115,7 @@
   },
   "devDependencies": {
     "@0xproject/typescript-typings": "^0.3.2",
-    "@marketprotocol/types": "^0.1.6",
+    "@marketprotocol/types": "^0.1.7",
     "@types/bintrees": "^1.0.2",
     "@types/jest": "^23.0.0",
     "@types/lodash.values": "^4.3.3",

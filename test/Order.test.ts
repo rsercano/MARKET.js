@@ -1,18 +1,28 @@
+import { BigNumber } from 'bignumber.js';
+import Web3 from 'web3';
+
+// Types
+import {
+  ERC20,
+  MarketCollateralPool,
+  MarketContract,
+  MARKETProtocolConfig,
+  Order,
+  SignedOrder
+} from '@marketprotocol/types';
+
+import { Market, Utils } from '../src';
+import { constants } from '../src/constants';
+import { depositCollateralAsync } from '../src/lib/Collateral';
+
 import {
   createOrderHashAsync,
   createSignedOrderAsync,
   isValidSignatureAsync,
   signOrderHashAsync
 } from '../src/lib/Order';
+
 import { getContractAddress } from './utils';
-import Web3 from 'web3';
-import { Order, SignedOrder } from '../src/types/Order';
-import { ERC20, MarketCollateralPool, MarketContract } from '@marketprotocol/types';
-import { BigNumber } from 'bignumber.js';
-import { depositCollateralAsync } from '../src/lib/Collateral';
-import { constants } from '../src/constants';
-import { Market, Utils } from '../src';
-import { MARKETProtocolConfig } from '../src/types/Configs';
 
 /**
  * Order

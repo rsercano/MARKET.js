@@ -1,11 +1,11 @@
+import { BigNumber } from 'bignumber.js';
 import Web3 from 'web3';
-import { Utils } from './Utils';
 
 // Types
 import { Provider } from '@0xproject/types';
-import { ECSignature, Order, SignedOrder } from '../types/Order';
-import { ITxParams, MarketContract, OrderLib } from '@marketprotocol/types';
-import { BigNumber } from 'bignumber.js';
+import { ECSignature, Order, OrderLib, SignedOrder } from '@marketprotocol/types';
+
+import { Utils } from './Utils';
 
 /**
  * Computes the orderHash for a supplied order.

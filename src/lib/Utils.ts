@@ -1,7 +1,9 @@
+import { BigNumber } from 'bignumber.js';
 import Web3 from 'web3';
 
-import { ECSignature } from '../types/Order';
-import BigNumber from 'bignumber.js';
+// Types
+import { ECSignature } from '@marketprotocol/types';
+
 import { constants } from '../constants';
 
 export const Utils = {

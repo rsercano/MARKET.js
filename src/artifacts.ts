@@ -1,10 +1,10 @@
-let OrderLibArtifact = require('../build/contracts/OrderLib.json');
-let MarketTokenArtifact = require('../build/contracts/MarketToken.json');
-let MarketContractRegistryArtifact = require('../build/contracts/MarketContractRegistry.json');
-let MarketContractFactoryOraclize = require('../build/contracts/MarketContractFactoryOraclize.json');
-let MarketCollateralPoolFactory = require('../build/contracts/MarketCollateralPoolFactory.json');
+import { Artifact } from '@marketprotocol/types';
 
-import { Artifact } from './types/Artifact';
+const OrderLibArtifact = require('../build/contracts/OrderLib.json');
+const MarketTokenArtifact = require('../build/contracts/MarketToken.json');
+const MarketContractRegistryArtifact = require('../build/contracts/MarketContractRegistry.json');
+const MarketContractFactoryOraclize = require('../build/contracts/MarketContractFactoryOraclize.json');
+const MarketCollateralPoolFactory = require('../build/contracts/MarketCollateralPoolFactory.json');
 
 export const artifacts = {
   OrderLibArtifact: OrderLibArtifact as Artifact,

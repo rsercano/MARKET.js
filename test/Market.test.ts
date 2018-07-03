@@ -1,7 +1,9 @@
 import Web3 from 'web3';
 
+// Types
+import { MARKETProtocolConfig } from '@marketprotocol/types';
+
 import { Market } from '../src/';
-import { MARKETProtocolConfig } from '../src/types/Configs';
 import { constants } from '../src/constants';
 
 /**

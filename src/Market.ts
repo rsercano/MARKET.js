@@ -1,18 +1,24 @@
-import BigNumber from 'bignumber.js';
+import { BigNumber } from 'bignumber.js';
 import Web3 from 'web3';
 
 // Types
 import { Provider } from '@0xproject/types';
 import {
+  ECSignature,
   ITxParams,
   MarketCollateralPoolFactory,
   MarketContractFactoryOraclize,
   MarketContractRegistry,
-  MarketToken
+  MARKETProtocolConfig,
+  MarketToken,
+  Order,
+  SignedOrder
 } from '@marketprotocol/types';
-import { ECSignature, Order, SignedOrder } from './types/Order';
 
+import { artifacts } from './artifacts';
 import { assert } from './assert';
+import { constants } from './constants';
+import { MarketContractWrapper } from './contract_wrappers/MarketContractWrapper';
 
 import {
   depositCollateralAsync,
@@ -34,10 +40,6 @@ import {
   isValidSignatureAsync,
   signOrderHashAsync
 } from './lib/Order';
-import { MARKETProtocolConfig } from './types/Configs';
-import { constants } from './constants';
-import { artifacts } from './artifacts';
-import { MarketContractWrapper } from './contract_wrappers/MarketContractWrapper';
 
 /**
  * The `Market` class is the single entry-point into the MARKET.js library.
