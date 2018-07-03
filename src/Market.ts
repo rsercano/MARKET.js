@@ -27,8 +27,6 @@ import {
   withdrawCollateralAsync
 } from './lib/Collateral';
 
-import { getAddressWhiteListAsync, getCollateralPoolContractAddressAsync } from './lib/Contract';
-
 import {
   deployMarketCollateralPoolAsync,
   deployMarketContractOraclizeAsync
@@ -265,16 +263,15 @@ export class Market {
   public async getCollateralPoolContractAddressAsync(
     marketContractAddress: string
   ): Promise<string> {
-    return getCollateralPoolContractAddressAsync(this._web3.currentProvider, marketContractAddress);
+    return this.marketContractWrapper.getCollateralPoolContractAddressAsync(marketContractAddress);
   }
 
   /**
    * Get all whilelisted contracts
-   * @param {string} marketContractAddress    Address of the Market contract
    * @returns {Promise<string>}               The user's currently unallocated token balance
    */
-  public async getAddressWhiteListAsync(marketContractAddress: string): Promise<string[]> {
-    return getAddressWhiteListAsync(this._web3.currentProvider, marketContractAddress);
+  public async getAddressWhiteListAsync(): Promise<string[]> {
+    return this.marketContractRegistry.getAddressWhiteList;
   }
 
   // DEPLOYMENT METHODS
