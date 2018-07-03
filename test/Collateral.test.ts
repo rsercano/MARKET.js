@@ -25,32 +25,49 @@ describe('Collateral', () => {
   let deployedMarketContract: MarketContract;
   let collateralPoolAddress: string;
   let collateralTokenAddress: string;
-  let collateralToken: ERC20;
+  let market: Market;
 
   beforeAll(async () => {
     maker = web3.eth.accounts[0];
     const config: MARKETProtocolConfig = {
       networkId: constants.NETWORK_ID_TRUFFLE
     };
-    const market: Market = new Market(web3.currentProvider, config);
-
+    market = new Market(web3.currentProvider, config);
     contractAddresses = await market.marketContractRegistry.getAddressWhiteList;
     marketContractAddress = contractAddresses[0];
     deployedMarketContract = await MarketContract.createAndValidate(web3, marketContractAddress);
     collateralPoolAddress = await deployedMarketContract.MARKET_COLLATERAL_POOL_ADDRESS;
     collateralTokenAddress = await deployedMarketContract.COLLATERAL_TOKEN_ADDRESS;
-    collateralToken = await ERC20.createAndValidate(web3, collateralTokenAddress);
-    const tokenBalance: BigNumber = await collateralToken.balanceOf(maker);
-    await collateralToken.approveTx(collateralPoolAddress, tokenBalance).send({ from: maker });
+
+    const tokenBalance: BigNumber = await market.erc20TokenContractWrapper.getBalanceAsync(
+      collateralTokenAddress,
+      maker
+    );
+
+    await market.erc20TokenContractWrapper.setAllowanceAsync(
+      collateralTokenAddress,
+      collateralPoolAddress,
+      tokenBalance,
+      { from: maker }
+    );
   });
 
   it('Balance after depositCollateralAsync call is correct', async () => {
     const depositAmount: BigNumber = new BigNumber(10);
-    const oldBalance: BigNumber = await collateralToken.balanceOf(collateralPoolAddress);
+    const oldBalance: BigNumber = await market.erc20TokenContractWrapper.getBalanceAsync(
+      collateralTokenAddress,
+      collateralPoolAddress
+    );
+
     await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, depositAmount, {
       from: maker
     });
-    const newBalance: BigNumber = await collateralToken.balanceOf(collateralPoolAddress);
+
+    const newBalance: BigNumber = await market.erc20TokenContractWrapper.getBalanceAsync(
+      collateralTokenAddress,
+      collateralPoolAddress
+    );
+
     expect(newBalance.minus(oldBalance)).toEqual(depositAmount);
   });
 
@@ -79,11 +96,20 @@ describe('Collateral', () => {
     await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, depositAmount, {
       from: maker
     });
-    const oldBalance: BigNumber = await collateralToken.balanceOf(maker);
+
+    const oldBalance: BigNumber = await market.erc20TokenContractWrapper.getBalanceAsync(
+      collateralTokenAddress,
+      maker
+    );
+
     await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, withdrawAmount, {
       from: maker
     });
-    const newBalance: BigNumber = await collateralToken.balanceOf(maker);
+    const newBalance: BigNumber = await market.erc20TokenContractWrapper.getBalanceAsync(
+      collateralTokenAddress,
+      maker
+    );
+
     expect(oldBalance.plus(withdrawAmount)).toEqual(newBalance);
   });
 

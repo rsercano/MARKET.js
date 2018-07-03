@@ -38,6 +38,7 @@ import {
   isValidSignatureAsync,
   signOrderHashAsync
 } from './lib/Order';
+import { ERC20TokenContractWrapper } from './contract_wrappers/ERC20TokenContractWrapper';
 
 /**
  * The `Market` class is the single entry-point into the MARKET.js library.
@@ -53,7 +54,10 @@ export class Market {
   public mktTokenContract: MarketToken;
   public marketCollateralPoolFactory: MarketCollateralPoolFactory;
   public marketContractFactory: MarketContractFactoryOraclize; // todo: create interface.
+
+  // wrappers
   public marketContractWrapper: MarketContractWrapper;
+  public erc20TokenContractWrapper: ERC20TokenContractWrapper;
 
   private readonly _web3: Web3;
   // endregion // members
@@ -104,6 +108,7 @@ export class Market {
     );
 
     this.marketContractWrapper = new MarketContractWrapper(this._web3);
+    this.erc20TokenContractWrapper = new ERC20TokenContractWrapper(this._web3);
   }
   // endregion//Constructors
 
