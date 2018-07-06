@@ -10,7 +10,7 @@ env:
   - TRUFFLE_DEVELOP_HOST=marketjs TRUFFLE_DEVELOP_PORT=9545
 before_install:
   - pwd
-  - ./scripts/travis_npm_compile.sh
+  - ./scripts/travis_npm_build.sh
   - docker-compose up -d
   - docker-compose --version
   - docker-compose ps
