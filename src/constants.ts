@@ -18,7 +18,6 @@ export const constants = {
  * marketCollateralPoolFactoryAddress: The address of a
  * MARKET Protocol collateral pool factory to use.
  * mktTokenAddress: The address of the MARKET Protocol token (MKT) to use
- * orderWatcherConfig: All the configs related to the orderWatcher
  */
 export const configTruffle: MARKETProtocolConfig = {
   networkId: constants.NETWORK_ID_TRUFFLE
