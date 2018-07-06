@@ -285,7 +285,7 @@ export class Market {
    * @returns {Promise<string>}     The oracle query
    */
   public async getOracleQuery(marketContractAddress: string): Promise<string> {
-    return this.MarketContractOraclizeWrapper.getOracleQuery(marketContractAddress);
+    return this.marketContractWrapper.getOracleQuery(marketContractAddress);
   }
 
   // DEPLOYMENT METHODS
