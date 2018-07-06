@@ -8,7 +8,6 @@ import {
   ITxParams,
   MarketCollateralPoolFactory,
   MarketContractFactoryOraclize,
-  MarketContractOraclize,
   MarketContractRegistry,
   MARKETProtocolConfig,
   MarketToken,
@@ -58,7 +57,8 @@ export class Market {
   public marketContractFactory: MarketContractFactoryOraclize; // todo: create interface.
 
   // wrappers
-  public marketContractWrapper: MarketContractOraclizeWrapper;
+  public marketContractWrapper: MarketContractWrapper;
+  public MarketContractOraclizeWrapper: MarketContractOraclizeWrapper;
   public erc20TokenContractWrapper: ERC20TokenContractWrapper;
 
   private readonly _web3: Web3;
@@ -110,7 +110,8 @@ export class Market {
     );
 
     this.erc20TokenContractWrapper = new ERC20TokenContractWrapper(this._web3);
-    this.marketContractWrapper = new MarketContractOraclizeWrapper(this._web3);
+    this.MarketContractOraclizeWrapper = new MarketContractOraclizeWrapper(this._web3);
+    this.marketContractWrapper = new MarketContractWrapper(this._web3);
   }
   // endregion//Constructors
 
@@ -281,9 +282,13 @@ export class Market {
     return this.marketContractRegistry.getAddressWhiteList;
   }
 
+  /**
+   * Get the oracle query for the MarketContract
+   * @param marketContractAddress   MarketContract address 
+   * @returns {Promise<string>}     The oracle query
+   */
   public async getOracleQuery(marketContractAddress: string): Promise<string> {
-    // return this.marketContractWrapper.getOracleQuery(marketContractAddress);
-    return this.marketContractWrapper.getOracleQuery(marketContractAddress);
+    return this.MarketContractOraclizeWrapper.getOracleQuery(marketContractAddress);
   }
 
   // DEPLOYMENT METHODS

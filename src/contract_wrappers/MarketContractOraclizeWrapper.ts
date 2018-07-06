@@ -6,8 +6,8 @@ import { MarketContractOraclize } from '@marketprotocol/types';
 import { MarketContractWrapper } from './MarketContractWrapper';
 
 /**
- * Wrapper for our MarketContract objects.  This wrapper exposes all needed functionality of the
- * MarketContract itself and stores the created MarketContract objects in a mapping for easy reuse.
+ * Wrapper for our MarketContractOraclize objects.  This wrapper exposes all needed functionality of the
+ * MarketContractOraclize itself and stores the created MarketContractOraclize objects in a mapping for easy reuse.
  */
 export class MarketContractOraclizeWrapper extends MarketContractWrapper {
   // region Members
@@ -37,6 +37,11 @@ export class MarketContractOraclizeWrapper extends MarketContractWrapper {
   // *****************************************************************
   // ****                     Public Methods                      ****
   // *****************************************************************
+  /**
+   * Gets the MarketContract oracle query.
+   * @param {string} marketContractOraclizeAddress   Address of the contract
+   * @returns Promise<string>                        The oracle query
+   */
   public async getOracleQuery(marketContractOraclizeAddress: string): Promise<string> {
     const marketContractOraclize: MarketContractOraclize = await this._getMarketContractAsync(
       marketContractOraclizeAddress
@@ -45,9 +50,9 @@ export class MarketContractOraclizeWrapper extends MarketContractWrapper {
   }
   // endregion //Public Methods
 
-  // region Private Methods
+  // region Protected Methods
   // *****************************************************************
-  // ****                     Private Methods                     ****
+  // ****                    Protected Methods                    ****
   // *****************************************************************
   /**
    * Allow for retrieval or creation of a given MarketContractOraclize
@@ -67,5 +72,11 @@ export class MarketContractOraclizeWrapper extends MarketContractWrapper {
     this._marketContractOraclizeByAddress[normalizedMarketAddress] = marketContractOraclize;
     return marketContractOraclize;
   }
+  // endregion //Protected Methods
+
+  // region Private Methods
+  // *****************************************************************
+  // ****                     Private Methods                     ****
+  // *****************************************************************
   // endregion //Private Methods
 }

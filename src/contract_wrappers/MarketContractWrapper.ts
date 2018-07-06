@@ -6,7 +6,6 @@ import Web3 from 'web3';
 import {
   ITxParams,
   MarketContract,
-  MarketContractOraclize,
   Order,
   SignedOrder
 } from '@marketprotocol/types';
@@ -177,18 +176,11 @@ export class MarketContractWrapper {
     );
     return marketContract.MARKET_COLLATERAL_POOL_ADDRESS;
   }
-
-  public async getOracleQuery(marketContractAddress: string): Promise<string> {
-    const marketContract: MarketContract = await this._getMarketContractAsync(
-      marketContractAddress
-    );
-    return (marketContract as any).ORACLE_QUERY.call();
-  }
   // endregion //Public Methods
 
-  // region Private Methods
+  // region Protected Methods
   // *****************************************************************
-  // ****                     Private Methods                     ****
+  // ****                    Protected Methods                    ****
   // *****************************************************************
   /**
    * Allow for retrieval or creation of a given MarketContract
@@ -206,5 +198,11 @@ export class MarketContractWrapper {
     this._marketContractsByAddress[normalizedMarketAddress] = tokenContract;
     return tokenContract;
   }
+  // endregion //Protected Methods
+
+  // region Private Methods
+  // *****************************************************************
+  // ****                     Private Methods                     ****
+  // *****************************************************************
   // endregion //Private Methods
 }

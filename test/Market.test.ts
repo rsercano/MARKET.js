@@ -1,5 +1,5 @@
 import Web3 from 'web3';
-
+import { isUrl } from './utils';
 // Types
 import { toBeArray, toBeString } from 'jest-extended';
 
@@ -53,5 +53,15 @@ describe('Market class', () => {
     const result = await market.getCollateralPoolContractAddressAsync(MARKET_CONTRACT_ADDRESS);
     expect(result).toBe(COLLATERAL_POOL_CONTRACT_ADDRESS);
     checkValidAddress(result);
+  });
+  it('Returns a oracle query', async () => {
+    const market = new Market(
+      new Web3.providers.HttpProvider(constants.PROVIDER_URL_RINKEBY),
+      configRinkeby
+    );
+    const result = await market.getOracleQuery(MARKET_CONTRACT_ADDRESS);
+    expect(result).toBeDefined();
+    expect(result).toBeString();
+    expect(isUrl(result.replace(/^.*\((.*)\)/, '$1'))).toBe(true);
   });
 });
