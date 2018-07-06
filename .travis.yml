@@ -1,22 +1,16 @@
 language: node_js
 services:
   - docker
-branches:
-  only:
-    - master
-    - develop
-    - /^greenkeeper.*$/
 cache:
   directories:
     - node_modules
-notifications:
-  email: false
 node_js:
   - lts/*
 env:
   - TRUFFLE_DEVELOP_HOST=marketjs TRUFFLE_DEVELOP_PORT=9545
 before_install:
   - pwd
+  - ./scripts/travis_npm_build.sh
   - docker-compose up -d
   - docker-compose --version
   - docker-compose ps
@@ -31,3 +25,12 @@ after_success:
   - docker-compose exec marketjs env TRAVIS=true TRAVIS_JOB_ID="$TRAVIS_JOB_ID" TRAVIS_BRANCH="$TRAVIS_BRANCH" TRAVIS_PULL_REQUEST="$TRAVIS_PULL_REQUEST" npm run report-coverage
 #  - docker-compose exec marketjs npm run deploy-docs
 #  - docker-compose exec marketjs npm run semantic-release
+deploy:
+  - provider: npm
+    email: phil@marketprotocol.io
+    skip_cleanup: true
+    api_key:
+      secure: M+yu3HUTqsLxh2gCmcEGz4/+aALw9wQDBKJx0AZuwnItuXL6ILNrpleHpS/uILLe555fpB7vVIQMf3Uigqw8LxUZwX2kE0QEIZnLybWYIK108RflVq6fBDmxzctJbh2ACyJU1LaljpReqFEkNgX8Mdccb2KgRHq2pV8F3Mv14/fQaK1LIM7fTdLxxCzszDU/77rb8H/cpC+eLPAue1dI+lDC9fiX7gmiVOAB/DwLBYvym3MGVGewtddTHhp01yXG9PO/GuCmQOF18PIjLStzm/E1nGqMRE0vZZ4dLVPzkDkFFPTzb7BpgwAgQF6waOMDx5lppnry81iXN232kMalGpuKExkfq4W1YORlBamO055wAtLPT5K+UzhUlaj5VSlTnV5feGffJ06//9DSvsVic91qK7FJ3GMZ/kbyB0JtqxTa8EDnER3j6CbNfa59y7dfl/iR/4M7C8EzL9SXNKWYQknie/Dzk0KtWSAELIOHfmr4sHLIWAiRcTjYWfhQfsUFERKTidRQSab1oHX4JGVA6Wyiw9bwdCrlKx+PHNp2yD3Vn4wVrkrLsgnVc81wLXyIAgdYHQopsQ7p/9xQHrf9baJ8w6evFL2GkKw1VT44T3/tzmDw+xItZC+3YCcmfAaJLbqvC/mV4Osclyirvv4RVygj/cPzzcX0TyIePaoNblY=
+    on:
+      branch: master
+      tags: true

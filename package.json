@@ -1,6 +1,6 @@
 {
   "name": "@marketprotocol/marketjs",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "library for interacting with MARKET Protocol",
   "keywords": [
     "MARKET Protocol",
@@ -96,14 +96,15 @@
     ],
     "coverageThreshold": {
       "global": {
-        "branches": 45,
-        "functions": 55,
-        "lines": 60,
-        "statements": 60
+        "branches": 60,
+        "functions": 75,
+        "lines": 80,
+        "statements": 80
       }
     },
     "collectCoverage": true,
-    "verbose": true
+    "verbose": true,
+    "setupTestFrameworkScriptFile": "jest-extended"
   },
   "dependencies": {
     "bignumber.js": "^7.2.1",
@@ -128,6 +129,7 @@
     "cz-conventional-changelog": "^2.1.0",
     "husky": "^0.14.3",
     "jest": "^23.1.0",
+    "jest-extended": "^0.7.2",
     "lint-staged": "^7.1.3",
     "lodash.camelcase": "^4.3.0",
     "market-solidity": "^1.1.0",

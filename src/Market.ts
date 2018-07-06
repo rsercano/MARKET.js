@@ -18,7 +18,8 @@ import {
 import { artifacts } from './artifacts';
 import { assert } from './assert';
 import { constants } from './constants';
-import { MarketContractWrapper } from './contract_wrappers/MarketContractWrapper';
+import { ERC20TokenContractWrapper } from './contract_wrappers/ERC20TokenContractWrapper';
+import { MarketContractOraclizeWrapper } from './contract_wrappers/MarketContractOraclizeWrapper';
 
 import {
   depositCollateralAsync,
@@ -26,8 +27,6 @@ import {
   settleAndCloseAsync,
   withdrawCollateralAsync
 } from './lib/Collateral';
-
-import { getAddressWhiteListAsync, getCollateralPoolContractAddressAsync } from './lib/Contract';
 
 import {
   deployMarketCollateralPoolAsync,
@@ -55,7 +54,10 @@ export class Market {
   public mktTokenContract: MarketToken;
   public marketCollateralPoolFactory: MarketCollateralPoolFactory;
   public marketContractFactory: MarketContractFactoryOraclize; // todo: create interface.
-  public marketContractWrapper: MarketContractWrapper;
+
+  // wrappers
+  public marketContractWrapper: MarketContractOraclizeWrapper;
+  public erc20TokenContractWrapper: ERC20TokenContractWrapper;
 
   private readonly _web3: Web3;
   // endregion // members
@@ -105,7 +107,8 @@ export class Market {
         : constants.NULL_ADDRESS
     );
 
-    this.marketContractWrapper = new MarketContractWrapper(this._web3);
+    this.erc20TokenContractWrapper = new ERC20TokenContractWrapper(this._web3);
+    this.marketContractWrapper = new MarketContractOraclizeWrapper(this._web3);
   }
   // endregion//Constructors
 
@@ -265,16 +268,24 @@ export class Market {
   public async getCollateralPoolContractAddressAsync(
     marketContractAddress: string
   ): Promise<string> {
-    return getCollateralPoolContractAddressAsync(this._web3.currentProvider, marketContractAddress);
+    return this.marketContractWrapper.getCollateralPoolContractAddressAsync(marketContractAddress);
   }
 
   /**
    * Get all whilelisted contracts
-   * @param {string} marketContractAddress    Address of the Market contract
    * @returns {Promise<string>}               The user's currently unallocated token balance
    */
-  public async getAddressWhiteListAsync(marketContractAddress: string): Promise<string[]> {
-    return getAddressWhiteListAsync(this._web3.currentProvider, marketContractAddress);
+  public async getAddressWhiteListAsync(): Promise<string[]> {
+    return this.marketContractRegistry.getAddressWhiteList;
+  }
+
+  /**
+   * Get the oracle query for the MarketContract
+   * @param marketContractAddress   MarketContract address
+   * @returns {Promise<string>}     The oracle query
+   */
+  public async getOracleQuery(marketContractAddress: string): Promise<string> {
+    return this.marketContractWrapper.getOracleQuery(marketContractAddress);
   }
 
   // DEPLOYMENT METHODS
