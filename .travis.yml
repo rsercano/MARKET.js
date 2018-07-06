@@ -1,22 +1,16 @@
 language: node_js
 services:
   - docker
-branches:
-  only:
-    - master
-    - develop
-    - /^greenkeeper.*$/
 cache:
   directories:
     - node_modules
-notifications:
-  email: false
 node_js:
   - lts/*
 env:
   - TRUFFLE_DEVELOP_HOST=marketjs TRUFFLE_DEVELOP_PORT=9545
 before_install:
   - pwd
+  - ./scripts/travis_npm_compile.sh
   - docker-compose up -d
   - docker-compose --version
   - docker-compose ps
@@ -36,7 +30,7 @@ deploy:
     email: phil@marketprotocol.io
     skip_cleanup: true
     api_key:
-      secure: NGLJNnMEyN37ULf62IBdQQwfmJ1bfkAT+2dk3Mvb/3kBzWea8T8/NGsXY1MXWz9w5ff6Xq9+t76FL1BgeQlmfCI+6l2LWspaA9whc9KZA5oFk1PhshnVwlir0ibMjuAvKjjoLuMjsYspRHYiYlwuClZuPELtWbEUWp2f4ec4IfQVwRVcaqd+Vbm9Dhayd/PCtSAfN6MnkRWCZtzCFDBl9GmPURaxtPDZAFlhHBdTC8d6EpOtZBUOMxeWjd/BuPTCODfyRpCPgJXblENuFis/KaJfFSuBm8/An5eNpKs+92D00aqwX14LxZZeTs6/Qnt1RqcFhO8f98IQEz1tqbNWSc6h6+24HpjehfS8G2RChA/BEhr4h0r0WEXGgyj0gKXnELzNdNo/uLE8dOCscTGrUXvJi59AzSDeeVGqQ9kU+4yqxNRPhw9h8WD2lubaUJCJdIWHt5fSXQqj87/Pv2nvShsUQZwSXO2KOcnldcUKWRSw3qHhQcYctFvwVBcKuivWJWJfxnO6VE3ft6VFX6d95tk51L0dAvjowb6J2GIGNLo1q06EWwHQeA5qqBnGDCCvasVtKN8RaWZu77H0iszhTXOf6LLisYTQKnll73nMfGNxoVQplsqCmNPOMEzp9jbxHOKQ7fyaas0fVu3z5qbC8REMiuqmidl7VevYthhZv/o=
+      secure: M+yu3HUTqsLxh2gCmcEGz4/+aALw9wQDBKJx0AZuwnItuXL6ILNrpleHpS/uILLe555fpB7vVIQMf3Uigqw8LxUZwX2kE0QEIZnLybWYIK108RflVq6fBDmxzctJbh2ACyJU1LaljpReqFEkNgX8Mdccb2KgRHq2pV8F3Mv14/fQaK1LIM7fTdLxxCzszDU/77rb8H/cpC+eLPAue1dI+lDC9fiX7gmiVOAB/DwLBYvym3MGVGewtddTHhp01yXG9PO/GuCmQOF18PIjLStzm/E1nGqMRE0vZZ4dLVPzkDkFFPTzb7BpgwAgQF6waOMDx5lppnry81iXN232kMalGpuKExkfq4W1YORlBamO055wAtLPT5K+UzhUlaj5VSlTnV5feGffJ06//9DSvsVic91qK7FJ3GMZ/kbyB0JtqxTa8EDnER3j6CbNfa59y7dfl/iR/4M7C8EzL9SXNKWYQknie/Dzk0KtWSAELIOHfmr4sHLIWAiRcTjYWfhQfsUFERKTidRQSab1oHX4JGVA6Wyiw9bwdCrlKx+PHNp2yD3Vn4wVrkrLsgnVc81wLXyIAgdYHQopsQ7p/9xQHrf9baJ8w6evFL2GkKw1VT44T3/tzmDw+xItZC+3YCcmfAaJLbqvC/mV4Osclyirvv4RVygj/cPzzcX0TyIePaoNblY=
     on:
       branch: master
       tags: true
