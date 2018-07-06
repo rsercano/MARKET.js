@@ -3,7 +3,13 @@ import * as _ from 'lodash';
 import Web3 from 'web3';
 
 // Types
-import { ITxParams, MarketContract, Order, SignedOrder } from '@marketprotocol/types';
+import {
+  ITxParams,
+  MarketContract,
+  MarketContractOraclize,
+  Order,
+  SignedOrder
+} from '@marketprotocol/types';
 
 /**
  * Wrapper for our MarketContract objects.  This wrapper exposes all needed functionality of the
@@ -172,6 +178,12 @@ export class MarketContractWrapper {
     return marketContract.MARKET_COLLATERAL_POOL_ADDRESS;
   }
 
+  public async getOracleQuery(marketContractAddress: string): Promise<string> {
+    const marketContract: MarketContract = await this._getMarketContractAsync(
+      marketContractAddress
+    );
+    return (marketContract as any).ORACLE_QUERY.call();
+  }
   // endregion //Public Methods
 
   // region Private Methods

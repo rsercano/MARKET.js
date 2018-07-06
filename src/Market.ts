@@ -8,6 +8,7 @@ import {
   ITxParams,
   MarketCollateralPoolFactory,
   MarketContractFactoryOraclize,
+  MarketContractOraclize,
   MarketContractRegistry,
   MARKETProtocolConfig,
   MarketToken,
@@ -18,6 +19,8 @@ import {
 import { artifacts } from './artifacts';
 import { assert } from './assert';
 import { constants } from './constants';
+import { ERC20TokenContractWrapper } from './contract_wrappers/ERC20TokenContractWrapper';
+import { MarketContractOraclizeWrapper } from './contract_wrappers/MarketContractOraclizeWrapper';
 import { MarketContractWrapper } from './contract_wrappers/MarketContractWrapper';
 
 import {
@@ -38,7 +41,6 @@ import {
   isValidSignatureAsync,
   signOrderHashAsync
 } from './lib/Order';
-import { ERC20TokenContractWrapper } from './contract_wrappers/ERC20TokenContractWrapper';
 
 /**
  * The `Market` class is the single entry-point into the MARKET.js library.
@@ -57,6 +59,7 @@ export class Market {
 
   // wrappers
   public marketContractWrapper: MarketContractWrapper;
+  public MarketContractOraclizeWrapper: MarketContractOraclizeWrapper;
   public erc20TokenContractWrapper: ERC20TokenContractWrapper;
 
   private readonly _web3: Web3;
@@ -107,8 +110,9 @@ export class Market {
         : constants.NULL_ADDRESS
     );
 
-    this.marketContractWrapper = new MarketContractWrapper(this._web3);
     this.erc20TokenContractWrapper = new ERC20TokenContractWrapper(this._web3);
+    this.MarketContractOraclizeWrapper = new MarketContractOraclizeWrapper(this._web3);
+    this.marketContractWrapper = new MarketContractWrapper(this._web3);
   }
   // endregion//Constructors
 
@@ -277,6 +281,11 @@ export class Market {
    */
   public async getAddressWhiteListAsync(): Promise<string[]> {
     return this.marketContractRegistry.getAddressWhiteList;
+  }
+
+  public async getOracleQuery(marketContractAddress: string): Promise<string> {
+    // return this.marketContractWrapper.getOracleQuery(marketContractAddress);
+    return this.MarketContractOraclizeWrapper.getOracleQuery(marketContractAddress);
   }
 
   // DEPLOYMENT METHODS
