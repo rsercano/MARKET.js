@@ -3,12 +3,7 @@ import * as _ from 'lodash';
 import Web3 from 'web3';
 
 // Types
-import {
-  ITxParams,
-  MarketContract,
-  Order,
-  SignedOrder
-} from '@marketprotocol/types';
+import { ITxParams, MarketContract, Order, SignedOrder } from '@marketprotocol/types';
 
 /**
  * Wrapper for our MarketContract objects.  This wrapper exposes all needed functionality of the

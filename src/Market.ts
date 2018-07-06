@@ -284,7 +284,7 @@ export class Market {
 
   /**
    * Get the oracle query for the MarketContract
-   * @param marketContractAddress   MarketContract address 
+   * @param marketContractAddress   MarketContract address
    * @returns {Promise<string>}     The oracle query
    */
   public async getOracleQuery(marketContractAddress: string): Promise<string> {
