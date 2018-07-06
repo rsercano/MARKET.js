@@ -14,8 +14,8 @@ export class MarketContractWrapper {
   // *****************************************************************
   // ****                     Members                             ****
   // *****************************************************************
+  protected readonly _web3: Web3;
   private readonly _marketContractsByAddress: { [address: string]: MarketContract };
-  private readonly _web3: Web3;
 
   // endregion // members
   // region Constructors
@@ -171,12 +171,11 @@ export class MarketContractWrapper {
     );
     return marketContract.MARKET_COLLATERAL_POOL_ADDRESS;
   }
-
   // endregion //Public Methods
 
-  // region Private Methods
+  // region Protected Methods
   // *****************************************************************
-  // ****                     Private Methods                     ****
+  // ****                    Protected Methods                    ****
   // *****************************************************************
   /**
    * Allow for retrieval or creation of a given MarketContract
@@ -184,7 +183,7 @@ export class MarketContractWrapper {
    * @returns {Promise<MarketContract>}   MarketContract object
    * @private
    */
-  private async _getMarketContractAsync(marketAddress: string): Promise<MarketContract> {
+  protected async _getMarketContractAsync(marketAddress: string): Promise<MarketContract> {
     const normalizedMarketAddress = marketAddress.toLowerCase();
     let tokenContract = this._marketContractsByAddress[normalizedMarketAddress];
     if (!_.isUndefined(tokenContract)) {
@@ -194,5 +193,11 @@ export class MarketContractWrapper {
     this._marketContractsByAddress[normalizedMarketAddress] = tokenContract;
     return tokenContract;
   }
+  // endregion //Protected Methods
+
+  // region Private Methods
+  // *****************************************************************
+  // ****                     Private Methods                     ****
+  // *****************************************************************
   // endregion //Private Methods
 }
