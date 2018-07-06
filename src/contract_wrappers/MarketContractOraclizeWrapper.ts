@@ -3,18 +3,18 @@ import Web3 from 'web3';
 
 // Types
 import { MarketContractOraclize } from '@marketprotocol/types';
+import { MarketContractWrapper } from './MarketContractWrapper';
 
 /**
  * Wrapper for our MarketContract objects.  This wrapper exposes all needed functionality of the
  * MarketContract itself and stores the created MarketContract objects in a mapping for easy reuse.
  */
-export class MarketContractOraclizeWrapper {
+export class MarketContractOraclizeWrapper extends MarketContractWrapper {
   // region Members
   // *****************************************************************
   // ****                     Members                             ****
   // *****************************************************************
-  private readonly _marketContractOracleizeByAddress: { [address: string]: MarketContractOraclize };
-  private readonly _web3: Web3;
+  private readonly _marketContractOraclizeByAddress: { [address: string]: MarketContractOraclize };
   // endregion // members
 
   // region Constructors
@@ -22,8 +22,8 @@ export class MarketContractOraclizeWrapper {
   // ****                     Constructors                        ****
   // *****************************************************************
   constructor(web3: Web3) {
-    this._web3 = web3;
-    this._marketContractOracleizeByAddress = {};
+    super(web3);
+    this._marketContractOraclizeByAddress = {};
   }
   // endregion//Constructors
 
@@ -38,7 +38,7 @@ export class MarketContractOraclizeWrapper {
   // ****                     Public Methods                      ****
   // *****************************************************************
   public async getOracleQuery(marketContractOraclizeAddress: string): Promise<string> {
-    const marketContractOraclize: MarketContractOraclize = await this._getMarketContractOraclizeAsync(
+    const marketContractOraclize: MarketContractOraclize = await this._getMarketContractAsync(
       marketContractOraclizeAddress
     );
     return marketContractOraclize.ORACLE_QUERY;
@@ -55,16 +55,16 @@ export class MarketContractOraclizeWrapper {
    * @returns {Promise<MarketContractOraclize>}       MarketContractOraclize object
    * @private
    */
-  private async _getMarketContractOraclizeAsync(
+  protected async _getMarketContractAsync(
     marketContractOraclizeAddress: string
   ): Promise<MarketContractOraclize> {
     const normalizedMarketAddress = marketContractOraclizeAddress.toLowerCase();
-    let marketContractOraclize = this._marketContractOracleizeByAddress[normalizedMarketAddress];
+    let marketContractOraclize = this._marketContractOraclizeByAddress[normalizedMarketAddress];
     if (!_.isUndefined(marketContractOraclize)) {
       return marketContractOraclize;
     }
     marketContractOraclize = new MarketContractOraclize(this._web3, marketContractOraclizeAddress);
-    this._marketContractOracleizeByAddress[normalizedMarketAddress] = marketContractOraclize;
+    this._marketContractOraclizeByAddress[normalizedMarketAddress] = marketContractOraclize;
     return marketContractOraclize;
   }
   // endregion //Private Methods

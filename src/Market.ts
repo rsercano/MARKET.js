@@ -58,8 +58,7 @@ export class Market {
   public marketContractFactory: MarketContractFactoryOraclize; // todo: create interface.
 
   // wrappers
-  public marketContractWrapper: MarketContractWrapper;
-  public MarketContractOraclizeWrapper: MarketContractOraclizeWrapper;
+  public marketContractWrapper: MarketContractOraclizeWrapper;
   public erc20TokenContractWrapper: ERC20TokenContractWrapper;
 
   private readonly _web3: Web3;
@@ -111,8 +110,7 @@ export class Market {
     );
 
     this.erc20TokenContractWrapper = new ERC20TokenContractWrapper(this._web3);
-    this.MarketContractOraclizeWrapper = new MarketContractOraclizeWrapper(this._web3);
-    this.marketContractWrapper = new MarketContractWrapper(this._web3);
+    this.marketContractWrapper = new MarketContractOraclizeWrapper(this._web3);
   }
   // endregion//Constructors
 
@@ -285,7 +283,7 @@ export class Market {
 
   public async getOracleQuery(marketContractAddress: string): Promise<string> {
     // return this.marketContractWrapper.getOracleQuery(marketContractAddress);
-    return this.MarketContractOraclizeWrapper.getOracleQuery(marketContractAddress);
+    return this.marketContractWrapper.getOracleQuery(marketContractAddress);
   }
 
   // DEPLOYMENT METHODS

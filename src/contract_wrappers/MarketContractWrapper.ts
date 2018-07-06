@@ -20,8 +20,8 @@ export class MarketContractWrapper {
   // *****************************************************************
   // ****                     Members                             ****
   // *****************************************************************
+  protected readonly _web3: Web3;
   private readonly _marketContractsByAddress: { [address: string]: MarketContract };
-  private readonly _web3: Web3;
 
   // endregion // members
   // region Constructors
@@ -196,7 +196,7 @@ export class MarketContractWrapper {
    * @returns {Promise<MarketContract>}   MarketContract object
    * @private
    */
-  private async _getMarketContractAsync(marketAddress: string): Promise<MarketContract> {
+  protected async _getMarketContractAsync(marketAddress: string): Promise<MarketContract> {
     const normalizedMarketAddress = marketAddress.toLowerCase();
     let tokenContract = this._marketContractsByAddress[normalizedMarketAddress];
     if (!_.isUndefined(tokenContract)) {
