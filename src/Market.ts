@@ -20,7 +20,6 @@ import { assert } from './assert';
 import { constants } from './constants';
 import { ERC20TokenContractWrapper } from './contract_wrappers/ERC20TokenContractWrapper';
 import { MarketContractOraclizeWrapper } from './contract_wrappers/MarketContractOraclizeWrapper';
-import { MarketContractWrapper } from './contract_wrappers/MarketContractWrapper';
 
 import {
   depositCollateralAsync,
@@ -57,8 +56,7 @@ export class Market {
   public marketContractFactory: MarketContractFactoryOraclize; // todo: create interface.
 
   // wrappers
-  public marketContractWrapper: MarketContractWrapper;
-  public MarketContractOraclizeWrapper: MarketContractOraclizeWrapper;
+  public marketContractWrapper: MarketContractOraclizeWrapper;
   public erc20TokenContractWrapper: ERC20TokenContractWrapper;
 
   private readonly _web3: Web3;
@@ -110,8 +108,7 @@ export class Market {
     );
 
     this.erc20TokenContractWrapper = new ERC20TokenContractWrapper(this._web3);
-    this.MarketContractOraclizeWrapper = new MarketContractOraclizeWrapper(this._web3);
-    this.marketContractWrapper = new MarketContractWrapper(this._web3);
+    this.marketContractWrapper = new MarketContractOraclizeWrapper(this._web3);
   }
   // endregion//Constructors
 
