@@ -381,19 +381,17 @@ export class Market {
 
   /**
    * Confirms a signed order is validly signed
-   * @param orderLibAddress
    * @param signedOrder
    * @param orderHash
    * @return boolean if order hash and signature resolve to maker address (signer)
    */
   public async isValidSignatureAsync(
-    orderLibAddress: string,
     signedOrder: SignedOrder,
     orderHash: string
   ): Promise<boolean> {
     return isValidSignatureAsync(
       this._web3.currentProvider,
-      orderLibAddress,
+      this.orderLib.address,
       signedOrder,
       orderHash
     );
@@ -471,7 +469,13 @@ export class Market {
     fillQty: BigNumber,
     txParams: ITxParams = {}
   ): Promise<BigNumber | number> {
-    return this.marketContractWrapper.tradeOrderAsync(signedOrder, fillQty, txParams);
+    return this.marketContractWrapper.tradeOrderAsync(
+      this.mktTokenContract,
+      this.orderLib.address, 
+      signedOrder,
+      fillQty,
+      txParams
+    );
   }
 
   /**
