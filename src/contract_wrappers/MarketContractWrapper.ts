@@ -161,6 +161,18 @@ export class MarketContractWrapper {
   /**
    * Gets the collateral pool contract address
    * @param {string} marketContractAddress    Address of the Market contract.
+   * @returns {Promise<string>}               The contract's name
+   */
+  public async getMarketContractNameAsync(marketContractAddress: string): Promise<string> {
+    const marketContract: MarketContract = await this._getMarketContractAsync(
+      marketContractAddress
+    );
+    return marketContract.CONTRACT_NAME;
+  }
+
+  /**
+   * Gets the contract name
+   * @param {string} marketContractAddress    Address of the Market contract.
    * @returns {Promise<string>}               The collateral pool contract address.
    */
   public async getCollateralPoolContractAddressAsync(
