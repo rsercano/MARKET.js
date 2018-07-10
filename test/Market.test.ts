@@ -3,6 +3,9 @@ import { isUrl } from './utils';
 import { toBeArray, toBeString } from 'jest-extended';
 import { Market } from '../src/';
 import { constants } from '../src/constants';
+import { BigNumber } from 'bignumber.js';
+
+// types
 import { MARKETProtocolConfig } from '@marketprotocol/types';
 
 /**
@@ -63,5 +66,13 @@ describe('Market class', () => {
     const result = await market.getMarketContractNameAsync(contractAddress);
     expect(result).toBeDefined();
     expect(result).toBeString();
+  });
+
+  it('Returns a contract name', async () => {
+    const result: BigNumber = await market.getMarketContractPriceDecimalPlacesAsync(
+      contractAddress
+    );
+    expect(result).toBeDefined();
+    expect(result.toNumber).toBeNumber();
   });
 });
