@@ -130,6 +130,10 @@ export class MarketContractWrapper {
     const erc20ContractWrapper: ERC20TokenContractWrapper = new ERC20TokenContractWrapper(
       this._web3
     );
+
+    // TODO: we need to add a check to ensure that not only do they have the needed balance,
+    // but that also they have given the approval for us to transfer it as well.
+
     const makerMktBalance: BigNumber = new BigNumber(
       await erc20ContractWrapper.getBalanceAsync(mktTokenContract.address, maker)
     );
@@ -163,6 +167,9 @@ export class MarketContractWrapper {
         taker
       )
     );
+
+    // TODO: we need to fix this, the needed collateral amount is not equal to the fill qty.
+    // see https://github.com/MARKETProtocol/MARKET.js/issues/72 for more info
 
     if (makerCollateralBalance.isLessThan(fillQty)) {
       return Promise.reject<BigNumber | number>(
