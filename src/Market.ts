@@ -11,6 +11,7 @@ import {
   MarketContractRegistry,
   MarketToken,
   Order,
+  OrderLib,
   SignedOrder
 } from '@marketprotocol/types';
 import { MARKETProtocolConfig } from './types';
@@ -54,6 +55,7 @@ export class Market {
   public mktTokenContract: MarketToken;
   public marketCollateralPoolFactory: MarketCollateralPoolFactory;
   public marketContractFactory: MarketContractFactoryOraclize; // todo: create interface.
+  public orderLib: OrderLib;
 
   // wrappers
   public marketContractWrapper: MarketContractOraclizeWrapper;
@@ -107,6 +109,11 @@ export class Market {
         : constants.NULL_ADDRESS
     );
 
+    this.orderLib = new OrderLib(
+      this._web3,
+      config.orderLibAddress ? config.orderLibAddress : constants.NULL_ADDRESS
+    );
+
     this.erc20TokenContractWrapper = new ERC20TokenContractWrapper(this._web3);
     this.marketContractWrapper = new MarketContractOraclizeWrapper(this._web3);
   }
@@ -156,6 +163,14 @@ export class Market {
     ) {
       config.marketCollateralPoolFactoryAddress =
         artifacts.MarketCollateralPoolFactoryArtifact.networks[config.networkId].address;
+    }
+
+    if (
+      !config.orderLibAddress &&
+      artifacts.OrderLibArtifact &&
+      artifacts.OrderLibArtifact.networks[config.networkId]
+    ) {
+      config.orderLibAddress = artifacts.OrderLibArtifact.networks[config.networkId].address;
     }
 
     return config;
