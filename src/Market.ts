@@ -9,11 +9,11 @@ import {
   MarketCollateralPoolFactory,
   MarketContractFactoryOraclize,
   MarketContractRegistry,
-  MARKETProtocolConfig,
   MarketToken,
   Order,
   SignedOrder
 } from '@marketprotocol/types';
+import { MARKETProtocolConfig } from './types';
 
 import { artifacts } from './artifacts';
 import { assert } from './assert';
