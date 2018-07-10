@@ -278,12 +278,21 @@ export class Market {
   /**
    * Gets the collateral pool contract address
    * @param {string} marketContractAddress    Address of the Market contract
-   * @returns {Promise<string>}               The user's currently unallocated token balance
+   * @returns {Promise<string>}               The contract's collateral pool address
    */
   public async getCollateralPoolContractAddressAsync(
     marketContractAddress: string
   ): Promise<string> {
     return this.marketContractWrapper.getCollateralPoolContractAddressAsync(marketContractAddress);
+  }
+
+  /**
+   * Gets the market contract name
+   * @param {string} marketContractAddress    Address of the Market contract
+   * @returns {Promise<string>}               The contract's name
+   */
+  public async getMarketContractNameAsync(marketContractAddress: string): Promise<string> {
+    return this.marketContractWrapper.getMarketContractNameAsync(marketContractAddress);
   }
 
   /**

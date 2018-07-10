@@ -24,6 +24,7 @@ describe('Market class', () => {
   const config: MARKETProtocolConfig = {
     networkId: constants.NETWORK_ID_TRUFFLE
   };
+
   let market: Market;
   let contractAddress: string;
 
@@ -56,5 +57,11 @@ describe('Market class', () => {
     expect(result).toBeDefined();
     expect(result).toBeString();
     expect(isUrl(result.replace(/^.*\((.*)\)/, '$1'))).toBe(true);
+  });
+
+  it('Returns a contract name', async () => {
+    const result = await market.getMarketContractNameAsync(contractAddress);
+    expect(result).toBeDefined();
+    expect(result).toBeString();
   });
 });
