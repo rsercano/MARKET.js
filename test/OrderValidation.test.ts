@@ -54,17 +54,11 @@ describe('Order Validation', async () => {
     deploymentAddress = web3.eth.accounts[0];
     maker = web3.eth.accounts[3];
     taker = web3.eth.accounts[4];
-    deployedMarketContract = await MarketContract.createAndValidate(
-      web3,
-      contractAddress
-    );
+    deployedMarketContract = await MarketContract.createAndValidate(web3, contractAddress);
     collateralTokenAddress = await deployedMarketContract.COLLATERAL_TOKEN_ADDRESS;
     collateralToken = await ERC20.createAndValidate(web3, collateralTokenAddress);
     collateralPoolAddress = await deployedMarketContract.MARKET_COLLATERAL_POOL_ADDRESS;
-    collateralPool = await MarketCollateralPool.createAndValidate(
-      web3,
-      collateralPoolAddress
-    );
+    collateralPool = await MarketCollateralPool.createAndValidate(web3, collateralPoolAddress);
     initialCredit = new BigNumber(1e23);
     orderQty = new BigNumber(100);
     price = new BigNumber(100000);
@@ -201,11 +195,11 @@ describe('Order Validation', async () => {
     expect.assertions(1);
     try {
       await market.tradeOrderAsync(signedOrder, new BigNumber(2), {
-        from: taker,
+        from: maker,
         gas: 400000
       });
     } catch (e) {
-      expect(e).toEqual(new Error('INVALID TAKER'));
+      expect(e).toEqual(new Error(MarketError.InvalidTaker));
     }
   });
 
@@ -239,7 +233,7 @@ describe('Order Validation', async () => {
         gas: 400000
       });
     } catch (e) {
-      expect(e).toEqual(new Error('ORDER EXPIRED'));
+      expect(e).toEqual(new Error(MarketError.OrderExpired));
     }
   });
 
@@ -273,7 +267,7 @@ describe('Order Validation', async () => {
         gas: 400000
       });
     } catch (e) {
-      expect(e).toEqual(new Error('ORDER FILLED OR CANCELLED'));
+      expect(e).toEqual(new Error(MarketError.OrderFilledOrCancelled));
     }
   });
 
@@ -307,12 +301,7 @@ describe('Order Validation', async () => {
         gas: 400000
       });
     } catch (e) {
-      expect(e).toEqual(new Error('BUY/SELL MISMATCH'));
+      expect(e).toEqual(new Error(MarketError.BuySellMismatch));
     }
   });
-
-
-
-
-  
 });

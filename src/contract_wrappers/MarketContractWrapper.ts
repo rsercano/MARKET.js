@@ -109,73 +109,107 @@ export class MarketContractWrapper {
     const marketContract: MarketContract = await this._getMarketContractAsync(
       signedOrder.contractAddress
     );
-    const collateralPoolContractAddress = await marketContract.MARKET_COLLATERAL_POOL_ADDRESS;
+
     const maker = signedOrder.maker;
-    const taker = signedOrder.taker;
-    const isMakerEnabled = await mktTokenContract.isUserEnabledForContract(signedOrder.contractAddress, maker);
-    const isTakerEnabled = await mktTokenContract.isUserEnabledForContract(signedOrder.contractAddress, taker);
+    const taker = txParams.from ? txParams.from : constants.NULL_ADDRESS;
+
+    const collateralPoolContractAddress = await marketContract.MARKET_COLLATERAL_POOL_ADDRESS;
+    const isMakerEnabled = await mktTokenContract.isUserEnabledForContract(
+      signedOrder.contractAddress,
+      maker
+    );
+    const isTakerEnabled = await mktTokenContract.isUserEnabledForContract(
+      signedOrder.contractAddress,
+      taker
+    );
+
     if (!isMakerEnabled || !isTakerEnabled) {
       return Promise.reject<BigNumber | number>(new Error(MarketError.UserNotEnabledForContract));
     }
 
-    const erc20ContractWrapper: ERC20TokenContractWrapper = new ERC20TokenContractWrapper(this._web3);
-    const makerMktBalance: BigNumber = 
-    new BigNumber(await erc20ContractWrapper.getBalanceAsync(mktTokenContract.address, maker));
-    const takerMktBalance: BigNumber = 
-    new BigNumber(await erc20ContractWrapper.getBalanceAsync(mktTokenContract.address, taker));
+    const erc20ContractWrapper: ERC20TokenContractWrapper = new ERC20TokenContractWrapper(
+      this._web3
+    );
+    const makerMktBalance: BigNumber = new BigNumber(
+      await erc20ContractWrapper.getBalanceAsync(mktTokenContract.address, maker)
+    );
+    const takerMktBalance: BigNumber = new BigNumber(
+      await erc20ContractWrapper.getBalanceAsync(mktTokenContract.address, taker)
+    );
 
     if (makerMktBalance.isLessThan(signedOrder.makerFee)) {
-      return Promise.reject<BigNumber | number>(new Error(MarketError.InsufficientBalanceForTransfer));
+      return Promise.reject<BigNumber | number>(
+        new Error(MarketError.InsufficientBalanceForTransfer)
+      );
     }
 
     if (takerMktBalance.isLessThan(signedOrder.takerFee)) {
-      return Promise.reject<BigNumber | number>(new Error(MarketError.InsufficientBalanceForTransfer));
+      return Promise.reject<BigNumber | number>(
+        new Error(MarketError.InsufficientBalanceForTransfer)
+      );
     }
 
-    const makerCollateralBalance: BigNumber = new BigNumber(await getUserAccountBalanceAsync(
-      this._web3.currentProvider, 
-      collateralPoolContractAddress, 
-      maker
-    ));
-    const takerCollateralBalance: BigNumber = new BigNumber(await getUserAccountBalanceAsync(
-      this._web3.currentProvider, 
-      collateralPoolContractAddress, 
-      taker
-    ));
+    const makerCollateralBalance: BigNumber = new BigNumber(
+      await getUserAccountBalanceAsync(
+        this._web3.currentProvider,
+        collateralPoolContractAddress,
+        maker
+      )
+    );
+    const takerCollateralBalance: BigNumber = new BigNumber(
+      await getUserAccountBalanceAsync(
+        this._web3.currentProvider,
+        collateralPoolContractAddress,
+        taker
+      )
+    );
+
     if (makerCollateralBalance.isLessThan(fillQty)) {
-      return Promise.reject<BigNumber | number>(new Error(MarketError.InsufficientCollateralBalance));
+      return Promise.reject<BigNumber | number>(
+        new Error(MarketError.InsufficientCollateralBalance)
+      );
     }
 
-    const orderHash = await createOrderHashAsync(this._web3.currentProvider, orderLibAddress, signedOrder);
+    const orderHash = await createOrderHashAsync(
+      this._web3.currentProvider,
+      orderLibAddress,
+      signedOrder
+    );
     const validSignature = await isValidSignatureAsync(
-      this._web3.currentProvider, 
-      orderLibAddress, signedOrder, 
+      this._web3.currentProvider,
+      orderLibAddress,
+      signedOrder,
       orderHash
     );
     if (!validSignature) {
       return Promise.reject<BigNumber | number>(new Error(MarketError.InvalidSignature));
     }
 
-    if ((signedOrder.taker !== constants.NULL_ADDRESS) && takerCollateralBalance.isLessThan(fillQty)) {
-      return Promise.reject<BigNumber | number>(new Error(MarketError.InsufficientCollateralBalance));
+    if (
+      signedOrder.taker !== constants.NULL_ADDRESS &&
+      takerCollateralBalance.isLessThan(fillQty)
+    ) {
+      return Promise.reject<BigNumber | number>(
+        new Error(MarketError.InsufficientCollateralBalance)
+      );
     }
 
-    if ((signedOrder.taker !== constants.NULL_ADDRESS) && (signedOrder.taker !== this._web3.eth.accounts[0])) {
-      return Promise.reject<BigNumber | number>(new Error('INVALID TAKER'));
+    if (signedOrder.taker !== constants.NULL_ADDRESS && signedOrder.taker !== taker) {
+      return Promise.reject<BigNumber | number>(new Error(MarketError.InvalidTaker));
     }
 
     if (signedOrder.expirationTimestamp.isLessThan(Utils.getCurrentUnixTimestampSec())) {
-      return Promise.reject<BigNumber | number>(new Error('ORDER EXPIRED'));
+      return Promise.reject<BigNumber | number>(new Error(MarketError.OrderExpired));
     }
 
     if (signedOrder.remainingQty.isEqualTo(new BigNumber(0))) {
-      return Promise.reject<BigNumber | number>(new Error('ORDER FILLED OR CANCELLED'));
+      return Promise.reject<BigNumber | number>(new Error(MarketError.OrderFilledOrCancelled));
     }
 
     if (signedOrder.orderQty.isPositive() !== fillQty.isPositive()) {
-      return Promise.reject<BigNumber | number>(new Error('BUY/SELL MISMATCH'));
+      return Promise.reject<BigNumber | number>(new Error(MarketError.BuySellMismatch));
     }
-    
+
     const txHash: string = await marketContract
       .tradeOrderTx(
         // orderAddresses
