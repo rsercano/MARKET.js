@@ -2,6 +2,7 @@ import { BigNumber } from 'bignumber.js';
 import Web3 from 'web3';
 
 // Types
+import { JSONRPCRequestPayload, JSONRPCResponsePayload, Provider } from '@0xproject/types';
 import { ECSignature } from '@marketprotocol/types';
 
 import { constants } from '../constants';

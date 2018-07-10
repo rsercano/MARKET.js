@@ -17,7 +17,7 @@ const COLLATERAL_POOL_CONTRACT_ADDRESS = '0xf8d557eeb0e4961a3de2ada3f18c80792dff
  */
 function checkValidAddress(address: string): void {
   expect(address).toBeString();
-  expect(address).toMatch(new RegExp('^0x[a-zA-Z0-9]+'));
+  expect(address).toMatch(new RegExp('^0x[a-fA-F0-9]+'));
   expect(address).toHaveLength(42);
 }
 
