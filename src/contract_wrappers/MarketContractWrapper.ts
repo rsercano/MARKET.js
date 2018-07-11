@@ -110,10 +110,42 @@ export class MarketContractWrapper {
       signedOrder.contractAddress
     );
 
-    // TODO: add check to ensure marketContract is not expired!
-
     const maker = signedOrder.maker;
     const taker = txParams.from ? txParams.from : constants.NULL_ADDRESS;
+
+    // TODO: add check to ensure marketContract is not expired!
+    if (signedOrder.taker !== constants.NULL_ADDRESS && signedOrder.taker !== taker) {
+      return Promise.reject<BigNumber | number>(new Error(MarketError.InvalidTaker));
+    }
+
+    if (signedOrder.expirationTimestamp.isLessThan(Utils.getCurrentUnixTimestampSec())) {
+      return Promise.reject<BigNumber | number>(new Error(MarketError.OrderExpired));
+    }
+
+    if (signedOrder.remainingQty.isEqualTo(new BigNumber(0))) {
+      return Promise.reject<BigNumber | number>(new Error(MarketError.OrderFilledOrCancelled));
+    }
+
+    if (signedOrder.orderQty.isPositive() !== fillQty.isPositive()) {
+      return Promise.reject<BigNumber | number>(new Error(MarketError.BuySellMismatch));
+    }
+
+    const orderHash = await createOrderHashAsync(
+      this._web3.currentProvider,
+      orderLibAddress,
+      signedOrder
+    );
+
+    const validSignature = await isValidSignatureAsync(
+      this._web3.currentProvider,
+      orderLibAddress,
+      signedOrder,
+      orderHash
+    );
+
+    if (!validSignature) {
+      return Promise.reject<BigNumber | number>(new Error(MarketError.InvalidSignature));
+    }
 
     const collateralPoolContractAddress = await marketContract.MARKET_COLLATERAL_POOL_ADDRESS;
     const isMakerEnabled = await mktTokenContract.isUserEnabledForContract(
@@ -192,37 +224,6 @@ export class MarketContractWrapper {
       return Promise.reject<BigNumber | number>(
         new Error(MarketError.InsufficientCollateralBalance)
       );
-    }
-
-    const orderHash = await createOrderHashAsync(
-      this._web3.currentProvider,
-      orderLibAddress,
-      signedOrder
-    );
-    const validSignature = await isValidSignatureAsync(
-      this._web3.currentProvider,
-      orderLibAddress,
-      signedOrder,
-      orderHash
-    );
-    if (!validSignature) {
-      return Promise.reject<BigNumber | number>(new Error(MarketError.InvalidSignature));
-    }
-
-    if (signedOrder.taker !== constants.NULL_ADDRESS && signedOrder.taker !== taker) {
-      return Promise.reject<BigNumber | number>(new Error(MarketError.InvalidTaker));
-    }
-
-    if (signedOrder.expirationTimestamp.isLessThan(Utils.getCurrentUnixTimestampSec())) {
-      return Promise.reject<BigNumber | number>(new Error(MarketError.OrderExpired));
-    }
-
-    if (signedOrder.remainingQty.isEqualTo(new BigNumber(0))) {
-      return Promise.reject<BigNumber | number>(new Error(MarketError.OrderFilledOrCancelled));
-    }
-
-    if (signedOrder.orderQty.isPositive() !== fillQty.isPositive()) {
-      return Promise.reject<BigNumber | number>(new Error(MarketError.BuySellMismatch));
     }
 
     const txHash: string = await marketContract
