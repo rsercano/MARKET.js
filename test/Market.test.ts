@@ -12,7 +12,7 @@ import { MARKETProtocolConfig } from '@marketprotocol/types';
  */
 function isValidAddress(address: string): void {
   expect(address).toBeString();
-  expect(address).toMatch(new RegExp('^0x[a-zA-Z0-9]+'));
+  expect(address).toMatch(new RegExp('^0x[a-fA-F0-9]+'));
   expect(address).toHaveLength(42);
 }
 

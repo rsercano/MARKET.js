@@ -52,6 +52,33 @@ describe('Collateral', () => {
     );
   });
 
+  it('depositCollateralAsync should fail for deposits above approved amount', async () => {
+    const approvedAmount: BigNumber = await market.erc20TokenContractWrapper.getAllowanceAsync(
+      collateralTokenAddress,
+      maker,
+      collateralPoolAddress
+    );
+    const depositAmount = approvedAmount.plus(10); // aboue approved amount
+
+    const oldBalance: BigNumber = await market.erc20TokenContractWrapper.getBalanceAsync(
+      collateralTokenAddress,
+      collateralPoolAddress
+    );
+
+    await expect(
+      depositCollateralAsync(web3.currentProvider, collateralPoolAddress, depositAmount, {
+        from: maker
+      })
+    ).rejects.toThrow();
+
+    const newBalance: BigNumber = await market.erc20TokenContractWrapper.getBalanceAsync(
+      collateralTokenAddress,
+      collateralPoolAddress
+    );
+
+    expect(newBalance).toEqual(oldBalance);
+  });
+
   it('Balance after depositCollateralAsync call is correct', async () => {
     const depositAmount: BigNumber = new BigNumber(10);
     const oldBalance: BigNumber = await market.erc20TokenContractWrapper.getBalanceAsync(
