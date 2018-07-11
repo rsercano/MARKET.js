@@ -113,6 +113,40 @@ export class MarketContractWrapper {
     const maker = signedOrder.maker;
     const taker = txParams.from ? txParams.from : constants.NULL_ADDRESS;
 
+    // TODO: add check to ensure marketContract is not expired!
+    if (signedOrder.taker !== constants.NULL_ADDRESS && signedOrder.taker !== taker) {
+      return Promise.reject<BigNumber | number>(new Error(MarketError.InvalidTaker));
+    }
+
+    if (signedOrder.expirationTimestamp.isLessThan(Utils.getCurrentUnixTimestampSec())) {
+      return Promise.reject<BigNumber | number>(new Error(MarketError.OrderExpired));
+    }
+
+    if (signedOrder.remainingQty.isEqualTo(new BigNumber(0))) {
+      return Promise.reject<BigNumber | number>(new Error(MarketError.OrderFilledOrCancelled));
+    }
+
+    if (signedOrder.orderQty.isPositive() !== fillQty.isPositive()) {
+      return Promise.reject<BigNumber | number>(new Error(MarketError.BuySellMismatch));
+    }
+
+    const orderHash = await createOrderHashAsync(
+      this._web3.currentProvider,
+      orderLibAddress,
+      signedOrder
+    );
+
+    const validSignature = await isValidSignatureAsync(
+      this._web3.currentProvider,
+      orderLibAddress,
+      signedOrder,
+      orderHash
+    );
+
+    if (!validSignature) {
+      return Promise.reject<BigNumber | number>(new Error(MarketError.InvalidSignature));
+    }
+
     const collateralPoolContractAddress = await marketContract.MARKET_COLLATERAL_POOL_ADDRESS;
     const isMakerEnabled = await mktTokenContract.isUserEnabledForContract(
       signedOrder.contractAddress,
@@ -168,53 +202,28 @@ export class MarketContractWrapper {
       )
     );
 
-    // TODO: we need to fix this, the needed collateral amount is not equal to the fill qty.
-    // see https://github.com/MARKETProtocol/MARKET.js/issues/72 for more info
+    const neededCollateralMaker: BigNumber = await this.calculateNeededCollateralAsync(
+      signedOrder.contractAddress,
+      fillQty,
+      signedOrder.price
+    );
 
-    if (makerCollateralBalance.isLessThan(fillQty)) {
+    const neededCollateralTaker: BigNumber = await this.calculateNeededCollateralAsync(
+      signedOrder.contractAddress,
+      fillQty.times(-1), // opposite direction of the order sign! If i fill a buy order, I am selling / short.
+      signedOrder.price
+    );
+
+    if (makerCollateralBalance.isLessThan(neededCollateralMaker)) {
       return Promise.reject<BigNumber | number>(
         new Error(MarketError.InsufficientCollateralBalance)
       );
     }
 
-    const orderHash = await createOrderHashAsync(
-      this._web3.currentProvider,
-      orderLibAddress,
-      signedOrder
-    );
-    const validSignature = await isValidSignatureAsync(
-      this._web3.currentProvider,
-      orderLibAddress,
-      signedOrder,
-      orderHash
-    );
-    if (!validSignature) {
-      return Promise.reject<BigNumber | number>(new Error(MarketError.InvalidSignature));
-    }
-
-    if (
-      signedOrder.taker !== constants.NULL_ADDRESS &&
-      takerCollateralBalance.isLessThan(fillQty)
-    ) {
+    if (takerCollateralBalance.isLessThan(neededCollateralTaker)) {
       return Promise.reject<BigNumber | number>(
         new Error(MarketError.InsufficientCollateralBalance)
       );
-    }
-
-    if (signedOrder.taker !== constants.NULL_ADDRESS && signedOrder.taker !== taker) {
-      return Promise.reject<BigNumber | number>(new Error(MarketError.InvalidTaker));
-    }
-
-    if (signedOrder.expirationTimestamp.isLessThan(Utils.getCurrentUnixTimestampSec())) {
-      return Promise.reject<BigNumber | number>(new Error(MarketError.OrderExpired));
-    }
-
-    if (signedOrder.remainingQty.isEqualTo(new BigNumber(0))) {
-      return Promise.reject<BigNumber | number>(new Error(MarketError.OrderFilledOrCancelled));
-    }
-
-    if (signedOrder.orderQty.isPositive() !== fillQty.isPositive()) {
-      return Promise.reject<BigNumber | number>(new Error(MarketError.BuySellMismatch));
     }
 
     const txHash: string = await marketContract
@@ -300,6 +309,33 @@ export class MarketContractWrapper {
       marketContractAddress
     );
     return marketContract.MARKET_COLLATERAL_POOL_ADDRESS;
+  }
+
+  /**
+   * Calculates the required collateral amount in base units of a token.  This amount represents
+   * a trader's maximum loss and therefore the amount of collateral that becomes locked into
+   * the smart contracts upon execution of a trade.
+   * @param {string} marketContractAddress
+   * @param {BigNumber} qty             desired qty to trade (+ for buy / - for sell)
+   * @param {BigNumber} price           execution price
+   * @return {Promise<BigNumber>}       amount of needed collateral to become locked.
+   */
+  public async calculateNeededCollateralAsync(
+    marketContractAddress: string,
+    qty: BigNumber,
+    price: BigNumber
+  ): Promise<BigNumber> {
+    const marketContract: MarketContract = await this._getMarketContractAsync(
+      marketContractAddress
+    );
+
+    return Utils.calculateNeededCollateral(
+      await marketContract.PRICE_FLOOR,
+      await marketContract.PRICE_CAP,
+      await marketContract.QTY_MULTIPLIER,
+      qty,
+      price
+    );
   }
   // endregion //Public Methods
 
