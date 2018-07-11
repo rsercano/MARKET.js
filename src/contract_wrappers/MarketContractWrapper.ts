@@ -110,6 +110,8 @@ export class MarketContractWrapper {
       signedOrder.contractAddress
     );
 
+    // TODO: add check to ensure marketContract is not expired!
+
     const maker = signedOrder.maker;
     const taker = txParams.from ? txParams.from : constants.NULL_ADDRESS;
 
@@ -300,6 +302,33 @@ export class MarketContractWrapper {
       marketContractAddress
     );
     return marketContract.MARKET_COLLATERAL_POOL_ADDRESS;
+  }
+
+  /**
+   * Calculates the required collateral amount in base units of a token.  This amount represents
+   * a trader's maximum loss and therefore the amount of collateral that becomes locked into
+   * the smart contracts upon execution of a trade.
+   * @param {string} marketContractAddress
+   * @param {BigNumber} qty             desired qty to trade (+ for buy / - for sell)
+   * @param {BigNumber} price           execution price
+   * @return {Promise<BigNumber>}       amount of needed collateral to become locked.
+   */
+  public async calculateNeededCollateralAsync(
+    marketContractAddress: string,
+    qty: BigNumber,
+    price: BigNumber
+  ): Promise<BigNumber> {
+    const marketContract: MarketContract = await this._getMarketContractAsync(
+      marketContractAddress
+    );
+
+    return Utils.calculateNeededCollateral(
+      await marketContract.PRICE_FLOOR,
+      await marketContract.PRICE_CAP,
+      await marketContract.QTY_MULTIPLIER,
+      qty,
+      price
+    );
   }
   // endregion //Public Methods
 

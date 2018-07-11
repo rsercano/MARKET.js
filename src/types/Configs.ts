@@ -16,6 +16,7 @@ export interface MARKETProtocolConfig {
   marketCollateralPoolFactoryAddress?: string;
   marketTokenAddress?: string;
   orderLibAddress?: string;
+  mathLibAddress?: string;
   orderWatcherConfig?: OrderStateWatcherConfig;
 }
 

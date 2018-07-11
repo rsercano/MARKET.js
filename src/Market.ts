@@ -7,6 +7,7 @@ import {
   ECSignature,
   ITxParams,
   MarketCollateralPoolFactory,
+  MarketContract,
   MarketContractFactoryOraclize,
   MarketContractRegistry,
   MarketToken,
@@ -40,6 +41,8 @@ import {
   isValidSignatureAsync,
   signOrderHashAsync
 } from './lib/Order';
+import { Utils } from './lib/Utils';
+import { MathLib } from '@marketprotocol/types/dist/types/MathLib';
 
 /**
  * The `Market` class is the single entry-point into the MARKET.js library.
@@ -471,7 +474,7 @@ export class Market {
   ): Promise<BigNumber | number> {
     return this.marketContractWrapper.tradeOrderAsync(
       this.mktTokenContract,
-      this.orderLib.address, 
+      this.orderLib.address,
       signedOrder,
       fillQty,
       txParams
@@ -509,5 +512,25 @@ export class Market {
     return this.marketContractWrapper.cancelOrderAsync(order, cancelQty, txParams);
   }
 
+  /**
+   * Calculates the required collateral amount in base units of a token.  This amount represents
+   * a trader's maximum loss and therefore the amount of collateral that becomes locked into
+   * the smart contracts upon execution of a trade.
+   * @param {string} marketContractAddress
+   * @param {BigNumber} qty             desired qty to trade (+ for buy / - for sell)
+   * @param {BigNumber} price           execution price
+   * @return {Promise<BigNumber>}       amount of needed collateral to become locked.
+   */
+  public async calculateNeededCollateralAsync(
+    marketContractAddress: string,
+    qty: BigNumber,
+    price: BigNumber
+  ): Promise<BigNumber> {
+    return this.marketContractWrapper.calculateNeededCollateralAsync(
+      marketContractAddress,
+      qty,
+      price
+    );
+  }
   // endregion //Public Methods
 }
