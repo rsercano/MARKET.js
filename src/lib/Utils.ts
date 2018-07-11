@@ -88,14 +88,14 @@ export const Utils = {
     let maxLoss: BigNumber;
     if (qty.isPositive()) {
       // this qty is long, calculate max loss from entry price to floor
-      if (price <= priceFloor) {
+      if (price.lte(priceFloor)) {
         maxLoss = new BigNumber(0);
       } else {
         maxLoss = price.minus(priceFloor);
       }
     } else {
       // this qty is short, calculate max loss from entry price to ceiling;
-      if (price >= priceCap) {
+      if (price.gte(priceCap)) {
         maxLoss = new BigNumber(0);
       } else {
         maxLoss = priceCap.minus(price);

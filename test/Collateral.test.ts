@@ -161,7 +161,7 @@ describe('Collateral', () => {
 
     let longQtyToExecute = new BigNumber(5);
     let shortQtyToExecute = new BigNumber(-5);
-    let priceToExecute = (await deployedMarketContract.PRICE_FLOOR).plus(50);
+    let priceToExecute = (await deployedMarketContract.PRICE_FLOOR).plus(5000);
 
     let longCalculatedCollateral = await market.calculateNeededCollateralAsync(
       marketContractAddress,
