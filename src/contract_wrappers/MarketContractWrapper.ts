@@ -170,10 +170,25 @@ export class MarketContractWrapper {
       )
     );
 
-    // TODO: we need to fix this, the needed collateral amount is not equal to the fill qty.
-    // see https://github.com/MARKETProtocol/MARKET.js/issues/72 for more info
+    const neededCollateralMaker: BigNumber = await this.calculateNeededCollateralAsync(
+      signedOrder.contractAddress,
+      fillQty,
+      signedOrder.price
+    );
 
-    if (makerCollateralBalance.isLessThan(fillQty)) {
+    const neededCollateralTaker: BigNumber = await this.calculateNeededCollateralAsync(
+      signedOrder.contractAddress,
+      fillQty.times(-1), // opposite direction of the order sign! If i fill a buy order, I am selling / short.
+      signedOrder.price
+    );
+
+    if (makerCollateralBalance.isLessThan(neededCollateralMaker)) {
+      return Promise.reject<BigNumber | number>(
+        new Error(MarketError.InsufficientCollateralBalance)
+      );
+    }
+
+    if (takerCollateralBalance.isLessThan(neededCollateralTaker)) {
       return Promise.reject<BigNumber | number>(
         new Error(MarketError.InsufficientCollateralBalance)
       );
@@ -192,15 +207,6 @@ export class MarketContractWrapper {
     );
     if (!validSignature) {
       return Promise.reject<BigNumber | number>(new Error(MarketError.InvalidSignature));
-    }
-
-    if (
-      signedOrder.taker !== constants.NULL_ADDRESS &&
-      takerCollateralBalance.isLessThan(fillQty)
-    ) {
-      return Promise.reject<BigNumber | number>(
-        new Error(MarketError.InsufficientCollateralBalance)
-      );
     }
 
     if (signedOrder.taker !== constants.NULL_ADDRESS && signedOrder.taker !== taker) {
