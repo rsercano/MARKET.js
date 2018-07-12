@@ -2,7 +2,7 @@ import Web3 from 'web3';
 import { isUrl } from './utils';
 import { toBeArray, toBeString } from 'jest-extended';
 import { Market } from '../src/';
-import { constants } from '../src/constants';
+import { configRinkeby, constants } from '../src/constants';
 import { BigNumber } from 'bignumber.js';
 
 // types
@@ -23,16 +23,14 @@ function isValidAddress(address: string): void {
  * Market
  */
 describe('Market class', () => {
-  const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:9545'));
-  const config: MARKETProtocolConfig = {
-    networkId: constants.NETWORK_ID_TRUFFLE
-  };
+  const web3 = new Web3(new Web3.providers.HttpProvider(constants.PROVIDER_URL_RINKEBY));
+  const config: MARKETProtocolConfig = configRinkeby;
 
   let market: Market;
   let contractAddress: string;
 
   beforeAll(async () => {
-    market = new Market(web3.currentProvider, config);
+    market = new Market(web3.currentProvider, configRinkeby);
     const contractAddresses: string[] = await market.marketContractRegistry.getAddressWhiteList;
     contractAddress = contractAddresses[0];
   });
@@ -73,6 +71,6 @@ describe('Market class', () => {
       contractAddress
     );
     expect(result).toBeDefined();
-    expect(result.toNumber).toBeNumber();
+    expect(result.toNumber()).toBeNumber();
   });
 });
