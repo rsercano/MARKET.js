@@ -46,12 +46,22 @@ export async function depositCollateralAsync(
   const callerMktBalance: BigNumber = new BigNumber(
     await erc20ContractWrapper.getBalanceAsync(mktTokenContract.address, caller)
   );
-
   if (callerMktBalance.isLessThan(depositAmount)) {
     return Promise.reject<boolean>(new Error(MarketError.InsufficientBalanceForTransfer));
   }
 
-  // note users must call ERC20 approve
+  // Ensure caller has approved sufficient amount
+  const userAllowance: BigNumber = new BigNumber(
+    await erc20ContractWrapper.getAllowanceAsync(
+      mktTokenContract.address,
+      caller,
+      collateralPoolContractAddress
+    )
+  );
+  if (userAllowance.isLessThan(depositAmount)) {
+    return Promise.reject<boolean>(new Error(MarketError.InsufficientAllowanceForTransfer));
+  }
+
   await collateralPool.depositTokensForTradingTx(depositAmount).send(txParams);
   return true;
 }
