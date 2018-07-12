@@ -41,8 +41,6 @@ import {
   isValidSignatureAsync,
   signOrderHashAsync
 } from './lib/Order';
-import { Utils } from './lib/Utils';
-import { MathLib } from '@marketprotocol/types/dist/types/MathLib';
 
 /**
  * The `Market` class is the single entry-point into the MARKET.js library.
