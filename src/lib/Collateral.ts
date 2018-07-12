@@ -4,6 +4,7 @@ import Web3 from 'web3';
 // Types
 import { Provider } from '@0xproject/types';
 import { ITxParams, MarketCollateralPool, MarketToken } from '@marketprotocol/types';
+import { MarketError } from '../types';
 
 /**
  * deposits collateral to a traders account for a given contract address.
@@ -28,6 +29,17 @@ export async function depositCollateralAsync(
     web3,
     collateralPoolContractAddress
   );
+
+  // Ensure caller is enabled for contract
+  const caller: string = String(txParams.from);
+  const isUserEnabled = await mktTokenContract.isUserEnabledForContract(
+    collateralPoolContractAddress,
+    caller
+  );
+  if (!isUserEnabled) {
+    return Promise.reject<boolean>(new Error(MarketError.UserNotEnabledForContract));
+  }
+
   // note users must call ERC20 approve
   await collateralPool.depositTokensForTradingTx(depositAmount).send(txParams);
   return true;
