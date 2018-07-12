@@ -5,6 +5,7 @@ import Web3 from 'web3';
 import { Provider } from '@0xproject/types';
 import { ITxParams, MarketCollateralPool, MarketToken } from '@marketprotocol/types';
 import { MarketError } from '../types';
+import { ERC20TokenContractWrapper } from '../contract_wrappers/ERC20TokenContractWrapper';
 
 /**
  * deposits collateral to a traders account for a given contract address.
@@ -38,6 +39,16 @@ export async function depositCollateralAsync(
   );
   if (!isUserEnabled) {
     return Promise.reject<boolean>(new Error(MarketError.UserNotEnabledForContract));
+  }
+
+  // Ensure caller has sufficient ERC20 token balance
+  const erc20ContractWrapper: ERC20TokenContractWrapper = new ERC20TokenContractWrapper(web3);
+  const callerMktBalance: BigNumber = new BigNumber(
+    await erc20ContractWrapper.getBalanceAsync(mktTokenContract.address, caller)
+  );
+
+  if (callerMktBalance.isLessThan(depositAmount)) {
+    return Promise.reject<boolean>(new Error(MarketError.InsufficientBalanceForTransfer));
   }
 
   // note users must call ERC20 approve
