@@ -1,8 +1,15 @@
-import { artifacts } from '../src/artifacts';
 import { constants } from '../src/constants';
+import { MARKETProtocolArtifacts } from '../src/MARKETProtocolArtifacts';
 
 describe('Artifacts', () => {
   it('contracts are deployed to local truffle instance', () => {
-    expect(artifacts.MarketTokenArtifact.networks[constants.NETWORK_ID_TRUFFLE]).toBeDefined();
+    let marketProtocolArtifacts: MARKETProtocolArtifacts = new MARKETProtocolArtifacts(
+      constants.NETWORK_ID_TRUFFLE
+    );
+    expect(marketProtocolArtifacts.marketTokenArtifact).toBeDefined();
+    if (marketProtocolArtifacts.marketTokenArtifact) {
+      let networks = marketProtocolArtifacts.marketTokenArtifact.networks;
+      expect(networks[constants.NETWORK_ID_TRUFFLE]).toBeDefined();
+    }
   });
 });
