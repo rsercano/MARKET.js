@@ -14,7 +14,6 @@ import {
   withdrawCollateralAsync
 } from '../src/lib/Collateral';
 import { MARKETProtocolConfig } from '../src/types';
-import { artifacts } from '../src/artifacts';
 
 /**
  * Collateral
@@ -153,7 +152,7 @@ describe('Collateral', () => {
   it('Calculates needed collateral correctly', async () => {
     const mathLib: MathLib = await MathLib.createAndValidate(
       web3,
-      artifacts.MathLibArtifact.networks[constants.NETWORK_ID_TRUFFLE].address
+      market.artifacts.mathLibArtifact.networks[constants.NETWORK_ID_TRUFFLE].address
     );
 
     // in these tests we can compare the calculated amounts in MARKET.js with the calculated
