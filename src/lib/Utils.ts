@@ -2,9 +2,10 @@ import { BigNumber } from 'bignumber.js';
 import Web3 from 'web3';
 
 // Types
-import { ECSignature } from '@marketprotocol/types';
+import { Artifact, ECSignature } from '@marketprotocol/types';
 
 import { constants } from '../constants';
+import * as fs from 'fs';
 
 export const Utils = {
   /**
@@ -102,6 +103,15 @@ export const Utils = {
       }
     }
     return maxLoss.times(qty.absoluteValue()).times(qtyMultiplier);
+  },
+
+  /**
+   * reads .json truffle artifacts into our Artifact objects.
+   * @param {string} filePath path to file
+   * @return {Artifact}
+   */
+  loadArtifact(filePath: string): Artifact {
+    return JSON.parse(fs.readFileSync(filePath, `utf-8`));
   }
 };
 

@@ -6,21 +6,20 @@ import {
   MarketCollateralPool,
   MarketContract,
   MARKETProtocolConfig,
-  Order,
   SignedOrder
 } from '@marketprotocol/types';
 import { MarketError } from '../src/types';
 
 import { Market, Utils } from '../src';
 import { constants } from '../src/constants';
-import { depositCollateralAsync } from '../src/lib/Collateral';
 
 import {
-  createOrderHashAsync,
-  createSignedOrderAsync,
-  isValidSignatureAsync,
-  signOrderHashAsync
-} from '../src/lib/Order';
+  depositCollateralAsync,
+  getUserAccountBalanceAsync,
+  withdrawCollateralAsync
+} from '../src/lib/Collateral';
+
+import { createSignedOrderAsync } from '../src/lib/Order';
 
 import { getContractAddress } from './utils';
 
@@ -45,6 +44,7 @@ describe('Order Validation', async () => {
   let price: BigNumber;
 
   beforeAll(async () => {
+    jest.setTimeout(30000);
     web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:9545'));
     config = { networkId: constants.NETWORK_ID_TRUFFLE };
     market = new Market(web3.currentProvider, config);
@@ -62,12 +62,59 @@ describe('Order Validation', async () => {
     initialCredit = new BigNumber(1e23);
     orderQty = new BigNumber(100);
     price = new BigNumber(100000);
+    let makerCollateral = await getUserAccountBalanceAsync(
+      web3.currentProvider,
+      collateralPoolAddress,
+      maker
+    );
+    let takerCollateral = await getUserAccountBalanceAsync(
+      web3.currentProvider,
+      collateralPoolAddress,
+      taker
+    );
+    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, makerCollateral, {
+      from: maker
+    });
+    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, takerCollateral, {
+      from: taker
+    });
+  });
+
+  beforeEach(async () => {
+    // Transfer initial credit amount of tokens to maker and deposit as collateral
+    await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
+    await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
+    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
+      from: maker
+    });
+  });
+
+  afterEach(async () => {
+    // Clean up. Withdraw all maker's and taker's collateral.
+    let makerCollateral = await getUserAccountBalanceAsync(
+      web3.currentProvider,
+      collateralPoolAddress,
+      maker
+    );
+    let takerCollateral = await getUserAccountBalanceAsync(
+      web3.currentProvider,
+      collateralPoolAddress,
+      taker
+    );
+    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, makerCollateral, {
+      from: maker
+    });
+    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, takerCollateral, {
+      from: taker
+    });
   });
 
   it('Checks sufficient collateral balances', async () => {
+    // Withdraw maker's collateral so that balance is not enough to trade
+    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
+      from: maker
+    });
     fees = new BigNumber(0);
-    await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
-    await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
     const signedOrder: SignedOrder = await createSignedOrderAsync(
       web3.currentProvider,
       orderLibAddress,
@@ -97,11 +144,6 @@ describe('Order Validation', async () => {
 
   it('Checks sufficient MKT balances for fees', async () => {
     fees = new BigNumber(100);
-    await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
-    await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
-      from: maker
-    });
     const signedOrder: SignedOrder = await createSignedOrderAsync(
       web3.currentProvider,
       orderLibAddress,
@@ -131,11 +173,6 @@ describe('Order Validation', async () => {
 
   it('Checks valid signature', async () => {
     fees = new BigNumber(0);
-    await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
-    await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
-      from: maker
-    });
     const signedOrder: SignedOrder = await createSignedOrderAsync(
       web3.currentProvider,
       orderLibAddress,
@@ -166,11 +203,6 @@ describe('Order Validation', async () => {
 
   it('Checks Taker address as defined in the order is null, or is the caller of traderOrder', async () => {
     fees = new BigNumber(0);
-    await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
-    await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
-      from: maker
-    });
     await collateralToken.transferTx(taker, initialCredit).send({ from: deploymentAddress });
     await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: taker });
     await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
@@ -205,11 +237,6 @@ describe('Order Validation', async () => {
 
   it('Checks valid timestamp', async () => {
     fees = new BigNumber(0);
-    await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
-    await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
-      from: maker
-    });
     const signedOrder: SignedOrder = await createSignedOrderAsync(
       web3.currentProvider,
       orderLibAddress,
@@ -239,11 +266,6 @@ describe('Order Validation', async () => {
 
   it('Checks the order is not fully filled or fully cancelled', async () => {
     fees = new BigNumber(0);
-    await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
-    await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
-      from: maker
-    });
     const signedOrder: SignedOrder = await createSignedOrderAsync(
       web3.currentProvider,
       orderLibAddress,
@@ -273,11 +295,6 @@ describe('Order Validation', async () => {
 
   it('Checks the order qty and the fill qty are the same sign', async () => {
     fees = new BigNumber(0);
-    await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
-    await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
-      from: maker
-    });
     const signedOrder: SignedOrder = await createSignedOrderAsync(
       web3.currentProvider,
       orderLibAddress,
