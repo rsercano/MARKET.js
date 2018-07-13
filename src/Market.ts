@@ -297,6 +297,19 @@ export class Market {
   }
 
   /**
+   * Gets the market contract price decimal places
+   * @param {string} marketContractAddress    Address of the Market contract
+   * @returns {Promise<BigNumber>}            The contract's name
+   */
+  public async getMarketContractPriceDecimalPlacesAsync(
+    marketContractAddress: string
+  ): Promise<BigNumber> {
+    return this.marketContractWrapper.getMarketContractPriceDecimalPlacesAsync(
+      marketContractAddress
+    );
+  }
+
+  /**
    * Get all whilelisted contracts
    * @returns {Promise<string>}               The user's currently unallocated token balance
    */

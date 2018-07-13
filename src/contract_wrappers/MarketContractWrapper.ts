@@ -298,6 +298,20 @@ export class MarketContractWrapper {
   }
 
   /**
+   * Gets the market contract price decimal places
+   * @param {string} marketContractAddress    Address of the Market contract
+   * @returns {Promise<BigNumber>}            The contract's price decimal places
+   */
+  public async getMarketContractPriceDecimalPlacesAsync(
+    marketContractAddress: string
+  ): Promise<BigNumber> {
+    const marketContract: MarketContract = await this._getMarketContractAsync(
+      marketContractAddress
+    );
+    return marketContract.PRICE_DECIMAL_PLACES;
+  }
+
+  /**
    * Gets the contract name
    * @param {string} marketContractAddress    Address of the Market contract.
    * @returns {Promise<string>}               The collateral pool contract address.
