@@ -12,4 +12,15 @@ describe('Artifacts', () => {
       expect(networks[constants.NETWORK_ID_TRUFFLE]).toBeDefined();
     }
   });
+
+  it('rinkeby artifacts load correctly', () => {
+    let marketProtocolArtifacts: MARKETProtocolArtifacts = new MARKETProtocolArtifacts(
+      constants.NETWORK_ID_RINKEBY
+    );
+    expect(marketProtocolArtifacts.marketTokenArtifact).toBeDefined();
+    if (marketProtocolArtifacts.marketTokenArtifact) {
+      let networks = marketProtocolArtifacts.marketTokenArtifact.networks;
+      expect(networks[constants.NETWORK_ID_RINKEBY]).toBeDefined();
+    }
+  });
 });
