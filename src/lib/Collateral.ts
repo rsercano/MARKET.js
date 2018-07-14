@@ -60,14 +60,14 @@ export async function depositCollateralAsync(
   }
 
   // Ensure caller has approved sufficient amount
-  const userAllowance: BigNumber = new BigNumber(
+  const callerAllowance: BigNumber = new BigNumber(
     await erc20ContractWrapper.getAllowanceAsync(
       collateralToken.address,
       caller,
       collateralPool.address
     )
   );
-  if (userAllowance.isLessThan(depositAmount)) {
+  if (callerAllowance.isLessThan(depositAmount)) {
     return Promise.reject<boolean>(new Error(MarketError.InsufficientAllowanceForTransfer));
   }
 
