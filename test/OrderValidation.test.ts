@@ -16,12 +16,7 @@ import { constants } from '../src/constants';
 
 import { getUserAccountBalanceAsync } from '../src/lib/Collateral';
 
-import {
-  createOrderHashAsync,
-  createSignedOrderAsync,
-  isValidSignatureAsync,
-  signOrderHashAsync
-} from '../src/lib/Order';
+import { createSignedOrderAsync } from '../src/lib/Order';
 
 import { getContractAddress } from './utils';
 
