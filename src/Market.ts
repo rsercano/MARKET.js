@@ -209,12 +209,14 @@ export class Market {
   /**
    * Deposits collateral to a traders account for a given contract address.
    * @param {string} collateralPoolContractAddress    Address of the MarketCollateralPool
+   * @param {string} collateralTokenAddress           Address of the CollateralToken
    * @param {BigNumber | number} depositAmount        Amount of ERC20 collateral to deposit
    * @param {ITxParams} txParams                      Transaction parameters
    * @returns {Promise<boolean>}                      true if successful
    */
   public async depositCollateralAsync(
     collateralPoolContractAddress: string,
+    collateralTokenAddress: string,
     depositAmount: BigNumber | number,
     txParams: ITxParams = {}
   ): Promise<boolean> {
@@ -222,6 +224,7 @@ export class Market {
       this._web3.currentProvider,
       this.mktTokenContract,
       collateralPoolContractAddress,
+      collateralTokenAddress,
       depositAmount,
       txParams
     );
