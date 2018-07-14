@@ -67,7 +67,7 @@ describe('Collateral', () => {
     );
 
     await expect(
-      market.depositCollateralAsync(collateralPoolAddress, depositAmount, {
+      market.depositCollateralAsync(collateralPoolAddress, collateralTokenAddress, depositAmount, {
         from: maker
       })
     ).rejects.toThrow();
@@ -87,9 +87,12 @@ describe('Collateral', () => {
       collateralPoolAddress
     );
 
-    await market.depositCollateralAsync(collateralPoolAddress, depositAmount, {
-      from: maker
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      depositAmount,
+      { from: maker }
+    );
 
     const newBalance: BigNumber = await market.erc20TokenContractWrapper.getBalanceAsync(
       collateralTokenAddress,
@@ -107,9 +110,12 @@ describe('Collateral', () => {
     );
 
     const depositAmount: BigNumber = new BigNumber(100);
-    await market.depositCollateralAsync(collateralPoolAddress, depositAmount, {
-      from: maker
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      depositAmount,
+      { from: maker }
+    );
     const newUserBalance: BigNumber = await getUserAccountBalanceAsync(
       web3.currentProvider,
       collateralPoolAddress,
@@ -121,9 +127,12 @@ describe('Collateral', () => {
   it('withdrawCollateralAsync should withdraw correct amount', async () => {
     const withdrawAmount: BigNumber = new BigNumber(10);
     const depositAmount: BigNumber = new BigNumber(100);
-    await market.depositCollateralAsync(collateralPoolAddress, depositAmount, {
-      from: maker
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      depositAmount,
+      { from: maker }
+    );
 
     const oldBalance: BigNumber = await market.erc20TokenContractWrapper.getBalanceAsync(
       collateralTokenAddress,

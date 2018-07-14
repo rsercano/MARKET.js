@@ -299,13 +299,19 @@ describe('Order', () => {
 
     await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: taker });
 
-    await market.depositCollateralAsync(collateralPoolAddress, initialCredit, {
-      from: maker
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      initialCredit,
+      { from: maker }
+    );
 
-    await market.depositCollateralAsync(collateralPoolAddress, initialCredit, {
-      from: taker
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      initialCredit,
+      { from: taker }
+    );
 
     const fees: BigNumber = new BigNumber(0);
     const orderQty: BigNumber = new BigNumber(100);
@@ -368,9 +374,12 @@ describe('Order', () => {
     const collateralPoolAddress = await deployedMarketContract.MARKET_COLLATERAL_POOL_ADDRESS;
     await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
 
-    await market.depositCollateralAsync(collateralPoolAddress, initialCredit, {
-      from: maker
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      initialCredit,
+      { from: maker }
+    );
 
     const orderQty: BigNumber = new BigNumber(100);
     const order: Order = {
@@ -430,13 +439,19 @@ describe('Order', () => {
 
     await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: taker });
 
-    await market.depositCollateralAsync(collateralPoolAddress, initialCredit, {
-      from: maker
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      initialCredit,
+      { from: maker }
+    );
 
-    await market.depositCollateralAsync(collateralPoolAddress, initialCredit, {
-      from: taker
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      initialCredit,
+      { from: taker }
+    );
 
     const fees: BigNumber = new BigNumber(0);
     const orderQty: BigNumber = new BigNumber(100);
