@@ -151,6 +151,14 @@ export async function withdrawCollateralAsync(
     web3,
     collateralPoolContractAddress
   );
+
+  // Ensure caller has sufficient collateral pool balance
+  const caller: string = String(txParams.from);
+  const balance = new BigNumber(await collateralPool.getUserAccountBalance(caller));
+  if (balance.isLessThan(withdrawAmount)) {
+    return Promise.reject<boolean>(new Error(MarketError.InsufficientBalanceForTransfer));
+  }
+
   await collateralPool.withdrawTokensTx(withdrawAmount).send(txParams);
   return true;
 }

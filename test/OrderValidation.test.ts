@@ -14,7 +14,7 @@ import { MarketError } from '../src/types';
 import { Market, Utils } from '../src';
 import { constants } from '../src/constants';
 
-import { getUserAccountBalanceAsync, withdrawCollateralAsync } from '../src/lib/Collateral';
+import { getUserAccountBalanceAsync } from '../src/lib/Collateral';
 
 import {
   createOrderHashAsync,
@@ -74,10 +74,10 @@ describe('Order Validation', async () => {
       collateralPoolAddress,
       taker
     );
-    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, makerCollateral, {
+    await market.withdrawCollateralAsync(collateralPoolAddress, makerCollateral, {
       from: maker
     });
-    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, takerCollateral, {
+    await market.withdrawCollateralAsync(collateralPoolAddress, takerCollateral, {
       from: taker
     });
   });
@@ -106,17 +106,17 @@ describe('Order Validation', async () => {
       collateralPoolAddress,
       taker
     );
-    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, makerCollateral, {
+    await market.withdrawCollateralAsync(collateralPoolAddress, makerCollateral, {
       from: maker
     });
-    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, takerCollateral, {
+    await market.withdrawCollateralAsync(collateralPoolAddress, takerCollateral, {
       from: taker
     });
   });
 
   it('Checks sufficient collateral balances', async () => {
     // Withdraw maker's collateral so that balance is not enough to trade
-    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
+    await market.withdrawCollateralAsync(collateralPoolAddress, initialCredit, {
       from: maker
     });
     fees = new BigNumber(0);

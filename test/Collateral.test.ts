@@ -7,11 +7,7 @@ import { MarketContract, MathLib } from '@marketprotocol/types';
 import { Market } from '../src';
 import { constants } from '../src/constants';
 
-import {
-  getUserAccountBalanceAsync,
-  settleAndCloseAsync,
-  withdrawCollateralAsync
-} from '../src/lib/Collateral';
+import { getUserAccountBalanceAsync, settleAndCloseAsync } from '../src/lib/Collateral';
 import { MARKETProtocolConfig } from '../src/types';
 
 /**
@@ -138,7 +134,7 @@ describe('Collateral', () => {
       maker
     );
 
-    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, withdrawAmount, {
+    await market.withdrawCollateralAsync(collateralPoolAddress, withdrawAmount, {
       from: maker
     });
     const newBalance: BigNumber = await market.erc20TokenContractWrapper.getBalanceAsync(
