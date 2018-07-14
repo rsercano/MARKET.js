@@ -50,12 +50,12 @@ export async function depositCollateralAsync(
     return Promise.reject<boolean>(new Error(MarketError.UserNotEnabledForContract));
   }
 
-  // Ensure caller has sufficient ERC20 token balance
+  // Ensure caller has sufficient collateral token balance
   const erc20ContractWrapper: ERC20TokenContractWrapper = new ERC20TokenContractWrapper(web3);
-  const callerMktBalance: BigNumber = new BigNumber(
+  const callerCollateralTokenBalance: BigNumber = new BigNumber(
     await erc20ContractWrapper.getBalanceAsync(collateralToken.address, caller)
   );
-  if (callerMktBalance.isLessThan(depositAmount)) {
+  if (callerCollateralTokenBalance.isLessThan(depositAmount)) {
     return Promise.reject<boolean>(new Error(MarketError.InsufficientBalanceForTransfer));
   }
 
