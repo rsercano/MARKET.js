@@ -14,11 +14,7 @@ import { MarketError } from '../src/types';
 import { Market, Utils } from '../src';
 import { constants } from '../src/constants';
 
-import {
-  depositCollateralAsync,
-  getUserAccountBalanceAsync,
-  withdrawCollateralAsync
-} from '../src/lib/Collateral';
+import { getUserAccountBalanceAsync, withdrawCollateralAsync } from '../src/lib/Collateral';
 
 import {
   createOrderHashAsync,
@@ -90,9 +86,12 @@ describe('Order Validation', async () => {
     // Transfer initial credit amount of tokens to maker and deposit as collateral
     await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
     await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
-      from: maker
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      initialCredit,
+      { from: maker }
+    );
   });
 
   afterEach(async () => {
