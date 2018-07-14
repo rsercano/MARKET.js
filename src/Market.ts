@@ -7,7 +7,6 @@ import {
   ECSignature,
   ITxParams,
   MarketCollateralPoolFactory,
-  MarketContract,
   MarketContractFactoryOraclize,
   MarketContractRegistry,
   MarketToken,
@@ -17,7 +16,6 @@ import {
 } from '@marketprotocol/types';
 import { MARKETProtocolConfig } from './types';
 
-import { artifacts } from './artifacts';
 import { assert } from './assert';
 import { constants } from './constants';
 import { ERC20TokenContractWrapper } from './contract_wrappers/ERC20TokenContractWrapper';
@@ -41,8 +39,7 @@ import {
   isValidSignatureAsync,
   signOrderHashAsync
 } from './lib/Order';
-import { Utils } from './lib/Utils';
-import { MathLib } from '@marketprotocol/types/dist/types/MathLib';
+import { MARKETProtocolArtifacts } from './MARKETProtocolArtifacts';
 
 /**
  * The `Market` class is the single entry-point into the MARKET.js library.
@@ -63,6 +60,7 @@ export class Market {
   // wrappers
   public marketContractWrapper: MarketContractOraclizeWrapper;
   public erc20TokenContractWrapper: ERC20TokenContractWrapper;
+  public readonly artifacts: MARKETProtocolArtifacts;
 
   private readonly _web3: Web3;
   // endregion // members
@@ -84,13 +82,15 @@ export class Market {
 
     this._web3 = new Web3();
     this._web3.setProvider(provider);
-    Market._updateConfigFromArtifacts(config);
+    this.artifacts = new MARKETProtocolArtifacts(config.networkId);
+
+    this._updateConfigFromArtifacts(config);
 
     this.marketContractRegistry = new MarketContractRegistry(
       this._web3,
       config.marketContractRegistryAddress
         ? config.marketContractRegistryAddress
-        : artifacts.MarketTokenArtifact.networks[config.networkId].address
+        : this.artifacts.marketTokenArtifact.networks[config.networkId].address
     );
 
     this.mktTokenContract = new MarketToken(
@@ -121,64 +121,6 @@ export class Market {
     this.marketContractWrapper = new MarketContractOraclizeWrapper(this._web3);
   }
   // endregion//Constructors
-
-  // region Private Static Methods
-  // *****************************************************************
-  // ****                  Private Static Methods                 ****
-  // *****************************************************************
-  /**
-   * Attempts to update a config with all the needed addresses from artifacts if available.
-   * @param {MARKETProtocolConfig} config
-   * @returns {MARKETProtocolConfig}
-   * @private
-   */
-  private static _updateConfigFromArtifacts(config: MARKETProtocolConfig): MARKETProtocolConfig {
-    if (
-      !config.marketContractRegistryAddress &&
-      artifacts.MarketContractRegistryArtifact &&
-      artifacts.MarketContractRegistryArtifact.networks[config.networkId]
-    ) {
-      config.marketContractRegistryAddress =
-        artifacts.MarketContractRegistryArtifact.networks[config.networkId].address;
-    }
-
-    if (
-      !config.marketTokenAddress &&
-      artifacts.MarketTokenArtifact &&
-      artifacts.MarketTokenArtifact.networks[config.networkId]
-    ) {
-      config.marketTokenAddress = artifacts.MarketTokenArtifact.networks[config.networkId].address;
-    }
-
-    if (
-      !config.marketContractFactoryAddress &&
-      artifacts.MarketContractFactoryOraclizeArtifact &&
-      artifacts.MarketContractFactoryOraclizeArtifact.networks[config.networkId]
-    ) {
-      config.marketContractFactoryAddress =
-        artifacts.MarketContractFactoryOraclizeArtifact.networks[config.networkId].address;
-    }
-
-    if (
-      !config.marketCollateralPoolFactoryAddress &&
-      artifacts.MarketCollateralPoolFactoryArtifact &&
-      artifacts.MarketCollateralPoolFactoryArtifact.networks[config.networkId]
-    ) {
-      config.marketCollateralPoolFactoryAddress =
-        artifacts.MarketCollateralPoolFactoryArtifact.networks[config.networkId].address;
-    }
-
-    if (
-      !config.orderLibAddress &&
-      artifacts.OrderLibArtifact &&
-      artifacts.OrderLibArtifact.networks[config.networkId]
-    ) {
-      config.orderLibAddress = artifacts.OrderLibArtifact.networks[config.networkId].address;
-    }
-
-    return config;
-  }
-  // endregion //Private Static Methods
 
   // region Public Methods
   // *****************************************************************
@@ -300,6 +242,19 @@ export class Market {
    */
   public async getMarketContractNameAsync(marketContractAddress: string): Promise<string> {
     return this.marketContractWrapper.getMarketContractNameAsync(marketContractAddress);
+  }
+
+  /**
+   * Gets the market contract price decimal places
+   * @param {string} marketContractAddress    Address of the Market contract
+   * @returns {Promise<BigNumber>}            The contract's name
+   */
+  public async getMarketContractPriceDecimalPlacesAsync(
+    marketContractAddress: string
+  ): Promise<BigNumber> {
+    return this.marketContractWrapper.getMarketContractPriceDecimalPlacesAsync(
+      marketContractAddress
+    );
   }
 
   /**
@@ -537,4 +492,59 @@ export class Market {
     );
   }
   // endregion //Public Methods
+
+  // region Private Methods
+  // *****************************************************************
+  // ****                     Private Methods                     ****
+  // *****************************************************************
+  /**
+   * Attempts to update a config with all the needed addresses from artifacts if available.
+   * @param {MARKETProtocolConfig} config
+   * @returns {MARKETProtocolConfig}
+   * @private
+   */
+  private _updateConfigFromArtifacts(config: MARKETProtocolConfig): MARKETProtocolConfig {
+    if (
+      !config.marketContractRegistryAddress &&
+      this.artifacts.marketContractRegistryArtifact.networks[config.networkId]
+    ) {
+      config.marketContractRegistryAddress = this.artifacts.marketContractRegistryArtifact.networks[
+        config.networkId
+      ].address;
+    }
+
+    if (
+      !config.marketTokenAddress &&
+      this.artifacts.marketTokenArtifact.networks[config.networkId]
+    ) {
+      config.marketTokenAddress = this.artifacts.marketTokenArtifact.networks[
+        config.networkId
+      ].address;
+    }
+
+    if (
+      !config.marketContractFactoryAddress &&
+      this.artifacts.marketContractFactoryOraclizeArtifact.networks[config.networkId]
+    ) {
+      config.marketContractFactoryAddress = this.artifacts.marketContractFactoryOraclizeArtifact.networks[
+        config.networkId
+      ].address;
+    }
+
+    if (
+      !config.marketCollateralPoolFactoryAddress &&
+      this.artifacts.marketCollateralPoolFactoryArtifact.networks[config.networkId]
+    ) {
+      config.marketCollateralPoolFactoryAddress = this.artifacts.marketCollateralPoolFactoryArtifact.networks[
+        config.networkId
+      ].address;
+    }
+
+    if (!config.orderLibAddress && this.artifacts.orderLibArtifact.networks[config.networkId]) {
+      config.orderLibAddress = this.artifacts.orderLibArtifact.networks[config.networkId].address;
+    }
+
+    return config;
+  }
+  // endregion //Private Methods
 }
