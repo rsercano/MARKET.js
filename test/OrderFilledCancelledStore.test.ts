@@ -1,13 +1,7 @@
 import Web3 from 'web3';
 import BigNumber from 'bignumber.js';
 // Types
-import {
-  ERC20,
-  MarketCollateralPool,
-  MarketContract,
-  MARKETProtocolConfig,
-  SignedOrder
-} from '@marketprotocol/types';
+import { ERC20, MarketCollateralPool, MarketContract, SignedOrder } from '@marketprotocol/types';
 
 import { Market, Utils } from '../src';
 import { constants } from '../src/constants';
@@ -20,13 +14,12 @@ import {
 
 import { createOrderHashAsync, createSignedOrderAsync } from '../src/lib/Order';
 
-import { getContractAddress } from './utils';
-
 import { OrderFilledCancelledLazyStore } from '../src/OrderFilledCancelledLazyStore';
 import { JSONRPCResponsePayload } from '@0xproject/types';
+import { MARKETProtocolConfig } from '../src/types';
 
 describe('Order filled/cancelled store', async () => {
-  let web3;
+  let web3: Web3;
   let config: MARKETProtocolConfig;
   let market: Market;
   let orderLibAddress: string;
@@ -38,7 +31,7 @@ describe('Order filled/cancelled store', async () => {
   let deployedMarketContract: MarketContract;
   let collateralTokenAddress: string;
   let collateralToken: ERC20;
-  let collateralPoolAddress;
+  let collateralPoolAddress: string;
   let collateralPool;
   let initialCredit: BigNumber;
   let fees: BigNumber;
@@ -52,7 +45,7 @@ describe('Order filled/cancelled store', async () => {
     web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:9545'));
     config = { networkId: constants.NETWORK_ID_TRUFFLE };
     market = new Market(web3.currentProvider, config);
-    orderLibAddress = getContractAddress('OrderLib', constants.NETWORK_ID_TRUFFLE);
+    orderLibAddress = market.orderLib.address;
     contractAddresses = await market.marketContractRegistry.getAddressWhiteList;
     contractAddress = contractAddresses[0];
     deploymentAddress = web3.eth.accounts[0];
@@ -101,18 +94,24 @@ describe('Order filled/cancelled store', async () => {
   });
 
   beforeEach(async () => {
+    // get a snapshot of the current state of the local blockchain
     snapshotId = await new Promise<string>((resolve, reject) => {
-      web3.currentProvider.sendAsync({
-        jsonrpc: '2.0',
-        method: 'evm_snapshot',
-        params: [],
-        id: new Date().getTime()
-      }, (err: Error, response: JSONRPCResponsePayload) => {
-        if (err) {
-          reject(err);
+      web3.currentProvider.sendAsync(
+        {
+          jsonrpc: '2.0',
+          method: 'evm_snapshot',
+          params: [],
+          id: new Date().getTime()
+        },
+        (err: Error | null, response?: JSONRPCResponsePayload) => {
+          if (err) {
+            reject(err);
+          }
+          if (response) {
+            resolve(response.result);
+          }
         }
-        resolve(response.result);
-      });
+      );
     });
     await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
     await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
@@ -127,18 +126,25 @@ describe('Order filled/cancelled store', async () => {
   });
 
   afterEach(async () => {
+    // revert the local blockchain to the state before the test occurred in order to clean up
+    // the environment for further testing.
     await new Promise<string>((resolve, reject) => {
-      web3.currentProvider.sendAsync({
-        jsonrpc: '2.0',
-        method: 'evm_revert',
-        params: [snapshotId],
-        id: new Date().getTime()
-      }, (err: Error, response: JSONRPCResponsePayload) => {
-        if (err) {
-          reject(err);
+      web3.currentProvider.sendAsync(
+        {
+          jsonrpc: '2.0',
+          method: 'evm_revert',
+          params: [snapshotId],
+          id: new Date().getTime()
+        },
+        (err: Error | null, response?: JSONRPCResponsePayload) => {
+          if (err) {
+            reject(err);
+          }
+          if (response) {
+            resolve(response.result);
+          }
         }
-        resolve(response.result);
-      });
+      );
     });
   });
 
@@ -149,10 +155,14 @@ describe('Order filled/cancelled store', async () => {
       gas: 400000
     });
 
-    const orderHash = await createOrderHashAsync(web3.currentProvider, orderLibAddress, signedOrder);
+    const orderHash = await createOrderHashAsync(
+      web3.currentProvider,
+      orderLibAddress,
+      signedOrder
+    );
     const store = new OrderFilledCancelledLazyStore(market.marketContractWrapper);
 
-    const qty = await store.getQtyAsync(deployedMarketContract.address, orderHash);
+    const qty = await store.getQtyFilledOrCancelledAsync(deployedMarketContract.address, orderHash);
 
     expect(qty).toEqual(tradeQty);
   });
@@ -164,11 +174,15 @@ describe('Order filled/cancelled store', async () => {
       gas: 400000
     });
 
-    const orderHash = await createOrderHashAsync(web3.currentProvider, orderLibAddress, signedOrder);
+    const orderHash = await createOrderHashAsync(
+      web3.currentProvider,
+      orderLibAddress,
+      signedOrder
+    );
     const store = new OrderFilledCancelledLazyStore(market.marketContractWrapper);
 
-    await store.getQtyAsync(deployedMarketContract.address, orderHash);
-    const qty = await store.getQtyAsync(deployedMarketContract.address, orderHash);
+    await store.getQtyFilledOrCancelledAsync(deployedMarketContract.address, orderHash);
+    const qty = await store.getQtyFilledOrCancelledAsync(deployedMarketContract.address, orderHash);
 
     expect(qty).toEqual(tradeQty);
   });

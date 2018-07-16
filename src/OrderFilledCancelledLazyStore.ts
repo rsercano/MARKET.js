@@ -9,18 +9,40 @@ interface InstanceFilledCancelledStore {
 }
 
 export class OrderFilledCancelledLazyStore {
-
+  // region Members
+  // *****************************************************************
+  // ****                     Members                             ****
+  // *****************************************************************
   private _stores: {
     [marketContractAddress: string]: InstanceFilledCancelledStore;
-  } = {};
-
+  };
   private _marketContractWrapper: MarketContractWrapper;
+  // endregion // members
 
+  // region Constructors
+  // *****************************************************************
+  // ****                     Constructors                        ****
+  // *****************************************************************
   constructor(marketContractWrapper: MarketContractWrapper) {
     this._marketContractWrapper = marketContractWrapper;
+    this._stores = {};
   }
-  
-  public async getQtyAsync(marketContractAddress: string, orderHash: string): Promise<BigNumber> {
+  // endregion//Constructors
+
+  // *****************************************************************
+  // ****                     Public Methods                      ****
+  // *****************************************************************
+
+  /***
+   * gets the currently filled or cancelled qty from our store.
+   * @param {string} marketContractAddress address of the contract
+   * @param {string} orderHash hash of the order
+   * @returns {Promise<BigNumber>}
+   */
+  public async getQtyFilledOrCancelledAsync(
+    marketContractAddress: string,
+    orderHash: string
+  ): Promise<BigNumber> {
     if (_.isUndefined(this._stores[marketContractAddress])) {
       this._stores[marketContractAddress] = {
         filledOrCancelledQty: {}
@@ -31,22 +53,39 @@ export class OrderFilledCancelledLazyStore {
         marketContractAddress,
         orderHash
       );
-      this.setQty(marketContractAddress, orderHash, qty);
+      this.setQtyFilledOrCancelled(marketContractAddress, orderHash, qty);
     }
-    const cachedQuantity = this._stores[marketContractAddress].filledOrCancelledQty[orderHash];
-    return cachedQuantity;
+    return this._stores[marketContractAddress].filledOrCancelledQty[orderHash];
   }
 
-  public setQty(marketContractAddress: string, orderHash: string, quantity: BigNumber) {
+  /***
+   * Sets the current qty that is no longer able to be filled that is either cancelled or filled.
+   * @param {string} marketContractAddress
+   * @param {string} orderHash
+   * @param {BigNumber} quantity
+   */
+  public setQtyFilledOrCancelled(
+    marketContractAddress: string,
+    orderHash: string,
+    quantity: BigNumber
+  ) {
     this._stores[marketContractAddress].filledOrCancelledQty[orderHash] = quantity;
   }
 
-  public deleteQty(marketContractAddress: string, orderHash: string) {
+  /***
+   * Deletes a specific order has from our store.
+   * @param {string} marketContractAddress
+   * @param {string} orderHash
+   */
+  public deleteQtyFilledOrCancelled(marketContractAddress: string, orderHash: string) {
     delete this._stores[marketContractAddress].filledOrCancelledQty[orderHash];
   }
 
+  /***
+   * clears all stores.
+   */
   public deleteAll(): void {
     this._stores = {};
   }
+  // endregion //Public Methods
 }
-
