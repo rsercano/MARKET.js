@@ -100,28 +100,23 @@ export class Market {
 
     // Disabled TSLint and added @ts-ignore to suppress the undefined error for optional config param
     /* tslint:disable */
+    // prettier-ignore
     // @ts-ignore
-    this.marketContractRegistry = new MarketContractRegistry(
-      this._web3,
-      config.marketContractRegistryAddress
-    );
+    this.marketContractRegistry = new MarketContractRegistry(this._web3, config.marketContractRegistryAddress);
 
+    // prettier-ignore
     // @ts-ignore
     this.mktTokenContract = new MarketToken(this._web3, config.marketTokenAddress);
 
+    // prettier-ignore
     // @ts-ignore
-    this.marketContractFactory = new MarketContractFactoryOraclize(
-      this._web3,
-      config.marketContractFactoryAddress
-    );
+    this.marketContractFactory = new MarketContractFactoryOraclize(this._web3, config.marketContractFactoryAddress);
 
+    // prettier-ignore
     // @ts-ignore
-    this.marketCollateralPoolFactory = new MarketCollateralPoolFactory(
-      this._web3,
-      config.marketCollateralPoolFactoryAddress
-    );
+    this.marketCollateralPoolFactory = new MarketCollateralPoolFactory(this._web3, config.marketCollateralPoolFactoryAddress);
 
-    // @ts-ignore
+    // @ts-ignore prettier-ignore
     this.orderLib = new OrderLib(this._web3, config.orderLibAddress);
     /* tslint:enable */
 
