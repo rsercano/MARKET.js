@@ -150,10 +150,7 @@ describe('Collateral', () => {
   });
 
   it('Calculates needed collateral correctly', async () => {
-    const mathLib: MathLib = await MathLib.createAndValidate(
-      web3,
-      market.artifacts.mathLibArtifact.networks[constants.NETWORK_ID_TRUFFLE].address
-    );
+    const mathLib: MathLib = await MathLib.createAndValidate(web3, market._config.mathLibAddress);
 
     // in these tests we can compare the calculated amounts in MARKET.js with the calculated
     // amounts from the MathLib solidity contract.
