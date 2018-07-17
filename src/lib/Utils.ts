@@ -5,7 +5,7 @@ import Web3 from 'web3';
 import { Artifact, ECSignature } from '@marketprotocol/types';
 
 import { constants } from '../constants';
-import * as fs from 'fs';
+import fs from 'fs';
 
 export const Utils = {
   /**

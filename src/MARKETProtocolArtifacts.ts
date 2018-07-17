@@ -1,7 +1,14 @@
 import { Artifact } from '@marketprotocol/types';
 import { constants } from './constants';
-import { join } from 'path';
 import { Utils } from './lib/Utils';
+
+const abisPath = '@marketprotocol/abis/build/contracts';
+const MarketCollateralPoolFactory = require(`${abisPath}/MarketCollateralPoolFactory.json`);
+const MarketContractFactoryOraclize = require(`${abisPath}/MarketContractFactoryOraclize.json`);
+const MarketContractRegistry = require(`${abisPath}/MarketContractRegistry.json`);
+const MarketToken = require(`${abisPath}/MarketToken.json`);
+const MathLib = require(`${abisPath}/MathLib.json`);
+const OrderLib = require(`${abisPath}/OrderLib.json`);
 
 /**
  * Contains artifacts from solidity deployments
@@ -17,9 +24,6 @@ export class MARKETProtocolArtifacts {
   public marketContractRegistryArtifact: Artifact;
   public marketContractFactoryOraclizeArtifact: Artifact;
   public marketCollateralPoolFactoryArtifact: Artifact;
-
-  private readonly _trufflePath: string = './';
-  private readonly _abisPath: string = 'node_modules/@marketprotocol/abis';
   // endregion // members
 
   // region Constructors
@@ -27,26 +31,26 @@ export class MARKETProtocolArtifacts {
   // ****                     Constructors                        ****
   // *****************************************************************
   constructor(networkId: number) {
-    let filePath: string;
     if (networkId === constants.NETWORK_ID_TRUFFLE) {
-      filePath = this._trufflePath;
+      this.orderLibArtifact = Utils.loadArtifact('./build/contracts/OrderLib.json');
+      this.mathLibArtifact = Utils.loadArtifact('./build/contracts/MathLib.json');
+      this.marketTokenArtifact = Utils.loadArtifact('./build/contracts/MarketToken.json');
+      this.marketContractRegistryArtifact = Utils.loadArtifact(
+        './build/contracts/MarketContractRegistry.json'
+      );
+      this.marketContractFactoryOraclizeArtifact = Utils.loadArtifact(
+        './build/contracts/MarketContractFactoryOraclize.json'
+      );
+      this.marketCollateralPoolFactoryArtifact = Utils.loadArtifact(
+        './build/contracts/MarketCollateralPoolFactory.json'
+      );
     } else {
-      filePath = this._abisPath;
+      this.orderLibArtifact = OrderLib;
+      this.mathLibArtifact = MathLib;
+      this.marketTokenArtifact = MarketToken;
+      this.marketContractRegistryArtifact = MarketContractRegistry;
+      this.marketContractFactoryOraclizeArtifact = MarketContractFactoryOraclize;
+      this.marketCollateralPoolFactoryArtifact = MarketCollateralPoolFactory;
     }
-    const fullPath: string = join(filePath, '/build/contracts/');
-    console.log('Attempting to import artifacts from ' + fullPath);
-
-    this.orderLibArtifact = Utils.loadArtifact(join(fullPath + 'OrderLib.json'));
-    this.mathLibArtifact = Utils.loadArtifact(join(fullPath + 'MathLib.json'));
-    this.marketTokenArtifact = Utils.loadArtifact(join(fullPath + 'MarketToken.json'));
-    this.marketContractRegistryArtifact = Utils.loadArtifact(
-      join(fullPath + 'MarketContractRegistry.json')
-    );
-    this.marketContractFactoryOraclizeArtifact = Utils.loadArtifact(
-      join(fullPath + 'MarketContractFactoryOraclize.json')
-    );
-    this.marketCollateralPoolFactoryArtifact = Utils.loadArtifact(
-      join(fullPath + 'MarketCollateralPoolFactory.json')
-    );
   }
 }
