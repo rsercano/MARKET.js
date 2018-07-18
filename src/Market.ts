@@ -61,7 +61,7 @@ export class Market {
   public erc20TokenContractWrapper: ERC20TokenContractWrapper;
 
   // Config
-  public readonly _config: MARKETProtocolConfig;
+  public readonly config: MARKETProtocolConfig;
 
   private readonly _web3: Web3;
   // endregion // members
@@ -95,8 +95,8 @@ export class Market {
       this._updateConfigFromArtifacts(config);
     }
 
-    // Set updated _config with artifacts addresses
-    this._config = config;
+    // Set updated config with artifacts addresses
+    this.config = config;
 
     // Disabled TSLint and added @ts-ignore to suppress the undefined error for optional config param
     /* tslint:disable */

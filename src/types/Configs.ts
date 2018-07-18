@@ -13,12 +13,12 @@ import BigNumber from 'bignumber.js';
  */
 export interface MARKETProtocolConfig {
   networkId: number;
-  marketContractRegistryAddress?: string | BigNumber;
-  marketContractFactoryAddress?: string | BigNumber;
-  marketCollateralPoolFactoryAddress?: string | BigNumber;
-  marketTokenAddress?: string | BigNumber;
-  orderLibAddress?: string | BigNumber;
-  mathLibAddress?: string | BigNumber;
+  marketContractRegistryAddress?: string;
+  marketContractFactoryAddress?: string;
+  marketCollateralPoolFactoryAddress?: string;
+  marketTokenAddress?: string;
+  orderLibAddress?: string;
+  mathLibAddress?: string;
   orderWatcherConfig?: OrderStateWatcherConfig;
 }
 
