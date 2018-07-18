@@ -9,7 +9,7 @@ import {
   Order,
   SignedOrder
 } from '@marketprotocol/types';
-import { MarketError } from '../src/types';
+import { MarketError, MARKETProtocolConfig } from '../src/types';
 
 import { Market, Utils } from '../src';
 import { constants } from '../src/constants';
@@ -21,7 +21,7 @@ import { createSignedOrderAsync } from '../src/lib/Order';
 import { getContractAddress } from './utils';
 
 describe('Order Validation', async () => {
-  let web3;
+  let web3: Web3;
   let config: MARKETProtocolConfig;
   let market: Market;
   let orderLibAddress: string;
@@ -33,7 +33,7 @@ describe('Order Validation', async () => {
   let deployedMarketContract: MarketContract;
   let collateralTokenAddress: string;
   let collateralToken: ERC20;
-  let collateralPoolAddress;
+  let collateralPoolAddress: string;
   let collateralPool;
   let initialCredit: BigNumber;
   let fees: BigNumber;

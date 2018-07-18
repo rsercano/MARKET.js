@@ -1,11 +1,11 @@
-import { BigNumber } from 'bignumber.js';
+import BigNumber from 'bignumber.js';
 import Web3 from 'web3';
 
 // Types
 import { Artifact, ECSignature } from '@marketprotocol/types';
 
 import { constants } from '../constants';
-import * as fs from 'fs';
+import fs from 'fs';
 
 export const Utils = {
   /**

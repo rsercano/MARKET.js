@@ -1,6 +1,6 @@
 {
   "name": "@marketprotocol/marketjs",
-  "version": "0.0.8",
+  "version": "0.0.10",
   "description": "library for interacting with MARKET Protocol Smart Contracts",
   "keywords": [
     "MARKET Protocol",
@@ -50,7 +50,7 @@
     "semantic-release": "semantic-release",
     "semantic-release-prepare": "ts-node tools/semantic-release-prepare",
     "precommit": "lint-staged",
-    "coverage": "npm run test -- --coverage --no-cache --verbose"
+    "coverage": "npm run test -- --coverage --no-cache --verbose --runInBand"
   },
   "lint-staged": {
     "{src,test}/**/*.ts": [
