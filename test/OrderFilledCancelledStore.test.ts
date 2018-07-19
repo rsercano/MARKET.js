@@ -6,12 +6,6 @@ import { ERC20, MarketCollateralPool, MarketContract, SignedOrder } from '@marke
 import { Market, Utils } from '../src';
 import { constants } from '../src/constants';
 
-import {
-  depositCollateralAsync,
-  getUserAccountBalanceAsync,
-  withdrawCollateralAsync
-} from '../src/lib/Collateral';
-
 import { createOrderHashAsync, createSignedOrderAsync } from '../src/lib/Order';
 
 import { OrderFilledCancelledLazyStore } from '../src/OrderFilledCancelledLazyStore';
@@ -60,24 +54,15 @@ describe('Order filled/cancelled store', async () => {
     orderQty = new BigNumber(100);
     price = new BigNumber(100000);
     fees = new BigNumber(0);
-    let makerCollateral = await getUserAccountBalanceAsync(
-      web3.currentProvider,
-      collateralPoolAddress,
-      maker
-    );
-    let takerCollateral = await getUserAccountBalanceAsync(
-      web3.currentProvider,
-      collateralPoolAddress,
-      taker
-    );
-    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, makerCollateral, {
+    let makerCollateral = await market.getUserAccountBalanceAsync(collateralPoolAddress, maker);
+    let takerCollateral = await market.getUserAccountBalanceAsync(collateralPoolAddress, taker);
+    await market.withdrawCollateralAsync(collateralPoolAddress, makerCollateral, {
       from: maker
     });
-    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, takerCollateral, {
+    await market.withdrawCollateralAsync(collateralPoolAddress, takerCollateral, {
       from: taker
     });
-    signedOrder = await createSignedOrderAsync(
-      web3.currentProvider,
+    signedOrder = await market.createSignedOrderAsync(
       orderLibAddress,
       contractAddress,
       new BigNumber(Math.floor(Date.now() / 1000) + 60 * 60),
@@ -115,14 +100,24 @@ describe('Order filled/cancelled store', async () => {
     });
     await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
     await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
-      from: maker
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      initialCredit,
+      {
+        from: maker
+      }
+    );
     await collateralToken.transferTx(taker, initialCredit).send({ from: deploymentAddress });
     await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: taker });
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
-      from: taker
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      initialCredit,
+      {
+        from: taker
+      }
+    );
   });
 
   afterEach(async () => {
