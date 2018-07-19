@@ -128,6 +128,23 @@ export class RemainingFillableCalculator {
   }
 
   private async _getAvailableFeeFunds(accountAddress: string): Promise<BigNumber> {
+    const allowance = new BigNumber(
+      await this._erc20ContractWrapper.getAllowanceAsync(
+        this._collateralTokenAddress,
+        accountAddress,
+        this._signedOrder.feeRecipient
+      )
+    );
+
+    if (
+      (accountAddress === this._signedOrder.maker &&
+        allowance.isLessThan(this._signedOrder.makerFee)) ||
+      (accountAddress === this._signedOrder.taker &&
+        allowance.isLessThan(this._signedOrder.takerFee))
+    ) {
+      return Promise.reject<BigNumber>(new Error(MarketError.InsufficientAllowanceForTransfer));
+    }
+
     const funds = await this._erc20ContractWrapper.getBalanceAsync(
       this._collateralTokenAddress,
       accountAddress

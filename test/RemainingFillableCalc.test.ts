@@ -15,7 +15,7 @@ import {
 
 import { createOrderHashAsync, createSignedOrderAsync } from '../src/lib/Order';
 
-import { getContractAddress } from './utils';
+import { createEVMSnapshot, getContractAddress, restoreEVMSnapshot } from './utils';
 import { RemainingFillableCalculator } from '../src/order_watcher/RemainingFillableCalc';
 
 describe('Remaining Fillable Calculator', async () => {
@@ -36,6 +36,7 @@ describe('Remaining Fillable Calculator', async () => {
   let fees: BigNumber;
   let orderQty: BigNumber;
   let price: BigNumber;
+  let snapshotId: string;
 
   beforeAll(async () => {
     web3 = new Web3(new Web3.providers.HttpProvider(constants.PROVIDER_URL_TRUFFLE));
@@ -58,6 +59,7 @@ describe('Remaining Fillable Calculator', async () => {
   });
 
   beforeEach(async () => {
+    snapshotId = await createEVMSnapshot(web3);
     // Transfer initial credit amount of tokens to maker and taker and deposit as collateral
     await collateralToken.transferTx(makerAddress, initialCredit).send({ from: deploymentAddress });
     await collateralToken
@@ -77,23 +79,7 @@ describe('Remaining Fillable Calculator', async () => {
   });
 
   afterEach(async () => {
-    // Clean up. Withdraw all maker's and taker's collateral.
-    const makerCollateral = await getUserAccountBalanceAsync(
-      web3.currentProvider,
-      collateralPoolAddress,
-      makerAddress
-    );
-    const takerCollateral = await getUserAccountBalanceAsync(
-      web3.currentProvider,
-      collateralPoolAddress,
-      takerAddress
-    );
-    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, makerCollateral, {
-      from: makerAddress
-    });
-    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, takerCollateral, {
-      from: takerAddress
-    });
+    await restoreEVMSnapshot(web3, snapshotId);
   });
 
   it('Checks the fillable with no fees', async () => {
@@ -251,11 +237,25 @@ describe('Remaining Fillable Calculator', async () => {
       orderHash
     );
 
+    let neededCollateral = await market.calculateNeededCollateralAsync(
+      contractAddress,
+      orderQty,
+      price
+    );
+
+    await market.erc20TokenContractWrapper.setAllowanceAsync(
+      collateralTokenAddress,
+      deploymentAddress,
+      neededCollateral.plus(makerFee),
+      { from: makerAddress }
+    );
+
     try {
       await calc.computeRemainingMakerFillable();
     } catch (e) {
       expect(e).toEqual(new Error(MarketError.InsufficientBalanceForTransfer));
     }
+
     expect.assertions(1);
   });
 
@@ -291,6 +291,19 @@ describe('Remaining Fillable Calculator', async () => {
       collateralTokenAddress,
       signedOrder,
       orderHash
+    );
+
+    let neededCollateral = await market.calculateNeededCollateralAsync(
+      contractAddress,
+      orderQty,
+      price
+    );
+
+    await market.erc20TokenContractWrapper.setAllowanceAsync(
+      collateralTokenAddress,
+      deploymentAddress,
+      neededCollateral.plus(takerFee),
+      { from: takerAddress }
     );
 
     try {
