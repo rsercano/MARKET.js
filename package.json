@@ -41,8 +41,8 @@
     "prebuild": "rimraf dist",
     "build": "tsc --module commonjs && rollup -c rollup.config.ts && typedoc --out docs --target es6 --theme minimal --mode file src",
     "start": "rollup -c rollup.config.ts -w",
-    "test": "jest",
-    "test:watch": "jest --watch",
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch --runInBand",
     "test:prod": "npm run lint && npm run build && npm run coverage",
     "deploy-docs": "ts-node tools/gh-pages-publish",
     "report-coverage": "cat ./coverage/lcov.info | node_modules/.bin/coveralls --verbose",
@@ -50,7 +50,7 @@
     "semantic-release": "semantic-release",
     "semantic-release-prepare": "ts-node tools/semantic-release-prepare",
     "precommit": "lint-staged",
-    "coverage": "npm run test -- --coverage --no-cache --verbose --runInBand"
+    "coverage": "npm run test -- --coverage --no-cache --verbose"
   },
   "lint-staged": {
     "{src,test}/**/*.ts": [
