@@ -199,4 +199,21 @@ describe('Collateral', () => {
 
     expect(shortCalculatedCollateral).toEqual(solidityShortCalculatedCollateral);
   });
+
+  it('Ensure user is enabled for contract', async () => {
+    // Add user that isn't enabled and try to use contract.
+  });
+
+  it('Ensure caller has sufficient ERC20 token balance to deposit', async () => {
+    // Burn all of a user's tokens and try to make a deposit.
+  });
+
+  it('Ensure caller has approved deposit for sufficient amount', async () => {
+    // Get the allowance of a user with deposited funds.
+    // Approve allowance and make sure it's available.
+  });
+
+  it('Ensure user has sufficient balance in the pool to withdraw', async () => {
+    // Try to withdraw more than a user has available.
+  });
 });
