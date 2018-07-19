@@ -10,6 +10,7 @@ import { getUserAccountBalanceAsync } from '../lib/Collateral';
 import { Utils } from '../lib/Utils';
 import { constants } from '../constants';
 import { createOrderHashAsync, isValidSignatureAsync } from '../lib/Order';
+import { assert } from '../assert';
 
 /**
  * Wrapper for our MarketContract objects.  This wrapper exposes all needed functionality of the
@@ -20,6 +21,9 @@ export class MarketContractWrapper {
   // *****************************************************************
   // ****                     Members                             ****
   // *****************************************************************
+  static readonly ORDER_EXPIRED_CODE = '0';
+  static readonly ORDER_DEAD_CODE = '1';
+
   protected readonly _web3: Web3;
   private readonly _marketContractsByAddress: { [address: string]: MarketContract };
 
@@ -104,16 +108,21 @@ export class MarketContractWrapper {
     fillQty: BigNumber,
     txParams: ITxParams = {}
   ): Promise<BigNumber | number> {
+    assert.isETHAddressHex('orderLibAddress', orderLibAddress);
     // assert.isSchemaValid('SignedOrder', signedOrder, schemas.SignedOrderSchema);
 
     const marketContract: MarketContract = await this._getMarketContractAsync(
       signedOrder.contractAddress
     );
 
+    const isContractSettled = await marketContract.isSettled;
+    if (isContractSettled) {
+      return Promise.reject<BigNumber | number>(new Error(MarketError.ContractAlreadySettled));
+    }
+
     const maker = signedOrder.maker;
     const taker = txParams.from ? txParams.from : constants.NULL_ADDRESS;
 
-    // TODO: add check to ensure marketContract is not expired!
     if (signedOrder.taker !== constants.NULL_ADDRESS && signedOrder.taker !== taker) {
       return Promise.reject<BigNumber | number>(new Error(MarketError.InvalidTaker));
     }
@@ -165,14 +174,8 @@ export class MarketContractWrapper {
       this._web3
     );
 
-    // TODO: we need to add a check to ensure that not only do they have the needed balance,
-    // but that also they have given the approval for us to transfer it as well.
-
     const makerMktBalance: BigNumber = new BigNumber(
       await erc20ContractWrapper.getBalanceAsync(mktTokenContract.address, maker)
-    );
-    const takerMktBalance: BigNumber = new BigNumber(
-      await erc20ContractWrapper.getBalanceAsync(mktTokenContract.address, taker)
     );
 
     if (makerMktBalance.isLessThan(signedOrder.makerFee)) {
@@ -181,9 +184,41 @@ export class MarketContractWrapper {
       );
     }
 
+    const makersMktAllowance = new BigNumber(
+      await erc20ContractWrapper.getAllowanceAsync(
+        mktTokenContract.address,
+        maker,
+        signedOrder.feeRecipient
+      )
+    );
+
+    if (makersMktAllowance.isLessThan(signedOrder.makerFee)) {
+      return Promise.reject<BigNumber | number>(
+        new Error(MarketError.InsufficientAllowanceForTransfer)
+      );
+    }
+
+    const takerMktBalance: BigNumber = new BigNumber(
+      await erc20ContractWrapper.getBalanceAsync(mktTokenContract.address, taker)
+    );
+
     if (takerMktBalance.isLessThan(signedOrder.takerFee)) {
       return Promise.reject<BigNumber | number>(
         new Error(MarketError.InsufficientBalanceForTransfer)
+      );
+    }
+
+    const takersMktAllowance = new BigNumber(
+      await erc20ContractWrapper.getAllowanceAsync(
+        mktTokenContract.address,
+        taker,
+        signedOrder.feeRecipient
+      )
+    );
+
+    if (takersMktAllowance.isLessThan(signedOrder.takerFee)) {
+      return Promise.reject<BigNumber | number>(
+        new Error(MarketError.InsufficientAllowanceForTransfer)
       );
     }
 
@@ -261,6 +296,32 @@ export class MarketContractWrapper {
             stopEventWatcher()
               .then(function() {
                 return resolve(eventLog.args.filledQty);
+              })
+              .catch(reject);
+          }
+        });
+
+      const stopErrorEventWatcher = marketContract
+        .ErrorEvent({})
+        .watch({ fromBlock: blockNumber, toBlock: blockNumber }, (err, eventLog) => {
+          if (err) {
+            console.log(err);
+            reject(err);
+            return;
+          }
+
+          if (eventLog.transactionHash === txHash) {
+            stopErrorEventWatcher()
+              .then(stopEventWatcher)
+              .then(() => {
+                switch (eventLog.args.errorCode.toString()) {
+                  case MarketContractWrapper.ORDER_EXPIRED_CODE:
+                    return reject(new Error(MarketError.OrderExpired));
+                  case MarketContractWrapper.ORDER_DEAD_CODE:
+                    return reject(new Error(MarketError.OrderDead));
+                  default:
+                    return reject(new Error(MarketError.UnknownOrderError));
+                }
               })
               .catch(reject);
           }

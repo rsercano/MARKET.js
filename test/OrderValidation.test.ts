@@ -15,7 +15,7 @@ import {
 
 import { createSignedOrderAsync } from '../src/lib/Order';
 
-import { getContractAddress } from './utils';
+import { createEVMSnapshot, getContractAddress, restoreEVMSnapshot } from './utils';
 
 describe('Order Validation', async () => {
   let web3: Web3;
@@ -36,6 +36,7 @@ describe('Order Validation', async () => {
   let fees: BigNumber;
   let orderQty: BigNumber;
   let price: BigNumber;
+  let snapshotId: string;
 
   beforeAll(async () => {
     jest.setTimeout(30000);
@@ -75,6 +76,7 @@ describe('Order Validation', async () => {
   });
 
   beforeEach(async () => {
+    snapshotId = await createEVMSnapshot(web3);
     // Transfer initial credit amount of tokens to maker and deposit as collateral
     await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
     await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
@@ -84,23 +86,73 @@ describe('Order Validation', async () => {
   });
 
   afterEach(async () => {
-    // Clean up. Withdraw all maker's and taker's collateral.
-    let makerCollateral = await getUserAccountBalanceAsync(
+    await restoreEVMSnapshot(web3, snapshotId);
+  });
+
+  it('Checks if maker has approved enough fees', async () => {
+    const feeRecipient = web3.eth.accounts[5];
+    fees = new BigNumber(100);
+
+    // transfer enough MKT to maker for fees
+    await market.mktTokenContract.transferTx(maker, fees).send({ from: deploymentAddress });
+
+    const signedOrder = await createSignedOrderAsync(
       web3.currentProvider,
-      collateralPoolAddress,
-      maker
+      orderLibAddress,
+      contractAddress,
+      new BigNumber(Math.floor(Date.now() / 1000) + 60 * 60),
+      feeRecipient,
+      maker,
+      fees,
+      constants.NULL_ADDRESS,
+      fees,
+      orderQty,
+      price,
+      orderQty,
+      Utils.generatePseudoRandomSalt()
     );
-    let takerCollateral = await getUserAccountBalanceAsync(
+
+    await expect(
+      market.tradeOrderAsync(signedOrder, new BigNumber(2), {
+        from: taker,
+        gas: 400000
+      })
+    ).rejects.toThrow(new Error(MarketError.InsufficientAllowanceForTransfer));
+  });
+
+  it('Checks if taker has approved enough fees', async () => {
+    const feeRecipient = web3.eth.accounts[5];
+    fees = new BigNumber(100);
+
+    // transfer enough MKT to maker and takers for fees
+    await market.mktTokenContract.transferTx(maker, fees).send({ from: deploymentAddress });
+    await market.mktTokenContract.transferTx(taker, fees).send({ from: deploymentAddress });
+
+    // maker approves token for fees
+    await market.mktTokenContract.approveTx(feeRecipient, fees).send({ from: maker });
+
+    const signedOrder = await createSignedOrderAsync(
       web3.currentProvider,
-      collateralPoolAddress,
-      taker
+      orderLibAddress,
+      contractAddress,
+      new BigNumber(Math.floor(Date.now() / 1000) + 60 * 60),
+      feeRecipient,
+      maker,
+      fees,
+      constants.NULL_ADDRESS,
+      fees,
+      orderQty,
+      price,
+      orderQty,
+      Utils.generatePseudoRandomSalt()
     );
-    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, makerCollateral, {
-      from: maker
-    });
-    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, takerCollateral, {
-      from: taker
-    });
+
+    await expect(
+      market.tradeOrderAsync(signedOrder, new BigNumber(2), {
+        from: taker,
+        gas: 400000
+      })
+    ).rejects.toThrow(new Error(MarketError.InsufficientAllowanceForTransfer));
   });
 
   it('Checks sufficient collateral balances', async () => {
