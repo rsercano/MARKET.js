@@ -222,6 +222,14 @@ describe('Collateral', () => {
   });
 
   it('Ensure user has sufficient balance in the pool to withdraw', async () => {
-    // Try to withdraw more than a user has available.
+    // Create mock account (which by default won't have any balance),
+    // then attempt to make a withdraw which should throw InsufficientBalanceForTransfer.
+    const mockAccountAddress: string = web3.personal.newAccount('mockAccount');
+    const withdrawAmount: BigNumber = new BigNumber(100);
+    expect(
+      market.withdrawCollateralAsync(collateralPoolAddress, withdrawAmount, {
+        from: mockAccountAddress
+      })
+    ).rejects.toThrow(new Error(MarketError.InsufficientBalanceForTransfer));
   });
 });
