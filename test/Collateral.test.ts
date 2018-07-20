@@ -8,7 +8,7 @@ import { Market } from '../src';
 import { constants } from '../src/constants';
 
 import { getUserAccountBalanceAsync, settleAndCloseAsync } from '../src/lib/Collateral';
-import { MARKETProtocolConfig } from '../src/types';
+import { MarketError, MARKETProtocolConfig } from '../src/types';
 
 /**
  * Collateral
@@ -205,7 +205,15 @@ describe('Collateral', () => {
   });
 
   it('Ensure caller has sufficient ERC20 token balance to deposit', async () => {
-    // Burn all of a user's tokens and try to make a deposit.
+    // Create mock account (which by default won't have any balance),
+    // then attempt to make a deposit which should throw InsufficientBalanceForTransfer.
+    const mockAccountAddress: string = web3.personal.newAccount('mockAccount');
+    const depositAmount: BigNumber = new BigNumber(100);
+    expect(
+      market.depositCollateralAsync(collateralPoolAddress, collateralTokenAddress, depositAmount, {
+        from: mockAccountAddress
+      })
+    ).rejects.toThrow(new Error(MarketError.InsufficientBalanceForTransfer));
   });
 
   it('Ensure caller has approved deposit for sufficient amount', async () => {
