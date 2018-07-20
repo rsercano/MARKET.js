@@ -102,17 +102,7 @@ export async function createSignedOrderAsync(
   );
 
   const signedOrder: SignedOrder = {
-    contractAddress: contractAddress,
-    expirationTimestamp: expirationTimestamp,
-    feeRecipient: feeRecipient,
-    maker: maker,
-    makerFee: makerFee,
-    orderQty: orderQty,
-    price: price,
-    remainingQty: remainingQty,
-    salt: salt,
-    taker: taker,
-    takerFee: takerFee,
+    ...order,
     ecSignature: await signOrderHashAsync(provider, String(orderHash), maker)
   };
 
