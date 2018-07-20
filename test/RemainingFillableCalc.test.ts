@@ -7,12 +7,6 @@ import { MarketError } from '../src/types';
 import { Market, Utils } from '../src';
 import { constants } from '../src/constants';
 
-import {
-  depositCollateralAsync,
-  getUserAccountBalanceAsync,
-  withdrawCollateralAsync
-} from '../src/lib/Collateral';
-
 import { createOrderHashAsync, createSignedOrderAsync } from '../src/lib/Order';
 
 import { createEVMSnapshot, getContractAddress, restoreEVMSnapshot } from './utils';
@@ -65,17 +59,27 @@ describe('Remaining Fillable Calculator', async () => {
     await collateralToken
       .approveTx(collateralPoolAddress, initialCredit)
       .send({ from: makerAddress });
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
-      from: makerAddress
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      initialCredit,
+      {
+        from: makerAddress
+      }
+    );
 
     await collateralToken.transferTx(takerAddress, initialCredit).send({ from: deploymentAddress });
     await collateralToken
       .approveTx(collateralPoolAddress, initialCredit)
       .send({ from: takerAddress });
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
-      from: takerAddress
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      initialCredit,
+      {
+        from: takerAddress
+      }
+    );
   });
 
   afterEach(async () => {
@@ -133,9 +137,14 @@ describe('Remaining Fillable Calculator', async () => {
     await collateralToken
       .approveTx(collateralPoolAddress, neededCollateral)
       .send({ from: takerAddress });
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, neededCollateral, {
-      from: takerAddress
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      neededCollateral,
+      {
+        from: takerAddress
+      }
+    );
 
     expect(
       await market.getQtyFilledOrCancelledFromOrderAsync(contractAddress, orderHash.toString())
@@ -161,9 +170,14 @@ describe('Remaining Fillable Calculator', async () => {
     await collateralToken
       .approveTx(collateralPoolAddress, neededCollateral)
       .send({ from: makerAddress });
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, new BigNumber(6e22), {
-      from: makerAddress
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      new BigNumber(6e22),
+      {
+        from: makerAddress
+      }
+    );
 
     takerFillable = await calc.computeRemainingTakerFillable();
 
