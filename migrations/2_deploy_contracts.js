@@ -38,7 +38,7 @@ module.exports = function(deployer, network) {
         MarketContractOraclize,
         MarketContractFactory,
       );
-      
+
       deployer.link(
         MathLib,
         MarketCollateralPoolFactory
@@ -119,7 +119,7 @@ module.exports = function(deployer, network) {
                               .contractAddress;
                           return collateralPoolFactory.deployMarketCollateralPool(
                             marketContractDeployedAddress,
-                            { gas: 1800000 }
+                            { gas: 1900000 }
                           );
                         });
                     });
