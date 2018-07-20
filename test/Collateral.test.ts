@@ -202,7 +202,9 @@ describe('Collateral', () => {
   });
 
   it('Ensure user is enabled for contract', async () => {
-    // Todo: add user that isn't enabled and try to use contract.
+    // Not currently possible until there's a lock required for trading.
+    // Todo: add user (which by default won't have any market tokens locked)
+    // and attempt to deposit collateral.
   });
 
   it('Ensure caller has sufficient ERC20 token balance to deposit', async () => {
