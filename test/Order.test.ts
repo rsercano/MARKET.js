@@ -443,12 +443,22 @@ describe('Order', () => {
     await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
     await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: taker });
 
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
-      from: maker
-    });
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
-      from: taker
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      initialCredit,
+      {
+        from: maker
+      }
+    );
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      initialCredit,
+      {
+        from: taker
+      }
+    );
 
     const fees: BigNumber = new BigNumber(0);
     const orderQty: BigNumber = new BigNumber(2);
