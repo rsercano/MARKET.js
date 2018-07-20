@@ -3,19 +3,30 @@ import Web3 from 'web3';
 
 // Types
 import { Provider } from '@0xproject/types';
-import { ITxParams, MarketCollateralPool } from '@marketprotocol/types';
+import {
+  CollateralToken,
+  ITxParams,
+  MarketCollateralPool,
+  MarketToken
+} from '@marketprotocol/types';
+import { MarketError } from '../types';
+import { ERC20TokenContractWrapper } from '../contract_wrappers/ERC20TokenContractWrapper';
 
 /**
  * deposits collateral to a traders account for a given contract address.
  * @param {Provider} provider                       Web3 provider instance.
+ * @param {MarketToken} mktTokenContract            MarketToken contract
  * @param {string} collateralPoolContractAddress    address of the MarketCollateralPool
+ * @param {string} collateralTokenAddress           Address of the CollateralToken
  * @param {BigNumber | number} depositAmount        amount of ERC20 collateral to deposit
  * @param {ITxParams} txParams                      transaction parameters
  * @returns {Promise<boolean>} true if successful
  */
 export async function depositCollateralAsync(
   provider: Provider,
+  mktTokenContract: MarketToken,
   collateralPoolContractAddress: string,
+  collateralTokenAddress: string,
   depositAmount: BigNumber | number,
   txParams: ITxParams = {}
 ): Promise<boolean> {
@@ -26,7 +37,40 @@ export async function depositCollateralAsync(
     web3,
     collateralPoolContractAddress
   );
-  // note users must call ERC20 approve
+
+  const collateralToken: CollateralToken = new CollateralToken(web3, collateralTokenAddress);
+
+  // Ensure caller is enabled for contract
+  const caller: string = String(txParams.from);
+  const isUserEnabled = await mktTokenContract.isUserEnabledForContract(
+    mktTokenContract.address,
+    caller
+  );
+  if (!isUserEnabled) {
+    return Promise.reject<boolean>(new Error(MarketError.UserNotEnabledForContract));
+  }
+
+  // Ensure caller has sufficient collateral token balance
+  const erc20ContractWrapper: ERC20TokenContractWrapper = new ERC20TokenContractWrapper(web3);
+  const callerCollateralTokenBalance: BigNumber = new BigNumber(
+    await erc20ContractWrapper.getBalanceAsync(collateralToken.address, caller)
+  );
+  if (callerCollateralTokenBalance.isLessThan(depositAmount)) {
+    return Promise.reject<boolean>(new Error(MarketError.InsufficientBalanceForTransfer));
+  }
+
+  // Ensure caller has approved sufficient amount
+  const callerAllowance: BigNumber = new BigNumber(
+    await erc20ContractWrapper.getAllowanceAsync(
+      collateralToken.address,
+      caller,
+      collateralPool.address
+    )
+  );
+  if (callerAllowance.isLessThan(depositAmount)) {
+    return Promise.reject<boolean>(new Error(MarketError.InsufficientAllowanceForTransfer));
+  }
+
   await collateralPool.depositTokensForTradingTx(depositAmount).send(txParams);
   return true;
 }
@@ -107,6 +151,14 @@ export async function withdrawCollateralAsync(
     web3,
     collateralPoolContractAddress
   );
+
+  // Ensure caller has sufficient collateral pool balance
+  const caller: string = String(txParams.from);
+  const balance = new BigNumber(await collateralPool.getUserAccountBalance(caller));
+  if (balance.isLessThan(withdrawAmount)) {
+    return Promise.reject<boolean>(new Error(MarketError.InsufficientBalanceForTransfer));
+  }
+
   await collateralPool.withdrawTokensTx(withdrawAmount).send(txParams);
   return true;
 }

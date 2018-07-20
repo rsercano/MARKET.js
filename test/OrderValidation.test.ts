@@ -7,11 +7,7 @@ import { MarketError, MARKETProtocolConfig } from '../src/types';
 import { Market, Utils } from '../src';
 import { constants } from '../src/constants';
 
-import {
-  depositCollateralAsync,
-  getUserAccountBalanceAsync,
-  withdrawCollateralAsync
-} from '../src/lib/Collateral';
+import { getUserAccountBalanceAsync } from '../src/lib/Collateral';
 
 import { createSignedOrderAsync } from '../src/lib/Order';
 
@@ -67,10 +63,10 @@ describe('Order Validation', async () => {
       collateralPoolAddress,
       taker
     );
-    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, makerCollateral, {
+    await market.withdrawCollateralAsync(collateralPoolAddress, makerCollateral, {
       from: maker
     });
-    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, takerCollateral, {
+    await market.withdrawCollateralAsync(collateralPoolAddress, takerCollateral, {
       from: taker
     });
   });
@@ -80,9 +76,14 @@ describe('Order Validation', async () => {
     // Transfer initial credit amount of tokens to maker and deposit as collateral
     await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
     await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
-      from: maker
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      initialCredit,
+      {
+        from: maker
+      }
+    );
   });
 
   afterEach(async () => {
@@ -157,7 +158,7 @@ describe('Order Validation', async () => {
 
   it('Checks sufficient collateral balances', async () => {
     // Withdraw maker's collateral so that balance is not enough to trade
-    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
+    await market.withdrawCollateralAsync(collateralPoolAddress, initialCredit, {
       from: maker
     });
     fees = new BigNumber(0);
@@ -251,9 +252,14 @@ describe('Order Validation', async () => {
     fees = new BigNumber(0);
     await collateralToken.transferTx(taker, initialCredit).send({ from: deploymentAddress });
     await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: taker });
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
-      from: taker
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      initialCredit,
+      {
+        from: taker
+      }
+    );
     const signedOrder: SignedOrder = await createSignedOrderAsync(
       web3.currentProvider,
       orderLibAddress,

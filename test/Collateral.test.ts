@@ -2,18 +2,13 @@ import { BigNumber } from 'bignumber.js';
 import Web3 from 'web3';
 
 // Types
-import { MarketContract, MathLib } from '@marketprotocol/types';
+import { ERC20, MarketContract, MathLib } from '@marketprotocol/types';
 
 import { Market } from '../src';
 import { constants } from '../src/constants';
 
-import {
-  depositCollateralAsync,
-  getUserAccountBalanceAsync,
-  settleAndCloseAsync,
-  withdrawCollateralAsync
-} from '../src/lib/Collateral';
-import { MARKETProtocolConfig } from '../src/types';
+import { getUserAccountBalanceAsync, settleAndCloseAsync } from '../src/lib/Collateral';
+import { MarketError, MARKETProtocolConfig } from '../src/types';
 
 /**
  * Collateral
@@ -21,6 +16,7 @@ import { MARKETProtocolConfig } from '../src/types';
 describe('Collateral', () => {
   const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:9545'));
   let maker: string;
+  let deploymentAddress: string;
   let contractAddresses: string[];
   let marketContractAddress: string;
   let deployedMarketContract: MarketContract;
@@ -29,7 +25,7 @@ describe('Collateral', () => {
   let market: Market;
 
   beforeAll(async () => {
-    maker = web3.eth.accounts[0];
+    maker = deploymentAddress = web3.eth.accounts[0];
     const config: MARKETProtocolConfig = {
       networkId: constants.NETWORK_ID_TRUFFLE
     };
@@ -67,7 +63,7 @@ describe('Collateral', () => {
     );
 
     await expect(
-      depositCollateralAsync(web3.currentProvider, collateralPoolAddress, depositAmount, {
+      market.depositCollateralAsync(collateralPoolAddress, collateralTokenAddress, depositAmount, {
         from: maker
       })
     ).rejects.toThrow();
@@ -87,9 +83,12 @@ describe('Collateral', () => {
       collateralPoolAddress
     );
 
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, depositAmount, {
-      from: maker
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      depositAmount,
+      { from: maker }
+    );
 
     const newBalance: BigNumber = await market.erc20TokenContractWrapper.getBalanceAsync(
       collateralTokenAddress,
@@ -107,9 +106,12 @@ describe('Collateral', () => {
     );
 
     const depositAmount: BigNumber = new BigNumber(100);
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, depositAmount, {
-      from: maker
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      depositAmount,
+      { from: maker }
+    );
     const newUserBalance: BigNumber = await getUserAccountBalanceAsync(
       web3.currentProvider,
       collateralPoolAddress,
@@ -121,16 +123,19 @@ describe('Collateral', () => {
   it('withdrawCollateralAsync should withdraw correct amount', async () => {
     const withdrawAmount: BigNumber = new BigNumber(10);
     const depositAmount: BigNumber = new BigNumber(100);
-    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, depositAmount, {
-      from: maker
-    });
+    await market.depositCollateralAsync(
+      collateralPoolAddress,
+      collateralTokenAddress,
+      depositAmount,
+      { from: maker }
+    );
 
     const oldBalance: BigNumber = await market.erc20TokenContractWrapper.getBalanceAsync(
       collateralTokenAddress,
       maker
     );
 
-    await withdrawCollateralAsync(web3.currentProvider, collateralPoolAddress, withdrawAmount, {
+    await market.withdrawCollateralAsync(collateralPoolAddress, withdrawAmount, {
       from: maker
     });
     const newBalance: BigNumber = await market.erc20TokenContractWrapper.getBalanceAsync(
@@ -194,5 +199,53 @@ describe('Collateral', () => {
     );
 
     expect(shortCalculatedCollateral).toEqual(solidityShortCalculatedCollateral);
+  });
+
+  it('Ensure user is enabled for contract', async () => {
+    // Not currently possible until there's a lock required for trading.
+    // Todo: add user (which by default won't have any market tokens locked)
+    // and attempt to deposit collateral.
+  });
+
+  it('Ensure caller has sufficient ERC20 token balance to deposit', async () => {
+    // Create mock account (which by default won't have any balance),
+    // then attempt to make a deposit which should throw InsufficientBalanceForTransfer.
+    const mockAccountAddress: string = web3.personal.newAccount('mockAccount');
+    const depositAmount: BigNumber = new BigNumber(100);
+    expect(
+      market.depositCollateralAsync(collateralPoolAddress, collateralTokenAddress, depositAmount, {
+        from: mockAccountAddress
+      })
+    ).rejects.toThrow(new Error(MarketError.InsufficientBalanceForTransfer));
+  });
+
+  it('Ensure caller has approved deposit for sufficient amount', async () => {
+    // Use user account (which by default won't have any balance or allowance),
+    // send the user a balance but don't approve the transaction,
+    // then try to make a deposit which should throw InsufficientAllowanceForTransfer.
+
+    const user = web3.eth.accounts[1];
+    const collateralToken: ERC20 = await ERC20.createAndValidate(web3, collateralTokenAddress);
+    const initialCredit: BigNumber = new BigNumber(1e23);
+
+    await collateralToken.transferTx(user, initialCredit).send({ from: deploymentAddress });
+
+    expect(
+      market.depositCollateralAsync(collateralPoolAddress, collateralTokenAddress, initialCredit, {
+        from: user
+      })
+    ).rejects.toThrow(new Error(MarketError.InsufficientAllowanceForTransfer));
+  });
+
+  it('Ensure user has sufficient balance in the pool to withdraw', async () => {
+    // Create mock account (which by default won't have any balance),
+    // then attempt to make a withdraw which should throw InsufficientBalanceForTransfer.
+    const mockAccountAddress: string = web3.personal.newAccount('mockAccount');
+    const withdrawAmount: BigNumber = new BigNumber(100);
+    expect(
+      market.withdrawCollateralAsync(collateralPoolAddress, withdrawAmount, {
+        from: mockAccountAddress
+      })
+    ).rejects.toThrow(new Error(MarketError.InsufficientBalanceForTransfer));
   });
 });
