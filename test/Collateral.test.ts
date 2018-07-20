@@ -2,7 +2,7 @@ import { BigNumber } from 'bignumber.js';
 import Web3 from 'web3';
 
 // Types
-import { MarketContract, MathLib } from '@marketprotocol/types';
+import { ERC20, MarketContract, MathLib } from '@marketprotocol/types';
 
 import { Market } from '../src';
 import { constants } from '../src/constants';
@@ -16,6 +16,7 @@ import { MarketError, MARKETProtocolConfig } from '../src/types';
 describe('Collateral', () => {
   const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:9545'));
   let maker: string;
+  let deploymentAddress: string;
   let contractAddresses: string[];
   let marketContractAddress: string;
   let deployedMarketContract: MarketContract;
@@ -24,7 +25,7 @@ describe('Collateral', () => {
   let market: Market;
 
   beforeAll(async () => {
-    maker = web3.eth.accounts[0];
+    maker = deploymentAddress = web3.eth.accounts[0];
     const config: MARKETProtocolConfig = {
       networkId: constants.NETWORK_ID_TRUFFLE
     };
@@ -201,7 +202,7 @@ describe('Collateral', () => {
   });
 
   it('Ensure user is enabled for contract', async () => {
-    // Add user that isn't enabled and try to use contract.
+    // Todo: add user that isn't enabled and try to use contract.
   });
 
   it('Ensure caller has sufficient ERC20 token balance to deposit', async () => {
@@ -217,8 +218,21 @@ describe('Collateral', () => {
   });
 
   it('Ensure caller has approved deposit for sufficient amount', async () => {
-    // Get the allowance of a user with deposited funds.
-    // Approve allowance and make sure it's available.
+    // Use user account (which by default won't have any balance or allowance),
+    // send the user a balance but don't approve the transaction,
+    // then try to make a deposit which should throw InsufficientAllowanceForTransfer.
+
+    const user = web3.eth.accounts[1];
+    const collateralToken: ERC20 = await ERC20.createAndValidate(web3, collateralTokenAddress);
+    const initialCredit: BigNumber = new BigNumber(1e23);
+
+    await collateralToken.transferTx(user, initialCredit).send({ from: deploymentAddress });
+
+    expect(
+      market.depositCollateralAsync(collateralPoolAddress, collateralTokenAddress, initialCredit, {
+        from: user
+      })
+    ).rejects.toThrow(new Error(MarketError.InsufficientAllowanceForTransfer));
   });
 
   it('Ensure user has sufficient balance in the pool to withdraw', async () => {
